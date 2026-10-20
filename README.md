@@ -28,12 +28,14 @@
 
 | 平台 | 安装包名称 | 文件大小 | 适用设备与特性 | 直接下载链接 |
 | :--- | :--- | :--- | :--- | :--- |
+| 💻 **Windows 原生版** | `zhiwei-notebook-v1.4-windows.exe` | ~2.0 MB | **Windows 独立原生桌面软件**（双击即开、高分辨率图标、极速启动） | [点击下载 EXE](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-windows.exe) |
+| 💻 **Windows 便携版** | `zhiwei-notebook-v1.4-windows-portable.zip` | ~1.2 MB | Windows 绿色免安装压缩包 | [点击下载 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-windows-portable.zip) |
 | 🤖 **Android** | `zhiwei-notebook-v1.4-android-pure.apk` | ~3.98 MB | 安卓手机 / 安卓平板（全新竖屏适配、相册录题、防误触） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-android-pure.apk) |
 | 🤖 **Android** | `zhiwei-notebook-v1.4-android-clear.apk` | ~3.98 MB | 模块边界清晰强化版，适合深浅主题切换 | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-android-clear.apk) |
 | 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.4-ipad.ipa` | ~3.45 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-ipad.ipa) |
 | 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.4-ios-xcode-project.zip` | ~926 KB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-ios-xcode-project.zip) |
 | 🌐 **iPad / PC 极速版** | `启动iPad局域网极速连接.bat` | 脚本文件 | **免安装、免证书、永不过期**。iPad Safari 添加到主屏幕秒变全屏桌面 App | [查看使用步骤](#-方案二ipad-专属-pwa-桌面原生体验免签名) |
-| 💻 **Windows 桌面端** | `启动错题本.bat` | 脚本文件 | Windows 电脑双击即开，搭配本地 Node.js 极速做题 | [查看运行方法](#-windows-桌面端使用指南) |
+| 💻 **本地运行脚本** | `启动错题本.bat` | 脚本文件 | 双击脚本即开，搭配本地 Node.js 极速做题 | [查看运行方法](#-windows-桌面端使用指南) |
 
 ---
 
@@ -125,10 +127,14 @@
 
 ### 💻 Windows 桌面端使用指南
 
-#### 方式一：一键双击启动
+#### 方式一：直接运行 Windows 单文件版 EXE（最推荐 ⭐）
+1. 下载 [**`zhiwei-notebook-v1.4-windows.exe`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-windows.exe)（或下载绿色便携版 ZIP 解压）；
+2. 直接双击打开即可运行！无需安装任何额外环境，独立桌面窗口、无浏览器地址栏干扰，内嵌高精度手写与本地数据引擎。
+
+#### 方式二：一键批处理脚本启动
 直接双击项目根目录下的 **`启动错题本.bat`**，系统将自动拉起本地数据存储服务与浏览器前端界面！
 
-#### 方式二：开发者命令行启动
+#### 方式三：开发者命令行启动
 ```bash
 # 1. 克隆代码仓库
 git clone https://github.com/xuewexin/zhiwei-notebook.git
@@ -153,7 +159,10 @@ npm run build
 ├── Web / UI 层: React 19 + TypeScript + Vite + TailwindCSS 4
 ├── 数学与代码引擎: KaTeX + PrismJS + Marked
 ├── 手写笔迹引擎: PointerEvent + Pressure Sensitivity + Palm Rejection
-├── 跨端原生容器: Capacitor 8 (Android SDK 34 / iOS SDK 17+ Swift Package Manager)
+├── 跨端原生容器: 
+│   ├── Windows 桌面端: .NET 9 + Microsoft Edge WebView2 (单文件独立打包)
+│   ├── Android 移动端: Capacitor 8 (Android SDK 34)
+│   └── iPadOS 平板端: Capacitor 8 (iOS SDK 17+ Swift Package Manager)
 ├── 数据持久化: 
 │   ├── Client 模式: IndexedDB / LocalStorage (纯本地秒级缓存)
 │   ├── Server 模式: Express + Node.js (本地磁盘文件持久化)

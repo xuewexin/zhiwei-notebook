@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <AssemblyName>知微错题本</AssemblyName>
+    <RootNamespace>ZhiWeiNote</RootNamespace>
+    <Version>1.4.0</Version>
+    <Authors>xuewexin</Authors>
+    <Company>知微工作室</Company>
+    <Product>知微错题本 (ZhiWei Note)</Product>
+    <Description>跨平台本地优先智能错题管理与深度复盘系统</Description>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <SelfContained>false</SelfContained>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+    <EmbeddedResource Include="dist.zip" />
+  </ItemGroup>
+</Project>

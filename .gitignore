@@ -5,6 +5,13 @@ build/
 *.apk
 *.ipa
 *.zip
+*.exe
+
+# Windows App
+windows-app/bin/
+windows-app/obj/
+windows-app/release-*/
+windows-app/dist.zip
 
 # Android
 android/.gradle
