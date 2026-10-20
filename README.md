@@ -37,23 +37,30 @@
 
 ---
 
-## 🖼️ 界面展示与视觉效果
+## 🖼️ 真实界面展示 (UI Showcase)
 
 <div align="center">
 
 ### 💻 宽屏桌面端与 iPad 平板大屏视图
-*拟物化 GoodNotes 学科封面、多级目录折叠导航、LaTeX 数学公式与做题历程分区*
+*高颜值拟物化 GoodNotes 学科封面、多级目录折叠导航、搜索与 Git 状态面板*
 
-<img src="docs/images/desktop-preview.png" alt="知微错题本桌面与平板视图" width="95%" style="border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px;" />
+<img src="docs/images/desktop-showcase.png" alt="知微错题本桌面与平板视图" width="95%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 24px;" />
 
 <br/>
 
-### 📱 移动端与竖屏触控专属视图
-*左图：学科文件夹拟物磁贴与掌握率进度环 ｜ 右图：错题解析、多模态笔记与 Apple Pencil 触控演算草稿*
+### 📖 错题精细研读与多模态复盘视图
+*标准解析折叠防剧透、LaTeX 数学公式渲染、历次演练做题记录与心得推导*
+
+<img src="docs/images/desktop-detail-view.png" alt="知微错题本错题精细研读视图" width="95%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 24px;" />
+
+<br/>
+
+### 📱 移动端与手机竖屏触控专属设计
+*左图：真机实测竖屏界面（清新圆角卡片、无刷新新建分类、底部沉浸式导航） ｜ 右图：移动端学科分类流与响应式排版*
 
 <p>
-  <img src="docs/images/mobile-home.png" alt="手机端首页与学科分类" width="46%" style="border-radius: 14px; border: 1px solid #e2e8f0; margin-right: 12px;" />
-  <img src="docs/images/mobile-preview.jpg" alt="手机端做题与手写演算" width="46%" style="border-radius: 14px; border: 1px solid #e2e8f0;" />
+  <img src="docs/images/mobile-clean.jpg" alt="手机端真机竖屏界面" width="46%" style="border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,0.1); margin-right: 14px;" />
+  <img src="docs/images/mobile-showcase.png" alt="手机端学科分类视图" width="46%" style="border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,0.1);" />
 </p>
 
 </div>
