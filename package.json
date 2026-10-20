@@ -20,9 +20,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@capacitor/app": "^8.1.2",
     "@capacitor/ios": "^8.5.3",
-    "@capacitor/status-bar": "^8.0.4",
     "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-react": "^6.1.2",
     "autoprefixer": "^10.6.1",
