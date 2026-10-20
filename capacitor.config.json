@@ -1,0 +1,14 @@
+{
+  "appId": "com.zhiwei.notebook",
+  "appName": "知微错题本",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": false,
+    "webContentsDebuggingEnabled": true
+  }
+}

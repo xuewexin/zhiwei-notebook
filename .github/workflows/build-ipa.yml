@@ -1,0 +1,61 @@
+name: Build iPad / iOS IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-ios:
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Web Dist
+        run: npm run build
+
+      - name: Sync Capacitor iOS
+        run: |
+          npx cap add ios || true
+          npx cap sync ios
+
+      - name: Build Xcode App (unsigned)
+        run: |
+          cd ios/App
+          xcodebuild -project App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath derived_data \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_STYLE=Manual \
+            build
+
+      - name: Package Payload to IPA
+        run: |
+          mkdir -p build/Payload
+          APP_PATH=$(find ios/App/derived_data/Build/Products -name "*.app" -type d | head -n 1)
+          echo "Found app at: $APP_PATH"
+          cp -r "$APP_PATH" build/Payload/
+          cd build
+          zip -r "知微错题本_iPad_v1.4.ipa" Payload
+          ls -lh "知微错题本_iPad_v1.4.ipa"
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 知微错题本_iPad_v1.4_IPA
+          path: build/知微错题本_iPad_v1.4.ipa
+          retention-days: 30

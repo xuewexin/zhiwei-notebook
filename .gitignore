@@ -1,0 +1,30 @@
+data/
+node_modules/
+dist/
+build/
+*.apk
+*.ipa
+*.zip
+
+# Android
+android/.gradle
+android/app/build
+android/build
+android/captures
+android/local.properties
+.gradle/
+
+# iOS
+ios/App/derived_data
+ios/App/build
+ios/App/Pods
+ios/App/.build
+*.xcuserdata
+*.xcworkspace
+!ios/App/App.xcodeproj/project.xcworkspace
+
+# System & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
