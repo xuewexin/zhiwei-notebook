@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { App as CapApp } from '@capacitor/app';
-import { StatusBar, Style } from '@capacitor/status-bar';
+const CapApp = typeof window !== 'undefined' ? (window as any).Capacitor?.Plugins?.App : null;
+const StatusBar = typeof window !== 'undefined' ? (window as any).Capacitor?.Plugins?.StatusBar : null;
 import { 
   Search, 
   Plus, 
@@ -77,9 +77,11 @@ export const App: React.FC = () => {
   // 1. Android Status Bar Theme Adaptation (white background with notch inset handling)
   useEffect(() => {
     try {
-      StatusBar.setStyle({ style: Style.Light });
-      StatusBar.setBackgroundColor({ color: '#ffffff' });
-      StatusBar.setOverlaysWebView({ overlay: true });
+      if (StatusBar) {
+        StatusBar.setStyle?.({ style: 'LIGHT' });
+        StatusBar.setBackgroundColor?.({ color: '#ffffff' });
+        StatusBar.setOverlaysWebView?.({ overlay: true });
+      }
     } catch (e) {
       // Ignored outside native container
     }
@@ -90,7 +92,8 @@ export const App: React.FC = () => {
     let backHandler: any;
     let lastBackPress = 0;
     try {
-      backHandler = CapApp.addListener('backButton', () => {
+      if (CapApp?.addListener) {
+        backHandler = CapApp.addListener('backButton', () => {
         // Priority 1: Close lightbox image viewer
         if (viewerImageUrl) {
           setViewerImageUrl(null);
@@ -135,14 +138,15 @@ export const App: React.FC = () => {
         // Priority 7: Exit App at root - require double tap within 2000ms
         const now = Date.now();
         if (now - lastBackPress < 2000) {
-          CapApp.exitApp();
+          CapApp?.exitApp?.();
         } else {
           lastBackPress = now;
           setSyncNotice('再按一次返回键退出知微错题本');
           setTimeout(() => setSyncNotice(null), 2000);
         }
       });
-    } catch (err) {
+    }
+  } catch (err) {
       // Ignored outside native container
     }
 
