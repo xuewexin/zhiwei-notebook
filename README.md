@@ -28,10 +28,10 @@
 
 | 平台 | 安装包名称 | 文件大小 | 适用设备与特性 | 直接下载链接 |
 | :--- | :--- | :--- | :--- | :--- |
-| 🤖 **Android** | `知微错题本_v1.4_纯净版.apk` | ~3.98 MB | 安卓手机 / 安卓平板（全新竖屏适配、相册录题、防误触） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/%E7%9F%A5%E5%BE%AE%E9%94%99%E9%A2%98%E6%9C%AC_v1.4_%E7%BA%AF%E5%87%80%E7%89%88.apk) |
-| 🤖 **Android** | `知微错题本_v1.4_清晰排版版.apk` | ~3.98 MB | 模块边界清晰强化版，适合深浅主题切换 | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/%E7%9F%A5%E5%BE%AE%E9%94%99%E9%A2%98%E6%9C%AC_v1.4_%E6%B8%85%E6%99%B0%E6%8E%92%E7%89%88%E7%89%88.apk) |
-| 🍎 **iPadOS / iOS** | `知微错题本_iPad_v1.4.ipa` | ~3.45 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/%E7%9F%A5%E5%BE%AE%E9%94%99%E9%A2%98%E6%9C%AC_iPad_v1.4.ipa) |
-| 🍎 **iPad 原生工程** | `知微错题本_iPadOS_Xcode原生工程.zip` | ~926 KB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/%E7%9F%A5%E5%BE%AE%E9%94%99%E9%A2%98%E6%9C%AC_iPadOS_Xcode%E5%8E%9F%E7%94%9F%E5%B7%A5%E7%A8%8B.zip) |
+| 🤖 **Android** | `zhiwei-notebook-v1.4-android-pure.apk` | ~3.98 MB | 安卓手机 / 安卓平板（全新竖屏适配、相册录题、防误触） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-android-pure.apk) |
+| 🤖 **Android** | `zhiwei-notebook-v1.4-android-clear.apk` | ~3.98 MB | 模块边界清晰强化版，适合深浅主题切换 | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-android-clear.apk) |
+| 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.4-ipad.ipa` | ~3.45 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-ipad.ipa) |
+| 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.4-ios-xcode-project.zip` | ~926 KB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-ios-xcode-project.zip) |
 | 🌐 **iPad / PC 极速版** | `启动iPad局域网极速连接.bat` | 脚本文件 | **免安装、免证书、永不过期**。iPad Safari 添加到主屏幕秒变全屏桌面 App | [查看使用步骤](#-方案二ipad-专属-pwa-桌面原生体验免签名) |
 | 💻 **Windows 桌面端** | `启动错题本.bat` | 脚本文件 | Windows 电脑双击即开，搭配本地 Node.js 极速做题 | [查看运行方法](#-windows-桌面端使用指南) |
 
