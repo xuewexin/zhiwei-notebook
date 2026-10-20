@@ -1,88 +1,161 @@
-# 错题本 (Mistake Notebook) - 三端互通智能错题管理与复盘系统
+<div align="center">
 
-一款**本地优先 (Local-First)**、具备 **GoodNotes 文件夹层级分类**、支持 **多次做题分区 (第1次做、第2次做...)**、**3种心得笔记模式 (纯文本 / Markdown公式 / 代码块)** 以及 **Git 自动定时同步 (支持 GitHub / Gitee，默认每10分钟自动拉取)** 的错题攻克利器。
+  <img src="docs/images/app-icon.jpg" alt="知微错题本 App Icon" width="128" height="128" style="border-radius: 26px; box-shadow: 0 12px 28px rgba(37,99,235,0.25);" />
 
----
+  # 知微错题本 (ZhiWei Note)
+  
+  **见微知著 · 省思改错 · 本地优先 · 三端互通**
 
-## 🌟 核心特色与功能
+  一款专为学生、考研与考公党、程序员打造的**跨平台本地优先（Local-First）智能错题管理与深度复盘系统**。<br/>
+  融合 **GoodNotes 拟物层级分类**、**Apple Pencil 压感手写草稿演练**、**多次做题历程分区**、**LaTeX 公式 / 代码块多模态笔记** 及 **Git 无服务器多端云同步**。
 
-1. **GoodNotes 风格多级文件夹分类**
-   - 支持一级科目分类（如：数学、英语、物理、计算机/算法）。
-   - 支持无限层级子分类（如：数学 ➔ 函数与导数、圆锥曲线；英语 ➔ 定语从句与时态）。
-   - 精美拟物化封面色板、科目图标与掌握率进度条。
-   - 快捷面包屑导航，随时在科目与子分类间跳转。
+  <p>
+    <a href="https://github.com/xuewexin/zhiwei-notebook/releases/latest"><img src="https://img.shields.io/badge/Release-v1.4.0-blue.svg?style=flat-square" alt="Version"></a>
+    <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iPadOS%20%7C%20Windows%20%7C%20PWA-indigo.svg?style=flat-square" alt="Platform">
+    <img src="https://img.shields.io/badge/Frontend-React%2019%20%2B%20Vite%20%2B%20TailwindCSS-teal.svg?style=flat-square" alt="Stack">
+    <img src="https://img.shields.io/badge/Runtime-Capacitor%208-orange.svg?style=flat-square" alt="Capacitor">
+    <img src="https://img.shields.io/badge/Math-KaTeX-pink.svg?style=flat-square" alt="KaTeX">
+    <img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License">
+  </p>
 
-2. **多形态错题录入**
-   - **拍照/截图录入**：支持本地图片选择、拖拽，更支持在录入窗口直接按 **`Ctrl + V`** 粘贴剪贴板截图（做题、刷题截屏极速录入）。
-   - **文本/公式录入**：支持 Markdown 排版与 LaTeX 数学公式（`$f(x)=e^x$`、`$$\int_0^1 x dx$$`）。
-   - 难度星级评定（1~5星）、知识点标签、题目来源（如：2026高考一模）。
-   - 标准解答/官方解析参考（可折叠隐藏，避免提前剧透）。
-
-3. **题目写题心得 (支持 3 种编辑模式)**
-   - 📝 **纯文本模式**：极简无干扰记录初次做题感受。
-   - 📖 **Markdown 模式**：内置快捷工具栏、分屏/预览、**KaTeX 数学公式实时渲染**。
-   - 💻 **代码块模式**：支持 Python、C++、Java、JS、SQL 等十余种语言语法高亮与行号统计。
-   - 错因速选标签：审题失误、知识盲区、公式遗忘、计算失误、思维定势、分类讨论不全。
-
-4. **做题历程分区 (第1次做、第2次做、第3次做...)**
-   - 针对每道题可创建多次演练分区。
-   - 记录每次演练的：做题结果（做对了 / 步骤分 / 做错了）、耗时分钟数。
-   - 上传每次做题的手写草稿照片或演算推导过程。
-   - 记录每次演练的心得体会（同样全功能支持 **纯文本 / MD公式 / 代码块** 三种模式）。
-   - 掌握度状态机联动（未掌握 ➔ 攻克复盘中 ➔ 已完全掌握）。
-
-5. **本地存储 + Git 云端互通 (GitHub / Gitee)**
-   - **数据 100% 本地所有**：所有分类、题目数据及图片保存在 `data/` 目录下，断网亦可全功能使用。
-   - **Git 云端同步中心**：
-     - 支持配置 Gitee (国内推荐，免代理)、GitHub 或自建 Git 仓库。
-     - **每 10 分钟后台自动拉取 (Auto Pull)** 远程更新，并提供下次拉取倒计时。
-     - 支持手动「立即拉取」、「立即推送」、「双向全量同步」。
-     - 完整显示提交历史、最近 50 条操作日志。
+</div>
 
 ---
 
-## 🚀 Windows 端启动指南
+## 📥 最新版本极速下载 (v1.4.0)
 
-### 方式一：直接双击启动（最便捷）
-在项目根目录中，双击运行 **`启动错题本.bat`** 即可自动启动本地服务并打开浏览器！
+本项目提供全平台打包好的纯净安装包，无任何强制联网、无广告，下载即用：
 
-### 方式二：命令行启动
+| 平台 | 安装包名称 | 文件大小 | 适用设备与特性 | 直接下载链接 |
+| :--- | :--- | :--- | :--- | :--- |
+| 🤖 **Android** | `知微错题本_v1.4_纯净版.apk` | ~3.98 MB | 安卓手机 / 安卓平板（全新竖屏适配、相册录题、防误触） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/%E7%9F%A5%E5%BE%AE%E9%94%99%E9%A2%98%E6%9C%AC_v1.4_%E7%BA%AF%E5%87%80%E7%89%88.apk) |
+| 🤖 **Android** | `知微错题本_v1.4_清晰排版版.apk` | ~3.98 MB | 模块边界清晰强化版，适合深浅主题切换 | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/%E7%9F%A5%E5%BE%AE%E9%94%99%E9%A2%98%E6%9C%AC_v1.4_%E6%B8%85%E6%99%B0%E6%8E%92%E7%89%88%E7%89%88.apk) |
+| 🍎 **iPadOS / iOS** | `知微错题本_iPad_v1.4.ipa` | ~3.45 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/%E7%9F%A5%E5%BE%AE%E9%94%99%E9%A2%98%E6%9C%AC_iPad_v1.4.ipa) |
+| 🍎 **iPad 原生工程** | `知微错题本_iPadOS_Xcode原生工程.zip` | ~926 KB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/%E7%9F%A5%E5%BE%AE%E9%94%99%E9%A2%98%E6%9C%AC_iPadOS_Xcode%E5%8E%9F%E7%94%9F%E5%B7%A5%E7%A8%8B.zip) |
+| 🌐 **iPad / PC 极速版** | `启动iPad局域网极速连接.bat` | 脚本文件 | **免安装、免证书、永不过期**。iPad Safari 添加到主屏幕秒变全屏桌面 App | [查看使用步骤](#-方案二ipad-专属-pwa-桌面原生体验免签名) |
+| 💻 **Windows 桌面端** | `启动错题本.bat` | 脚本文件 | Windows 电脑双击即开，搭配本地 Node.js 极速做题 | [查看运行方法](#-windows-桌面端使用指南) |
+
+---
+
+## 🖼️ 界面展示与视觉效果
+
+<div align="center">
+
+### 💻 宽屏桌面端与 iPad 平板大屏视图
+*拟物化 GoodNotes 学科封面、多级目录折叠导航、LaTeX 数学公式与做题历程分区*
+
+<img src="docs/images/desktop-preview.png" alt="知微错题本桌面与平板视图" width="95%" style="border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px;" />
+
+<br/>
+
+### 📱 移动端与竖屏触控专属视图
+*左图：学科文件夹拟物磁贴与掌握率进度环 ｜ 右图：错题解析、多模态笔记与 Apple Pencil 触控演算草稿*
+
+<p>
+  <img src="docs/images/mobile-home.png" alt="手机端首页与学科分类" width="46%" style="border-radius: 14px; border: 1px solid #e2e8f0; margin-right: 12px;" />
+  <img src="docs/images/mobile-preview.jpg" alt="手机端做题与手写演算" width="46%" style="border-radius: 14px; border: 1px solid #e2e8f0;" />
+</p>
+
+</div>
+
+---
+
+## 🌟 核心特色与功能深度剖析
+
+### 1. 📂 GoodNotes 拟物化层级分类
+* **多级学科与知识点归类**：自由创建一级科目（数学、物理、英语、算法等）以及无限层级子分类（例如：`数学 ➔ 函数与导数 ➔ 极值点偏移`）。
+* **拟物化封面色板**：支持 8 种高雅莫兰迪色系、个性化科目图标与掌握率环形进度条。
+* **无刷新流畅交互**：创建与编辑分类自由输入名称，绝无刷新丢字或位置错位烦恼。
+
+### 2. ✍️ Apple Pencil 触控手写画板 (草稿演练与订正推导)
+* **真实压感笔迹**：深度基于 PointerEvent 硬件压感引擎，支持 Apple Pencil 细致轻重顿笔。
+* **手掌防误触 (Pen Only)**：开启后仅响应手写笔触，手掌贴在屏幕上演算也不会发生误涂或页面拖动。
+* **多页草稿连载**：一键添加草稿页，快速保存并直接归档进当次做题记录。
+
+### 3. 📝 三模态错题心得笔记
+* 📝 **纯文本极简模式**：无干扰沉浸记录第一感觉与考场心理。
+* 📖 **Markdown + LaTeX 公式模式**：内置常用公式符号栏，全面支持 行内公式（`$f'(x_0) = 0$`）与 块级公式（`$$\int_a^b f(x)dx$$`）秒级渲染。
+* 💻 **代码块模式**：支持 Python、C++、Java、JS、Rust、SQL 等十余种语言高亮显示与行号统计。
+* 🏷️ **错因速选标签**：审题失误、知识盲区、公式遗忘、计算失误、思维定势、分类讨论不全。
+
+### 4. 🔄 做题历程分区 (第1次做、第2次做、第3次做...)
+* 针对同一道难题建立多次复盘演练时间轴。
+* 详细记录：**做题结果（完全做对 / 步骤得分 / 依然做错）**、**做题耗时（分钟）**、**演算推导草稿图**、**阶段反思笔记**。
+* 联动掌握度状态机：`未掌握 ➔ 攻克复盘中 ➔ 已完全掌握`。
+
+### 5. ☁️ 本地优先 + Git 无服务器多端云同步
+* **数据 100% 属于你**：纯本地模式下所有数据存储在 IndexedDB 或本地 `data/` 目录中，即使完全断网也能秒开使用。
+* **三端互通**：支持配置 Gitee (国内极速免代理) 或 GitHub 私有仓库，通过 Git 协议实现 Android、iPadOS 与 Windows 双向无缝同步，无需任何中心化收费服务器！
+
+---
+
+## 🚀 各端使用与安装教程
+
+### 🤖 Android 安卓端安装
+1. 在 Android 设备上下载 [**`知微错题本_v1.4_纯净版.apk`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/%E7%9F%A5%E5%BE%AE%E9%94%99%E9%A2%98%E6%9C%AC_v1.4_%E7%BA%AF%E5%87%80%E7%89%88.apk)。
+2. 点击安装文件，允许「允许安装未知来源应用」。
+3. 安装完成后打开，即可享受专门为手机端适配的抽屉侧边栏、相机扫题与双击返回防误触体验。
+
+---
+
+### 🍎 iPadOS / iOS 端安装
+
+#### 方案一：使用爱思助手安装原生 `.ipa`（最推荐）
+1. 下载 [**`知微错题本_iPad_v1.4.ipa`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/%E7%9F%A5%E5%BE%AE%E9%94%99%E9%A2%98%E6%9C%AC_iPad_v1.4.ipa) 到电脑；
+2. 用数据线连接 iPad 到电脑，打开电脑端「爱思助手」；
+3. 进入 **「工具箱」➔「IPA 签名」**，导入下载好的 `.ipa` 文件；
+4. 选择 **「使用 Apple ID 签名」**，输入你自己的 Apple ID 即可免费签名并安装到 iPad；
+5. 首次在 iPad 上打开时，进入「设置」➔「通用」➔「VPN 与设备管理」中点击「信任开发者证书」即可畅享！
+
+#### 方案二：iPad 专属 PWA 桌面原生体验（免签名、永不过期）
+1. 确保电脑与 iPad 连接在同一个 Wi-Fi 局域网下；
+2. 电脑双击运行根目录下的 `启动iPad局域网极速连接.bat`；
+3. 控制台会显示局域网访问地址（例如 `http://192.168.1.xxx:5173`）；
+4. iPad 打开 Safari 访问该地址，点击右上角 **「分享」按钮 ➔「添加到主屏幕」**；
+5. iPad 桌面自动生成专属高清图标，点击即可 100% 全屏独立运行，完美支持 Apple Pencil 压感手写与离线使用！
+
+---
+
+### 💻 Windows 桌面端使用指南
+
+#### 方式一：一键双击启动
+直接双击项目根目录下的 **`启动错题本.bat`**，系统将自动拉起本地数据存储服务与浏览器前端界面！
+
+#### 方式二：开发者命令行启动
 ```bash
-# 启动本地服务与前端界面 (自动打开 http://localhost:5173)
-npm run dev
-```
+# 1. 克隆代码仓库
+git clone https://github.com/xuewexin/zhiwei-notebook.git
+cd zhiwei-notebook
 
-启动后：
-- 前端交互界面：`http://localhost:5173`
-- 本地后台 API 服务：`http://localhost:3001`
-- 本地数据存储路径：`e:\错题本\data`
+# 2. 安装依赖
+npm install
+
+# 3. 启动开发服务器 (自动打开 http://localhost:5173)
+npm run dev
+
+# 4. 构建生产产物
+npm run build
+```
 
 ---
 
-## 📱 三端互通 (Android、iOS、Windows) 架构路线
-
-本系统在设计时遵循跨端统一协议架构：
+## 🛠️ 技术架构
 
 ```
-                    ┌─────────────────────────┐
-                    │  远程 Git (Gitee/GitHub) │
-                    └────────────┬────────────┘
-                                 │
-         ┌───────────────────────┼───────────────────────┐
-         │                       │                       │
-         ▼                       ▼                       ▼
- ┌───────────────┐       ┌───────────────┐       ┌───────────────┐
- │  Windows 桌面端│       │  Android 安卓端│       │  iOS / iPadOS │
- │ (当前已完成运行)│       │  (Capacitor)  │       │  (Capacitor)  │
- │  本地 data/   │       │  本地存储空间 │       │  本地存储空间 │
- └───────────────┘       └───────────────┘       └───────────────┘
+知微错题本 (ZhiWei Note)
+├── Web / UI 层: React 19 + TypeScript + Vite + TailwindCSS 4
+├── 数学与代码引擎: KaTeX + PrismJS + Marked
+├── 手写笔迹引擎: PointerEvent + Pressure Sensitivity + Palm Rejection
+├── 跨端原生容器: Capacitor 8 (Android SDK 34 / iOS SDK 17+ Swift Package Manager)
+├── 数据持久化: 
+│   ├── Client 模式: IndexedDB / LocalStorage (纯本地秒级缓存)
+│   ├── Server 模式: Express + Node.js (本地磁盘文件持久化)
+│   └── Cloud 模式: Git (GitHub / Gitee 双向同步通道)
+└── 自动化打包: GitHub Actions (macOS-14 ARM64 Xcode Runner)
 ```
 
-1. **数据格式规范化**：
-   - 分类元数据：`data/folders.json`
-   - 错题详情与做题历程：`data/questions/<id>.json`
-   - 题目与草稿图片：`data/images/<uuid>.png`
-2. **移动端打包方案**：
-   - 整个 `src/` 前端代码是纯标准响应式设计，完美适配平板与手机屏幕触控。
-   - 接下来只需使用 `@capacitor/core` 或 `tauri-mobile` 将现成的前端一键包装为 Android APK 与 iOS App。
-   - 在手机端，只需在「Git 同步中心」输入相同的 Gitee/GitHub 私有仓库地址与 Token，即可实现三端错题秒级双向互通！
+---
+
+## 📄 开源许可证
+
+本项目基于 [MIT License](LICENSE) 开源。欢迎 Star、Fork 与提交 Issue 改进！
