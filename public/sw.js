@@ -1,5 +1,5 @@
 // ZhiWei Note - Offline Service Worker for iPad / Tablets / PWA
-const CACHE_NAME = 'zhiwei-notebook-v1.6';
+const CACHE_NAME = 'zhiwei-notebook-v1.6.1';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
