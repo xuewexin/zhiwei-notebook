@@ -125,39 +125,44 @@ public class MainForm : Form
             _webView.CoreWebView2.Settings.AreDevToolsEnabled = true;
             _webView.CoreWebView2.Settings.IsZoomControlEnabled = true;
 
-            // Locate dist directory
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string distPath = Path.Combine(baseDir, "dist");
-            if (!Directory.Exists(distPath) || !File.Exists(Path.Combine(distPath, "index.html")))
-            {
-                distPath = Path.Combine(baseDir, "..", "dist");
-            }
+            // 1. Always extract and prioritize the fresh embedded web bundle from the executable
+            string bundleDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "ZhiWeiNote",
+                "Bundle_v16"
+            );
 
-            // Fallback to embedded web bundle in %LOCALAPPDATA%
-            if (!Directory.Exists(distPath) || !File.Exists(Path.Combine(distPath, "index.html")))
-            {
-                string bundleDir = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "ZhiWeiNote",
-                    "Bundle_v15"
-                );
+            string distPath = "";
 
-                try
+            try
+            {
+                Directory.CreateDirectory(bundleDir);
+                using var stream = typeof(Program).Assembly.GetManifestResourceStream("ZhiWeiNote.dist.zip");
+                if (stream != null)
                 {
-                    Directory.CreateDirectory(bundleDir);
-                    using var stream = typeof(Program).Assembly.GetManifestResourceStream("ZhiWeiNote.dist.zip");
-                    if (stream != null)
-                    {
-                        using var archive = new System.IO.Compression.ZipArchive(stream);
-                        archive.ExtractToDirectory(bundleDir, true);
-                    }
-
+                    using var archive = new System.IO.Compression.ZipArchive(stream);
+                    archive.ExtractToDirectory(bundleDir, true);
                     if (File.Exists(Path.Combine(bundleDir, "index.html")))
                     {
                         distPath = bundleDir;
                     }
                 }
-                catch {}
+            }
+            catch {}
+
+            // 2. Fallback to nearby dist directory if running in local development mode
+            if (string.IsNullOrEmpty(distPath) || !File.Exists(Path.Combine(distPath, "index.html")))
+            {
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                string localDist = Path.Combine(baseDir, "dist");
+                if (File.Exists(Path.Combine(localDist, "index.html")))
+                {
+                    distPath = localDist;
+                }
+                else if (File.Exists(Path.Combine(baseDir, "..", "dist", "index.html")))
+                {
+                    distPath = Path.Combine(baseDir, "..", "dist");
+                }
             }
 
             if (Directory.Exists(distPath))

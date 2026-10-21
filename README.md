@@ -110,11 +110,11 @@
 <br/>
 
 ### 📱 移动端与手机竖屏触控专属设计
-*左图：真机实测竖屏界面（清新圆角卡片、无刷新新建分类、底部沉浸式导航） ｜ 右图：移动端学科分类流与响应式排版*
+*左图：手机端个人主页（支持全局主题切换、自定义壁纸、快捷存储目录选择、作者反馈） ｜ 右图：手机端极简顶栏（去冗余头像、专注做题）与学科分类流*
 
 <p>
-  <img src="docs/images/mobile-clean.jpg" alt="手机端真机竖屏界面" width="46%" style="border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,0.1); margin-right: 14px;" />
-  <img src="docs/images/mobile-showcase.png" alt="手机端学科分类视图" width="46%" style="border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,0.1);" />
+  <img src="docs/images/mobile-profile.png" alt="手机端个人主页与设置" width="46%" style="border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,0.1); margin-right: 14px;" />
+  <img src="docs/images/mobile-showcase.png" alt="手机端极简学科分类视图" width="46%" style="border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,0.1);" />
 </p>
 
 </div>

@@ -50,11 +50,29 @@ export const App: React.FC = () => {
       return null;
     }
   });
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(() => {
+    try {
+      const qId = new URLSearchParams(window.location.search).get('question');
+      if (qId) {
+        const raw = localStorage.getItem('zhiwei_questions_pure_v1');
+        if (raw) {
+          const qs = JSON.parse(raw);
+          return qs.find((item: any) => item.id === qId) || null;
+        }
+      }
+    } catch {}
+    return null;
+  });
   const [selectedMastery, setSelectedMastery] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const [mobileTab, setMobileTab] = useState<'folders' | 'questions' | 'review' | 'profile'>('folders');
+  const [mobileTab, setMobileTab] = useState<'folders' | 'questions' | 'review' | 'profile'>(() => {
+    try {
+      const tab = new URLSearchParams(window.location.search).get('tab');
+      if (tab === 'profile' || tab === 'questions' || tab === 'review') return tab;
+    } catch {}
+    return 'folders';
+  });
   const [isReviewOnly, setIsReviewOnly] = useState(false);
   const [isProfileView, setIsProfileView] = useState(false);
   const [themeKey, setThemeKey] = useState<ThemeColorKey>(() => settingsService.getThemeColor());
@@ -95,6 +113,24 @@ export const App: React.FC = () => {
 
   // Smoothly transition and remove splash screen
   useEffect(() => {
+    // Guarantee clean cache on version upgrade across mobile APK and WebView2
+    try {
+      const savedVersion = localStorage.getItem('zhiwei_installed_version');
+      if (savedVersion !== CURRENT_VERSION) {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(regs => {
+            for (const r of regs) r.unregister();
+          });
+        }
+        if ('caches' in window) {
+          caches.keys().then(keys => {
+            for (const k of keys) caches.delete(k);
+          });
+        }
+        localStorage.setItem('zhiwei_installed_version', CURRENT_VERSION);
+      }
+    } catch {}
+
     const splash = document.getElementById('app-splash');
     if (splash) {
       const timer = setTimeout(() => {
@@ -624,30 +660,6 @@ export const App: React.FC = () => {
                   onPushNow={handleQuickPush}
                   onOpenSettings={() => setIsGitModalOpen(true)}
                 />
-
-                {/* Mobile Top-Right User Profile Button (Avatar + Name) */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleSelectQuestion(null);
-                    setMobileTab(prev => prev === 'profile' ? 'folders' : 'profile');
-                  }}
-                  className={`flex items-center gap-1.5 p-1 rounded-xl transition-all cursor-pointer border ${
-                    mobileTab === 'profile'
-                      ? 'border-blue-400 bg-blue-50 dark:bg-blue-950/40'
-                      : 'border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  }`}
-                  title="个人主页与系统设置"
-                >
-                  <img
-                    src={userProfile.avatar || '/app-icon.png'}
-                    alt={userProfile.name}
-                    className="w-5 h-5 rounded-full object-cover ring-1 ring-blue-500/40 shrink-0"
-                  />
-                  <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 max-w-[55px] truncate hidden xs:inline">
-                    {userProfile.name || '学者'}
-                  </span>
-                </button>
               </div>
             </div>
           )}
@@ -765,6 +777,8 @@ export const App: React.FC = () => {
               onCheckUpdate={handleManualCheckUpdate}
               onBackToQuestions={() => setMobileTab('folders')}
               onProfileUpdated={(p) => setUserProfile(p)}
+              onBackgroundUpdated={(bg) => setBgConfig(bg)}
+              onThemeUpdated={(t) => setThemeKey(t)}
             />
           ) : selectedQuestion ? (
             <QuestionDetail

@@ -27,7 +27,10 @@ import {
   FolderOpen,
   Share2,
   Mail,
-  Copy
+  Copy,
+  X,
+  Smartphone,
+  Laptop
 } from 'lucide-react';
 import { 
   settingsService, 
@@ -50,7 +53,52 @@ interface UserProfileViewProps {
   onCheckUpdate: () => void;
   onBackToQuestions?: () => void;
   onProfileUpdated?: (profile: UserProfile) => void;
+  onBackgroundUpdated?: (bg: BackgroundConfig) => void;
+  onThemeUpdated?: (theme: ThemeColorKey) => void;
 }
+
+// Compress wallpaper image via Canvas to fit strictly within LocalStorage limits (~150KB)
+const compressImageForWallpaper = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('读取背景图片文件失败'));
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('解析背景图片数据失败'));
+      img.onload = () => {
+        try {
+          const MAX_DIM = 1600;
+          let width = img.width;
+          let height = img.height;
+          if (width > MAX_DIM || height > MAX_DIM) {
+            if (width > height) {
+              height = Math.round((height * MAX_DIM) / width);
+              width = MAX_DIM;
+            } else {
+              width = Math.round((width * MAX_DIM) / height);
+              height = MAX_DIM;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(e.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL('image/jpeg', 0.82);
+          resolve(compressed);
+        } catch {
+          resolve(e.target?.result as string);
+        }
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+};
 
 export const UserProfileView: React.FC<UserProfileViewProps> = ({
   questions,
@@ -59,7 +107,9 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   onRefreshData,
   onCheckUpdate,
   onBackToQuestions,
-  onProfileUpdated
+  onProfileUpdated,
+  onBackgroundUpdated,
+  onThemeUpdated
 }) => {
   const [profile, setProfile] = useState<UserProfile>(settingsService.getProfile());
   const [themeKey, setThemeKey] = useState<ThemeColorKey>(settingsService.getThemeColor());
@@ -68,8 +118,10 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   const [storagePath, setStoragePath] = useState<StoragePathConfig>(() => settingsService.getStoragePath());
   const [customDirInput, setCustomDirInput] = useState<string>(() => settingsService.getStoragePath().customDirectory);
   const [pathSavedNotice, setPathSavedNotice] = useState(false);
+  const [bgUploadNotice, setBgUploadNotice] = useState<string | null>(null);
   const [shareNotice, setShareNotice] = useState<string | null>(null);
   const [copyEmailNotice, setCopyEmailNotice] = useState<string | null>(null);
+  const [isDirPickerModalOpen, setIsDirPickerModalOpen] = useState(false);
 
   // Editing profile modal/state
   const [isEditingName, setIsEditingName] = useState(false);
@@ -113,24 +165,95 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
     e.target.value = '';
   };
 
-  // Handle custom background wallpaper upload
-  const handleBgUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle custom background wallpaper upload with Canvas compression & multi-device sync
+  const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      const updated = settingsService.saveBackground({ imageUrl: dataUrl });
+    try {
+      setBgUploadNotice('正在压缩优化背景壁纸...');
+      const compressedDataUrl = await compressImageForWallpaper(file);
+      const updated = settingsService.saveBackground({ 
+        imageUrl: compressedDataUrl,
+        opacity: bgConfig.opacity || 0.18
+      });
       setBgConfig(updated);
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+      if (onBackgroundUpdated) {
+        onBackgroundUpdated(updated);
+      }
+      setBgUploadNotice('背景壁纸已成功设置，已在全软件生效！');
+      setTimeout(() => setBgUploadNotice(null), 3000);
+    } catch (err: any) {
+      alert('设置壁纸失败: ' + (err.message || '未知错误'));
+      setBgUploadNotice(null);
+    } finally {
+      e.target.value = '';
+    }
   };
 
-  // Switch Theme Color
+  // Clear custom background wallpaper
+  const handleClearBg = () => {
+    const updated = settingsService.saveBackground({ imageUrl: '' });
+    setBgConfig(updated);
+    if (onBackgroundUpdated) {
+      onBackgroundUpdated(updated);
+    }
+    setBgUploadNotice('已清除壁纸，恢复默认纯净背景');
+    setTimeout(() => setBgUploadNotice(null), 2500);
+  };
+
+  // Update background opacity
+  const handleOpacityChange = (op: number) => {
+    const updated = settingsService.saveBackground({ opacity: op });
+    setBgConfig(updated);
+    if (onBackgroundUpdated) {
+      onBackgroundUpdated(updated);
+    }
+  };
+
+  // Switch Theme Color across the whole app
   const handleSelectTheme = (k: ThemeColorKey) => {
     setThemeKey(k);
     settingsService.saveThemeColor(k);
+    if (onThemeUpdated) {
+      onThemeUpdated(k);
+    }
+  };
+
+  // Directory Picker Modal open
+  const handlePickDirectory = () => {
+    setIsDirPickerModalOpen(true);
+  };
+
+  // Apply chosen directory
+  const handleApplyDirectory = (path: string) => {
+    const trimmed = path.trim();
+    if (!trimmed) return;
+    setCustomDirInput(trimmed);
+    const u = settingsService.saveStoragePath({ customDirectory: trimmed });
+    setStoragePath(u);
+    setIsDirPickerModalOpen(false);
+    setPathSavedNotice(true);
+    setTimeout(() => setPathSavedNotice(false), 3000);
+  };
+
+  // Try Native System Picker if supported
+  const handleNativeSystemPick = async () => {
+    if (typeof window !== 'undefined' && 'showDirectoryPicker' in window) {
+      try {
+        const handle = await (window as any).showDirectoryPicker();
+        if (handle && handle.name) {
+          const selectedPath = isNativePlatform
+            ? `Download/${handle.name}`
+            : `D:\\${handle.name}`;
+          handleApplyDirectory(selectedPath);
+          return;
+        }
+      } catch (e: any) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+    // Fallback preset
+    handleApplyDirectory(isNativePlatform ? 'Download/知微错题本' : 'D:\\知微错题本数据');
   };
 
   // Save Name & Motto
@@ -179,34 +302,6 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
     } catch {
       alert('作者联系邮箱: 2792893068@qq.com');
     }
-  };
-
-  // Directory Picker
-  const handlePickDirectory = async () => {
-    if (typeof window !== 'undefined' && 'showDirectoryPicker' in window) {
-      try {
-        const handle = await (window as any).showDirectoryPicker();
-        if (handle && handle.name) {
-          const selectedPath = isNativePlatform
-            ? `Download/${handle.name}`
-            : `D:\\${handle.name}`;
-          setCustomDirInput(selectedPath);
-          const u = settingsService.saveStoragePath({ customDirectory: selectedPath });
-          setStoragePath(u);
-          setPathSavedNotice(true);
-          setTimeout(() => setPathSavedNotice(false), 2500);
-          return;
-        }
-      } catch (e: any) {
-        if (e.name === 'AbortError') return;
-      }
-    }
-    const nextDir = isNativePlatform ? 'Download/知微错题本' : 'D:\\知微错题库';
-    setCustomDirInput(nextDir);
-    const u = settingsService.saveStoragePath({ customDirectory: nextDir });
-    setStoragePath(u);
-    setPathSavedNotice(true);
-    setTimeout(() => setPathSavedNotice(false), 2500);
   };
 
   // Test AI Connection
@@ -465,10 +560,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             {bgConfig.imageUrl && (
               <button
                 type="button"
-                onClick={() => {
-                  const updated = settingsService.saveBackground({ imageUrl: '' });
-                  setBgConfig(updated);
-                }}
+                onClick={handleClearBg}
                 className="flex items-center gap-1 px-2.5 py-1 text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" /> 清除壁纸
@@ -503,11 +595,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                   max="0.45"
                   step="0.05"
                   value={bgConfig.opacity}
-                  onChange={(e) => {
-                    const op = parseFloat(e.target.value);
-                    const updated = settingsService.saveBackground({ opacity: op });
-                    setBgConfig(updated);
-                  }}
+                  onChange={(e) => handleOpacityChange(parseFloat(e.target.value))}
                   className="flex-1 accent-purple-600 cursor-pointer"
                 />
                 <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 w-10">
@@ -516,6 +604,13 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               </div>
             )}
           </div>
+
+          {bgUploadNotice && (
+            <div className="mt-2.5 p-2.5 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 rounded-xl text-xs flex items-center gap-2 animate-fade-in font-medium">
+              <Check className="w-4 h-4 text-purple-600 shrink-0" />
+              <span>{bgUploadNotice}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1024,6 +1119,163 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
           </p>
         </div>
       </div>
+
+      {/* Directory Selector Modal */}
+      {isDirPickerModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-xl">
+                  <FolderOpen className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">选择数据与错题存储目录</h3>
+                  <p className="text-[11px] text-slate-400">本地优先架构：错题库与导出备份将保存在此位置</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDirPickerModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Mobile Recommended Presets */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
+                <Smartphone className="w-3.5 h-3.5 text-blue-500" />
+                <span>📱 手机 / 平板端常用预设目录 (点击一键选用)</span>
+              </div>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  {
+                    name: 'Download / 知微错题本',
+                    path: 'Download/知微错题本',
+                    desc: '系统“下载”目录，手机文件管理 App 最容易找到并分享'
+                  },
+                  {
+                    name: 'Documents / 知微错题本',
+                    path: 'Documents/知微错题本',
+                    desc: '系统“文档”目录，安全整洁，不易被手机相册误删'
+                  },
+                  {
+                    name: 'DCIM / 知微错题本',
+                    path: 'DCIM/知微错题本',
+                    desc: '媒体图片专用目录，方便拍照题目后直接归档'
+                  },
+                  {
+                    name: '内部绝对路径 /storage/emulated/0/Download/知微错题本',
+                    path: '/storage/emulated/0/Download/知微错题本',
+                    desc: 'Android 标准内部存储绝对路径'
+                  }
+                ].map((item, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleApplyDirectory(item.path)}
+                    className="flex flex-col items-start p-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-blue-50/70 dark:hover:bg-blue-950/40 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-600 rounded-2xl text-left transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                        {item.name}
+                      </span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-blue-600 group-hover:text-white font-bold transition-colors">
+                        选用
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-400 mt-1">
+                      {item.desc}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* PC Recommended Presets */}
+            <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
+                <Laptop className="w-3.5 h-3.5 text-purple-500" />
+                <span>💻 电脑端推荐存储目录 (点击一键选用)</span>
+              </div>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  {
+                    name: 'D:\\知微错题本数据',
+                    path: 'D:\\知微错题本数据',
+                    desc: 'D 盘独立大容量存储，系统升级或重装不丢失'
+                  },
+                  {
+                    name: 'E:\\知微错题本数据',
+                    path: 'E:\\知微错题本数据',
+                    desc: 'E 盘专用学习资料存储分区'
+                  },
+                  {
+                    name: 'C:\\Users\\Public\\知微错题本',
+                    path: 'C:\\Users\\Public\\知微错题本',
+                    desc: 'Windows 公共文档，所有账户均可读取'
+                  }
+                ].map((item, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleApplyDirectory(item.path)}
+                    className="flex flex-col items-start p-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-purple-50/70 dark:hover:bg-purple-950/40 border border-slate-200 dark:border-slate-700 hover:border-purple-400 dark:hover:border-purple-600 rounded-2xl text-left transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                        {item.name}
+                      </span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-purple-600 group-hover:text-white font-bold transition-colors">
+                        选用
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-400 mt-1">
+                      {item.desc}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Native Browser Pick & Manual Input */}
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  ✏️ 自定义输入任意路径
+                </span>
+                <button
+                  type="button"
+                  onClick={handleNativeSystemPick}
+                  className="text-[11px] font-semibold text-blue-600 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <FolderOpen className="w-3.5 h-3.5" />
+                  <span>调起系统原生文件夹选择器</span>
+                </button>
+              </div>
+
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={customDirInput}
+                  onChange={(e) => setCustomDirInput(e.target.value)}
+                  placeholder="输入自定义绝对路径或相对路径..."
+                  className="flex-1 text-xs px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleApplyDirectory(customDirInput)}
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+                >
+                  应用保存
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
