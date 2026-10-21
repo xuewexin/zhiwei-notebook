@@ -89,10 +89,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
         />
       )}
 
-      <aside className={`
+      <aside 
+        style={{
+          paddingTop: 'max(env(safe-area-inset-top, 0px), 56px)'
+        }}
+        className={`
         fixed inset-y-0 left-0 z-50 md:relative md:translate-x-0
         w-72 md:w-64 h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 
         flex flex-col justify-between select-none shrink-0 shadow-2xl md:shadow-none transition-transform duration-300 ease-in-out
+        md:!pt-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         {/* Top Section: App Branding & New Button */}

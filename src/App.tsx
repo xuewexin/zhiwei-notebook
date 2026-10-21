@@ -17,7 +17,8 @@ import {
   PanelLeftOpen,
   Brain,
   Sparkles,
-  ArrowUpCircle
+  ArrowUpCircle,
+  User
 } from 'lucide-react';
 import { Folder, Question, GitStatus, MasteryStatus } from './types';
 import { api, isNativePlatform } from './api/client';
@@ -30,7 +31,9 @@ import { GitSyncModal } from './components/GitSyncModal';
 import { ImageViewerModal } from './components/ImageViewerModal';
 import { OneNoteSyncIndicator } from './components/OneNoteSyncIndicator';
 import { UpdateModal } from './components/UpdateModal';
+import { UserProfileView } from './components/UserProfileView';
 import { checkForUpdates, UpdateInfo, CURRENT_VERSION } from './services/updateService';
+import { settingsService, ThemeColorKey, BackgroundConfig } from './services/settingsService';
 
 export const App: React.FC = () => {
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -51,6 +54,14 @@ export const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isReviewOnly, setIsReviewOnly] = useState(false);
+  const [isProfileView, setIsProfileView] = useState(false);
+  const [themeKey, setThemeKey] = useState<ThemeColorKey>(() => settingsService.getThemeColor());
+  const [bgConfig, setBgConfig] = useState<BackgroundConfig>(() => settingsService.getBackground());
+
+  // Apply active theme color
+  useEffect(() => {
+    settingsService.applyThemeToDOM(themeKey);
+  }, [themeKey]);
   
   const [gitStatus, setGitStatus] = useState<GitStatus | null>(null);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
@@ -182,6 +193,11 @@ export const App: React.FC = () => {
         // Priority 5: Exit QuestionDetail back to QuestionList
         if (selectedQuestion) {
           handleSelectQuestion(null);
+          return;
+        }
+        // Priority 5.2: Exit Profile View
+        if (isProfileView) {
+          setIsProfileView(false);
           return;
         }
         // Priority 5.5: Exit review-only mode
@@ -433,7 +449,18 @@ export const App: React.FC = () => {
     : questions;
 
   return (
-    <div className="flex h-screen w-screen bg-slate-100/70 dark:bg-slate-950 overflow-hidden text-slate-800 dark:text-slate-100 font-sans pb-[env(safe-area-inset-bottom,0px)]">
+    <div className="flex h-screen w-screen bg-slate-100/70 dark:bg-slate-950 overflow-hidden text-slate-800 dark:text-slate-100 font-sans pb-[env(safe-area-inset-bottom,0px)] relative">
+      {/* Optional Custom Background Wallpaper */}
+      {bgConfig.imageUrl && (
+        <div 
+          className="fixed inset-0 pointer-events-none z-0 bg-cover bg-center bg-no-repeat transition-opacity duration-500"
+          style={{
+            backgroundImage: `url(${bgConfig.imageUrl})`,
+            opacity: bgConfig.opacity
+          }}
+        />
+      )}
+
       {/* 1. Sleek Left Sidebar with stable global counts and mobile drawer */}
       {!isDesktopSidebarCollapsed && (
         <Sidebar
@@ -443,11 +470,13 @@ export const App: React.FC = () => {
           selectedMastery={selectedMastery}
           gitStatus={gitStatus}
           onSelectFolder={(fId) => {
+            setIsProfileView(false);
             setIsReviewOnly(false);
             setCurrentFolderId(fId);
             handleSelectQuestion(null);
           }}
           onSelectMastery={(m) => {
+            setIsProfileView(false);
             setIsReviewOnly(false);
             setSelectedMastery(m);
             handleSelectQuestion(null);
@@ -506,8 +535,16 @@ export const App: React.FC = () => {
             </div>
           ) : (
             <div className="flex items-center justify-between w-full md:hidden">
-              {/* Left: App Logo + Title */}
+              {/* Left: Top-left Drawer Button + App Logo + Title */}
               <div className="flex items-center gap-2 min-w-0">
+                <button
+                  type="button"
+                  onClick={() => setIsMobileSidebarOpen(true)}
+                  className="p-1.5 -ml-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer shrink-0"
+                  title="打开分类与抽屉"
+                >
+                  <Menu className="w-5 h-5" />
+                </button>
                 <img
                   src="/app-icon.png"
                   alt="知微错题本"
@@ -515,7 +552,9 @@ export const App: React.FC = () => {
                 />
                 <div className="leading-tight truncate">
                   <h1 className="text-sm font-bold text-slate-900 dark:text-white truncate">
-                    {selectedQuestion
+                    {isProfileView
+                      ? '个人主页与设置'
+                      : selectedQuestion
                       ? (selectedQuestion.title || '错题详情')
                       : isReviewOnly
                       ? '艾宾浩斯复盘'
@@ -526,7 +565,9 @@ export const App: React.FC = () => {
                       : '知微错题本'}
                   </h1>
                   <span className="text-[10px] text-slate-400 block truncate">
-                    {selectedQuestion
+                    {isProfileView
+                      ? '个性化主题 · 存储管理 · 软件信息'
+                      : selectedQuestion
                       ? '精细记录 · 考点剖析'
                       : isReviewOnly
                       ? `今日待复习 ${dueTodayCount} 题`
@@ -628,6 +669,23 @@ export const App: React.FC = () => {
 
               <button
                 type="button"
+                onClick={() => {
+                  handleSelectQuestion(null);
+                  setIsProfileView(prev => !prev);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
+                  isProfileView
+                    ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-800'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700'
+                }`}
+                title="个人主页与系统设置"
+              >
+                <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span>个人主页</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => setIsQuestionModalOpen(true)}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs transition-all cursor-pointer"
               >
@@ -638,9 +696,22 @@ export const App: React.FC = () => {
           </div>
         </header>
 
-        {/* Workspace Body: Detail View OR FolderGrid + List */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-6 pb-24 md:pb-6">
-          {selectedQuestion ? (
+        {/* Workspace Body: Profile View OR Detail View OR FolderGrid + List */}
+        <div className="flex-1 overflow-y-auto p-3 sm:p-6 pb-24 md:pb-6 relative z-10">
+          {isProfileView ? (
+            <UserProfileView
+              questions={allQuestions}
+              folders={folders}
+              onOpenGitModal={() => setIsGitModalOpen(true)}
+              onRefreshData={() => {
+                loadFolders();
+                loadAllQuestions();
+                loadQuestions();
+              }}
+              onCheckUpdate={handleManualCheckUpdate}
+              onBackToQuestions={() => setIsProfileView(false)}
+            />
+          ) : selectedQuestion ? (
             <QuestionDetail
               question={selectedQuestion}
               folder={folders.find(f => f.id === selectedQuestion.folderId)}
@@ -704,67 +775,39 @@ export const App: React.FC = () => {
         </div>
       </main>
 
-      {/* 3. Mobile Bottom Navigation Bar (Flagship Mobile UX) */}
+      {/* 3. Mobile Bottom Navigation Bar (Streamlined Flagship Mobile UX) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 pb-[env(safe-area-inset-bottom,0px)] shadow-lg">
-        <div className="flex items-center justify-around h-15 px-2 max-w-lg mx-auto relative">
-          {/* Tab 1: Folders */}
+        <div className="flex items-center justify-around h-15 px-3 max-w-md mx-auto relative">
+          {/* Tab 1: 错题本 */}
           <button
             type="button"
             onClick={() => {
+              setIsProfileView(false);
               setIsReviewOnly(false);
               handleSelectQuestion(null);
               setCurrentFolderId(null);
               setSelectedMastery(null);
             }}
             className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors ${
-              !isReviewOnly && !selectedQuestion && currentFolderId === null && selectedMastery === null
-                ? 'text-blue-600 dark:text-blue-400 font-bold'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
-            }`}
-          >
-            <FolderIcon className="w-5 h-5 mb-0.5" />
-            <span className="text-[10px]">分类</span>
-          </button>
-
-          {/* Tab 2: All Questions */}
-          <button
-            type="button"
-            onClick={() => {
-              setIsReviewOnly(false);
-              handleSelectQuestion(null);
-              setSelectedMastery(null);
-            }}
-            className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors ${
-              !isReviewOnly && !selectedQuestion && (currentFolderId !== null || selectedMastery !== null)
+              !isProfileView && !isReviewOnly && !selectedQuestion
                 ? 'text-blue-600 dark:text-blue-400 font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
             }`}
           >
             <BookOpen className="w-5 h-5 mb-0.5" />
-            <span className="text-[10px]">全部错题</span>
+            <span className="text-[10px]">错题本</span>
           </button>
 
-          {/* Center Elevated Floating Plus Button */}
-          <div className="flex-1 flex justify-center -mt-5">
-            <button
-              type="button"
-              onClick={() => setIsQuestionModalOpen(true)}
-              className="w-13 h-13 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 transform active:scale-95 transition-all cursor-pointer ring-4 ring-white dark:ring-slate-900"
-              title="录入新错题"
-            >
-              <Plus className="w-6 h-6" strokeWidth={2.5} />
-            </button>
-          </div>
-
-          {/* Tab 4: Ebbinghaus Review Due */}
+          {/* Tab 2: 今日复盘 (艾宾浩斯) */}
           <button
             type="button"
             onClick={() => {
+              setIsProfileView(false);
               handleSelectQuestion(null);
               setIsReviewOnly(true);
             }}
             className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors relative ${
-              isReviewOnly && !selectedQuestion
+              !isProfileView && isReviewOnly && !selectedQuestion
                 ? 'text-indigo-600 dark:text-indigo-400 font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
             }`}
@@ -780,14 +823,33 @@ export const App: React.FC = () => {
             <span className="text-[10px]">今日复盘</span>
           </button>
 
-          {/* Tab 5: Menu / Drawer */}
+          {/* Center Elevated Floating Plus Button */}
+          <div className="flex-1 flex justify-center -mt-5">
+            <button
+              type="button"
+              onClick={() => setIsQuestionModalOpen(true)}
+              className="w-13 h-13 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 transform active:scale-95 transition-all cursor-pointer ring-4 ring-white dark:ring-slate-900"
+              title="录入新错题"
+            >
+              <Plus className="w-6 h-6" strokeWidth={2.5} />
+            </button>
+          </div>
+
+          {/* Tab 3: 个人主页与系统设置 */}
           <button
             type="button"
-            onClick={() => setIsMobileSidebarOpen(true)}
-            className="flex flex-col items-center justify-center flex-1 py-1 cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-800 transition-colors"
+            onClick={() => {
+              handleSelectQuestion(null);
+              setIsProfileView(true);
+            }}
+            className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors relative ${
+              isProfileView
+                ? 'text-purple-600 dark:text-purple-400 font-bold'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
+            }`}
           >
-            <Menu className="w-5 h-5 mb-0.5" />
-            <span className="text-[10px]">更多/抽屉</span>
+            <User className="w-5 h-5 mb-0.5" />
+            <span className="text-[10px]">个人主页</span>
           </button>
         </div>
       </nav>
