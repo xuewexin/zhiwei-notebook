@@ -87,10 +87,17 @@ export const checkinService = {
 
       // Seed with some recent learning dates if brand new so user sees lively data immediately
       if (dates.length === 0) {
-        const d1 = new Date();
-        const d2 = new Date();
-        d2.setDate(d2.getDate() - 1);
-        dates = [formatDateKey(d2), formatDateKey(d1)];
+        dates = [];
+        for (let i = 0; i < 6; i++) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          dates.push(formatDateKey(d));
+        }
+        for (const offset of [8, 10, 13, 16]) {
+          const d = new Date();
+          d.setDate(d.getDate() - offset);
+          dates.push(formatDateKey(d));
+        }
         localStorage.setItem(STORAGE_KEY_CHECKINS, JSON.stringify(dates));
       }
 

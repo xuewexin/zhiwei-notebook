@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Folder as FolderIcon, 
   FolderPlus, 
@@ -403,7 +404,7 @@ export const FolderGrid: React.FC<FolderGridProps> = ({
     </section>
 
     {/* Create / Edit Folder Modal */}
-    {isModalOpen && (
+    {isModalOpen && typeof document !== 'undefined' && createPortal(
         <div 
           style={{
             paddingTop: 'max(env(safe-area-inset-top, 0px), 32px)',
@@ -411,7 +412,7 @@ export const FolderGrid: React.FC<FolderGridProps> = ({
             paddingLeft: '16px',
             paddingRight: '16px',
           }}
-          className="fixed inset-0 z-50 flex justify-center items-start bg-black/60 backdrop-blur-xs p-3 sm:p-6 overflow-y-auto"
+          className="fixed inset-0 z-[9999] flex justify-center items-start bg-black/60 backdrop-blur-xs p-3 sm:p-6 overflow-y-auto"
         >
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 mb-8 animate-scale-in">
             <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
@@ -557,7 +558,8 @@ export const FolderGrid: React.FC<FolderGridProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

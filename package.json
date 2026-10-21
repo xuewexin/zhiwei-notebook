@@ -1,6 +1,6 @@
 {
   "name": "mistake-notebook",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "type": "module",
   "description": "Cross-platform Mistake Notebook with GoodNotes style hierarchy, Git sync, and multi-mode notes",
   "main": "server/index.js",

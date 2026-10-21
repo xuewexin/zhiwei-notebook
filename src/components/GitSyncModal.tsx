@@ -166,7 +166,7 @@ export const GitSyncModal: React.FC<GitSyncModalProps> = ({
         paddingLeft: '16px',
         paddingRight: '16px',
       }}
-      className="fixed inset-0 z-50 flex justify-center items-start bg-black/60 backdrop-blur-xs p-3 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-[9999] flex justify-center items-start bg-black/60 backdrop-blur-xs p-3 sm:p-6 overflow-y-auto"
     >
       <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 mb-8 animate-scale-in">
         {/* Modal Header */}

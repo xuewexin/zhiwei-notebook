@@ -28,7 +28,7 @@ export const ImageViewerModal: React.FC<ImageViewerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in">
       {/* Top Toolbar */}
       <div className="absolute top-4 left-4 right-4 flex items-center justify-between text-white z-10">
         <div className="text-sm font-medium bg-black/40 px-3 py-1.5 rounded-lg truncate max-w-md">

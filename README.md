@@ -1,208 +1,145 @@
 <div align="center">
 
-  <img src="docs/images/app-icon.jpg" alt="知微错题本 App Icon" width="128" height="128" style="border-radius: 26px; box-shadow: 0 12px 28px rgba(37,99,235,0.25);" />
+  <img src="docs/images/app-icon.jpg" alt="知微错题本 App Icon" width="120" height="120" style="border-radius: 26px; box-shadow: 0 10px 30px rgba(30,86,160,0.22); margin-bottom: 16px;" />
 
   # 知微错题本 (ZhiWei Note)
   
-  **见微知著 · 省思改错 · 本地优先 · 三端互通**
+  **见微知著 · 省思改错 · 本地优先 · 登峰造极**
 
-  一款专为学生、考研与考公党、程序员打造的**跨平台本地优先（Local-First）智能错题管理与深度复盘系统**。<br/>
-  融合 **GoodNotes 拟物层级分类**、**Apple Pencil 压感手写草稿演练**、**多次做题历程分区**、**LaTeX 公式 / 代码块多模态笔记** 及 **Git 无服务器多端云同步**。
+  一款专为学生、考研考公党、竞赛生与终身学习者打造的**跨平台本地优先（Local-First）智能错题管理与深度复盘系统**。<br/>
+  融合 **GoodNotes 拟物学科体系**、**艾宾浩斯复盘与连续打卡日历**、**Apple Pencil 真实压感手写演练**、**Markdown + LaTeX 公式多模态精析** 与 **Git 免服务器私有云双向漫游**。
 
-  <p>
-    <a href="https://github.com/xuewexin/zhiwei-notebook/releases/latest"><img src="https://img.shields.io/badge/Release-v1.6.2-blue.svg?style=flat-square" alt="Version"></a>
-    <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iPadOS%20%7C%20Windows%20%7C%20PWA-indigo.svg?style=flat-square" alt="Platform">
-    <img src="https://img.shields.io/badge/Frontend-React%2019%20%2B%20Vite%20%2B%20TailwindCSS-teal.svg?style=flat-square" alt="Stack">
-    <img src="https://img.shields.io/badge/Runtime-Capacitor%208-orange.svg?style=flat-square" alt="Capacitor">
-    <img src="https://img.shields.io/badge/Math-KaTeX-pink.svg?style=flat-square" alt="KaTeX">
-    <img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License">
+  <p align="center">
+    <a href="https://github.com/xuewexin/zhiwei-notebook/releases/latest"><img src="https://img.shields.io/badge/Release-v1.6.5-1e56a0.svg?style=flat-square" alt="Version"></a>
+    <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iPadOS%20%7C%20Windows%20%7C%20PWA-475569.svg?style=flat-square" alt="Platform">
+    <img src="https://img.shields.io/badge/Storage-100%25%20Local--First-047857.svg?style=flat-square" alt="Local First">
+    <img src="https://img.shields.io/badge/Frontend-React%2019%20%2B%20TypeScript-b45309.svg?style=flat-square" alt="Stack">
+    <img src="https://img.shields.io/badge/Math-KaTeX%20LaTeX-6d28d9.svg?style=flat-square" alt="KaTeX">
+    <img src="https://img.shields.io/badge/License-MIT-be123c.svg?style=flat-square" alt="License">
+  </p>
+
+  <p align="center">
+    <a href="#-最新版本极速下载-v165"><b>🚀 极速下载</b></a> &nbsp;•&nbsp;
+    <a href="#-核心特色与功能矩阵"><b>✨ 核心特色</b></a> &nbsp;•&nbsp;
+    <a href="#-全平台精选界面巡礼"><b>🖼️ 界面巡礼</b></a> &nbsp;•&nbsp;
+    <a href="#-各端安装与使用指南"><b>📦 安装指南</b></a> &nbsp;•&nbsp;
+    <a href="#-技术架构"><b>🛠️ 架构设计</b></a>
   </p>
 
 </div>
 
 ---
 
-## 📥 最新版本极速下载 (v1.6.4)
+## 📥 最新版本极速下载 (v1.6.5)
 
 本项目提供全平台打包好的纯净安装包，无任何强制联网、无广告，下载即用：
 
 | 平台 | 安装包名称 | 文件大小 | 适用设备与特性 | 直接下载链接 |
 | :--- | :--- | :--- | :--- | :--- |
-| 💻 **Windows 原生版** | `zhiwei-notebook-v1.6.4-windows.exe` | ~1.9 MB | **Windows 独立原生桌面软件**（双击即开、原生文件夹选择、调起外部浏览器极速更新） | [点击下载 EXE](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.4/zhiwei-notebook-v1.6.4-windows.exe) |
-| 💻 **Windows 便携版** | `zhiwei-notebook-v1.6.4-windows-portable.zip` | ~1.3 MB | Windows 绿色免安装压缩包 | [点击下载 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.4/zhiwei-notebook-v1.6.4-windows-portable.zip) |
-| 🤖 **Android 原生版** | `zhiwei-notebook-v1.6.4-android.apk` | ~4.0 MB | 安卓手机 / 安卓平板（典雅纯色、打卡日历、调起 SAF 文件夹选择、原生调起系统浏览器更新） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.4/zhiwei-notebook-v1.6.4-android.apk) |
-| 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.6.4-ipad.ipa` | ~3.4 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.4/zhiwei-notebook-v1.6.4-ipad.ipa) |
-| 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.6.4-ios-xcode-project.zip` | ~1.8 MB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.4/zhiwei-notebook-v1.6.4-ios-xcode-project.zip) |
-| 🌐 **iPad / PC 极速版** | `启动iPad局域网极速连接.bat` | 脚本文件 | **免安装、免证书、永不过期**。iPad Safari 添加到主屏幕秒变全屏桌面 App | [查看使用步骤](#-方案二ipad-专属-pwa-桌面原生体验免签名) |
+| 💻 **Windows 原生版** | `zhiwei-notebook-v1.6.5-windows.exe` | ~1.9 MB | **Windows 独立原生桌面软件**（双击即开、原生目录浏览、官方发布页直达升级） | [点击下载 EXE](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.5/zhiwei-notebook-v1.6.5-windows.exe) |
+| 💻 **Windows 便携版** | `zhiwei-notebook-v1.6.5-windows-portable.zip` | ~1.3 MB | Windows 绿色免安装压缩包（解压即开，支持放入 U 盘随身携带） | [点击下载 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.5/zhiwei-notebook-v1.6.5-windows-portable.zip) |
+| 🤖 **Android 原生版** | `zhiwei-notebook-v1.6.5-android.apk` | ~4.0 MB | 安卓手机 / 安卓平板（典雅纯色、防键盘遮挡、复盘日历、SAF 目录选择） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.5/zhiwei-notebook-v1.6.5-android.apk) |
+| 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.6.5-ipad.ipa` | ~3.4 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店免费侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.5/zhiwei-notebook-v1.6.5-ipad.ipa) |
+| 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.6.5-ios-xcode-project.zip` | ~1.8 MB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机编译调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.5/zhiwei-notebook-v1.6.5-ios-xcode-project.zip) |
+| 🌐 **iPad / PC 局域网版** | `启动iPad局域网极速连接.bat` | 脚本文件 | **免安装、免证书、永不过期**。iPad Safari 添加到主屏幕秒变全屏桌面 App | [查看使用步骤](#-方案二ipad-专属-pwa-桌面原生体验免签名) |
 | 💻 **本地运行脚本** | `启动错题本.bat` | 脚本文件 | 双击脚本即开，搭配本地 Node.js 极速做题 | [查看运行方法](#-windows-桌面端使用指南) |
 
 ---
 
-## ✨ v1.6.4 重大升级亮点
+## ✨ v1.6.5 重大升级亮点
 
-1. 📅 **今日复盘打卡日历表与连续学习天数（艾宾浩斯复盘引擎）**：
+1. 🛡️ **移动端键盘遮挡底栏与模态弹窗深度修复**：
+   - 彻底修复了手机端输入文本时软键盘弹起并将底栏一并顶起的视觉缺陷；
+   - 引入动态键盘与活动输入监听体系：软键盘唤起或模态窗开启时，移动端底栏智能隐藏；键盘收起即时归位；
+   - 文件夹新建与编辑弹窗提升为全局顶级 Portal 渲染（`z-[9999]`），彻底杜绝内容被底栏截断或叠放异常。
+2. 📅 **今日复盘打卡日历表与连续学习天数（艾宾浩斯复盘引擎）**：
    - 全新打卡日历系统：记录并直观展示当前连续打卡天数（Streak）、最长连续天数以及累计复盘总天数；
    - 交互式月度打卡日历：清晰标明过往打卡足迹与今日状态，点击一键完成今日学习复盘打卡；
-   - 今日艾宾浩斯待攻克错题与复盘进度深度整合，学思并重、温故知新；
-2. 🎨 **经典纯色典雅设计，彻底剔除渐变色与杂色**：
-   - 响应“配色朴素一点不要太亮、渐变色不好看去掉”的诉求，重塑 6 款沉静典雅的书卷纯色（知微蓝、紫罗兰、翡翠绿、琥珀橙、蔷薇红、水墨灰）；
+   - 今日艾宾浩斯待攻克错题与复盘进度深度整合，学思并重、温故知新。
+3. 🎨 **经典纯色典雅设计，彻底剔除渐变色与杂色**：
+   - 重塑 6 款沉静典雅的书卷纯色（知微蓝、紫罗兰、翡翠绿、琥珀橙、蔷薇红、水墨灰）；
    - 彻底删除全站所有线性/径向渐变，全部采用纯色（Solid Flat）现代设计；
-   - 解决“只改变个人主页上面一小块区域”的弊病：主题配色全量联动顶部导航、底部底栏、悬浮按钮、全部错题列表、复盘卡片与错题详情，实现 100% 全局自适应；
-3. 🌐 **更新方案彻底优化（调起系统浏览器直接跳转官方发布页）**：
-   - 解决部分手机厂商系统直接下载 APK 后拦截并不提示安装的死结；
-   - 点击更新按钮直接唤起系统外部浏览器打开 GitHub Releases 官方版本发行页面，由用户在最稳定安全的官方页面直接选择对应安装包下载安装；
-4. 📂 **个人主页设置卡片默认收起折叠**：
-   - 个人主页下的 6 大模块（主题配色、背景壁纸、文件存储、AI助教、关于与更新、联系反馈）默认全部收起折叠，点击标题即可丝滑展开，界面清爽干净；
-5. 📁 **文件存储设置极简重构**：
-   - 剔除冗余预设，仅保留核心“文件夹位置设置（输入框+原生浏览选择+保存）”以及“数据备份恢复与 Git 同步”；
-6. 🏷️ **全站清除 Emoji 标签，全面统一为规范矢量图标**：
-   - 剔除 📱、💻、📮、✏️ 等杂乱 emoji，全量换成精致规范的 Lucide 矢量 SVG 标志；
-7. 🌅 **软件开屏等待页全新重构**：
+   - 主题配色全量联动顶部导航、底栏、悬浮按钮、全部错题列表、复盘卡片与错题详情，实现 100% 全局自适应。
+4. 🌐 **版本更新直达 GitHub 官方发行页面**：
+   - 针对部分手机厂商系统直接下载 APK 后拦截并不提示安装的问题，更新时直接唤起系统外部默认浏览器打开 GitHub Releases 官方版本发行页面，由用户在最稳定安全的官方页面直接选择对应安装包下载安装。
+5. 📂 **个人主页设置卡片默认收起折叠**：
+   - 个人主页下的 6 大模块（主题配色、背景壁纸、文件存储、AI助教、关于与更新、联系反馈）默认全部收起折叠，点击标题即可丝滑展开，界面清爽整洁。
+6. 📁 **文件存储设置极简重构**：
+   - 剔除冗余预设，仅保留核心“文件夹位置设置（输入框+原生浏览选择+保存）”以及“数据备份恢复与 Git 同步”。
+7. 🏷️ **全站清除 Emoji 标签，全面统一为规范矢量图标**：
+   - 剔除 📱、💻、📮、✏️ 等杂乱 emoji，全量换成精致规范的 Lucide 矢量 SVG 标志。
+8. 🌅 **软件开屏等待页全新重构**：
    - 彻底重构进入软件的等待过渡页面，去除老旧黑白与渐变，纯平极简设计，实时毫秒级同步当前主题配色。
 
 ---
 
-## ✨ v1.6.3 升级回顾
-
-1. 🌐 **更新全面改为调用外部系统浏览器（稳定高效 · 零拦截）**：
-   - 彻底摒弃容易受 WebView 沙盒限制的应用内模拟下载流程；
-   - **一键调起系统默认浏览器**：无论是安卓手机端（调用 `AndroidNativeBridge` 与 `Intent.CATEGORY_BROWSABLE`），还是 Windows 桌面端（调用 `NativeHostBridge` 与 `Process.Start`），点击“调起外部浏览器更新”直接唤起用户的系统默认浏览器，由系统原生下载管理器满速下载；
-   - **国内极速 CDN 加速源**：默认接入 ghfast / ghproxy 镜像，解决直连慢或打不开的痛点；提供一键复制下载直链与前往 GitHub 发布页多维通道；
-2. 🌅 **全新开屏等待封面与主题深度联动（告别老旧黑白刺眼窗）**：
-   - 彻底重构进入软件的开屏等待动画与封面：彻底摒弃老版本沉重电竞黑蓝与刺眼发光霓虹，换上与当前主题百分之百联动的素雅莫兰迪微光质感封面；
-   - **自适应配色感知**：等待页毫秒级自动读取当前主题色（知微蓝、黛灰紫、竹青、暖茶棕、豆沙粉、水墨灰）及深浅模式，光标、边框、进度条与励志箴言小卡片实时变色；若用户配置了个性壁纸，开屏更可优雅透显专属背景；
-   - **零闪烁极速过渡**：Windows 原生窗体底色与 WebView2 默认背景全量对齐莫兰迪纸卷白灰（`#f8fafc`），从双击打开到界面就绪完全无缝一体，告别白窗闪烁与生硬跳变；
-3. 🌿 **全界面莫兰迪素雅低饱和配色（告别刺眼高光）**：
-   - 全面重塑色彩体系，将原先高亮刺眼的纯蓝、亮橙、艳粉升级为舒适沉静的低饱和素雅书卷色（素雅知微蓝、晚烟黛灰紫、莫兰迪竹青、纸书暖茶棕、温润豆沙粉、素朴水墨灰），长时间研读做题不视觉疲劳；
-4. 📁 **真·原生系统级文件夹选择（点击即调起系统目录浏览）**：
-   - 彻底重构目录选择机制：Windows 原生端直接弹出系统的 `FolderBrowserDialog` 文件夹选择器，Android 原生端通过 SAF 架构调起系统级文档树，Web 端支持 FileSystemAccess，点击按钮即刻呼出真实系统文件夹选择；同时保留常用一键预设与手动输入；
-4. 🚀 **市面级流畅更新安装体系（极速镜像源 + 实时下载进度 + 自动调起安装）**：
-   - **国内极速 CDN 加速源**：内置 ghfast / ghproxy 多镜像节点，彻底解决 GitHub 直连慢、下载失败或打不开的问题；
-   - **应用内可视化下载进度条**：点击更新后实时展示下载百分比与速度，下载完成自动调起 Android 系统 PackageInstaller 或 Windows 默认执行器，无缝覆盖安装，个人题库与笔记 100% 完好无损；
-5. 📱 **手机端背景壁纸压缩与全屏自适应**：
-   - 彻底修复了手机相册原图（4MB~15MB）超出 LocalStorage 限制导致壁纸不生效的问题，加入 Canvas 视网膜等比压缩算法（~150KB），实时全屏平铺生效；
-6. 🎯 **移动端顶栏去冗余极简打磨**：
-   - 彻底移除手机端顶栏右上角转跳个人主页的头像按钮（底栏已有专属入口），顶栏更纯粹宽敞；
-7. 🔄 **覆盖式升级脱瘾与防旧缓存拦截**：
-   - 原生端自动比对版本号，升级安装时主动注销 Service Worker 并清理 CacheStorage，确保 100% 运行最新构建产物且用户错题数据完好无损；
-8. ✏️ **全新极简 2D 简笔画风格图标体系**：
-   - 彻底淘汰厚重的 3D 渲染，全新设计纯粹自然的 2D 矢量线条简笔画图标（翻页笔记、极简铅笔、对勾与灵感星芒），桌面与手机展示更清新清爽；
-9. 🎨 **软件全界面配色全局联动切换**：
-   - 切换 6 款主题颜色时，整个软件的按钮、高亮、边框、光标和标签全部即时变色；
-10. 📝 **错题内容全新升级 Markdown 文档格式**：
-    - 错题录题与标准答案全面引入富文本 Markdown 编辑器，支持实时 LaTeX 数学公式渲染、代码高亮与分屏对照；
-11. 🛡️ **手机端写题心得折叠防崩溃彻底加固**：
-    - 全面修复了写题心得在手机端折叠时触发的渲染异常，收起与展开顺滑流畅；
-12. 📮 **联系作者与一键学友分享**：
-    - 个人主页新增作者官方联系邮箱 `2792893068@qq.com` 与一键分享知微错题本功能。
-
-1. 📱 **移动端顶栏去臃肿与排版重构**：
-   - **顶栏极简化设计**：彻底移除手机版左上角冗余膨胀的应用大图标与多行副标题，仅保留精致汉堡菜单按钮、当前学科名称及做题计数胶囊，视觉高度纯粹开阔；
-   - **全新 5 维底栏与学科错题分离**：
-     - 📂 **全部科目**：专用于浏览 GoodNotes 拟物学科笔记本卡片流，点击即可下钻查阅该学科错题并提供返回键；
-     - 📖 **全部错题**：专用于浏览全量错题卡片，支持未掌握/攻关中/已掌握即时状态筛选；
-     - ➕ **录题**；
-     - 🧠 **今日复盘**；
-     - 👤 **个人主页**。
-   - **解决手机信息栏遮挡**：抽屉弹窗内边距自动适配移动设备 Safe-Area 顶部安全区域，杜绝与手机状态栏、电量、时间及前置挖孔屏冲突。
-2. 👤 **全新个人主页与自定义文件存储目录**：
-   - **自定义存储目录与一键预设**：新增支持用户自由填写手机内部存储目录（如 `Download/知微错题本`、`/storage/emulated/0/...`）或电脑本地盘符目录（如 `D:\知微错题库`、`E:\我的错题本`），并提供快捷预设一键填入；
-   - **用户资料自定义**：支持切换/上传个性化头像照片，自由修改用户昵称与励志座右铭；
-   - **6 款专属主题配置颜色**：随时切换经典知微蓝、极客深邃紫、翡翠生机绿、暖阳落日橙、优雅蔷薇粉与沉稳曜石灰；
-   - **自定义背景壁纸**：支持上传本地背景图片并自由调节 5%~50% 护眼不透明度，兼具个性美感与公式阅读舒适度；
-   - **数据备份与恢复**：支持一键导出包含自定义目录提示的 JSON 全量题库备份与导入恢复。
-3. 📑 **错题录入支持上传 PDF 试卷与可选标准答案**：
-   - **原题支持 PDF 讲义/试卷**：除拍照与 Markdown 外，新增支持上传整页 PDF，可在详情页多页翻阅并手写批注；
-   - **新增参考答案录入（可选）**：录题时可自由选择是否填写标准答案，支持文字解析、答案拍照与答案 PDF 附件。
-4. 🤖 **AI 智能助教与复习规划接口配置**：
-   - 在个人主页设置中内置 API 接口配置面板，支持直连 DeepSeek、OpenAI、Kimi、通义千问等；
-   - 纯客户端本地发起请求，无需中间服务器，API Key 仅留存于本地，保障学习隐私。
-5. 🎨 **全真矢量图标体系（告别原生 Emoji）**：
-   - 彻底淘汰原有简陋杂乱的系统 Emoji（如 `🧠`、`📝`、`📑`、`📷`、`🔥` 等）。
-   - 全面引入高精度 Lucide 矢量图标，重塑 24 种学科专属徽章、草稿页签、复盘状态机与导航系统，视觉更高级、纯粹、专业。
-6. 🔄 **自动检测与覆盖式无损更新**：
-   - 每次进入软件自动与 GitHub 官方仓库比对最新 Release 版本。
-   - 发现新版时弹出高颜值更新提醒，支持一键直达下载覆盖升级；
-   - **严格保证用户数据安全**：更新仅替换软件主程序，用户所有本地错题、分类与配置物理隔离，升级绝不丢失任何数据！
-7. 🚀 **零延迟原生励志开屏封面（彻底解决开屏白窗）**：
-   - 为 Windows 原生端和移动端设计高颜值极速启动封面，杜绝引擎加载时的几秒白色窗口闪烁。
-   - 呈现呼吸光晕 App 徽章与每日精选励志学习名言（苏轼、孔子、《礼记》等经典名篇随机展现），平滑过渡至学习空间。
-
----
-
-## 🖼️ 真实界面展示 (UI Showcase)
+## 🌟 核心特色与功能矩阵
 
 <div align="center">
 
-### 💻 宽屏桌面端与 iPad 平板大屏视图
-*高颜值拟物化 GoodNotes 学科封面、多级目录折叠导航、搜索与 Git 状态面板*
-
-<img src="docs/images/desktop-showcase.png" alt="知微错题本桌面与平板视图" width="95%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 24px;" />
-
-<br/>
-
-### 📖 错题精细研读与多模态复盘视图
-*标准解析折叠防剧透、LaTeX 数学公式渲染、历次演练做题记录与心得推导*
-
-<img src="docs/images/desktop-detail-view.png" alt="知微错题本错题精细研读视图" width="95%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 24px;" />
-
-<br/>
-
-### 📱 移动端与手机竖屏触控专属设计
-*左图：手机端个人主页（支持全局主题切换、自定义壁纸、快捷存储目录选择、作者反馈） ｜ 右图：手机端极简顶栏（去冗余头像、专注做题）与学科分类流*
-
-<p>
-  <img src="docs/images/mobile-profile.png" alt="手机端个人主页与设置" width="46%" style="border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,0.1); margin-right: 14px;" />
-  <img src="docs/images/mobile-showcase.png" alt="手机端极简学科分类视图" width="46%" style="border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,0.1);" />
-</p>
+| 功能维度 | 核心特性 | 学习场景与价值 |
+| :--- | :--- | :--- |
+| 📅 **艾宾浩斯记忆与打卡日历** | • 艾宾浩斯临界点智能排程<br/>• 连续打卡天数（Streak）统计<br/>• 交互式月度足迹日历网格 | 遵循记忆遗忘规律，避免“录了不看”的死循环；以连击天数激发学习成就感 |
+| 📂 **GoodNotes 拟物学科体系** | • 无限级学科与考点层级<br/>• 8 款书卷封皮与专属矢量徽章<br/>• 动态掌握度环形进度盘 | 搭建结构化知识大厦，从宏观学科（高数/物化/算法）到微观考点井井有条 |
+| 📝 **Markdown + LaTeX 多模态笔记** | • KaTeX 数学公式实时解析<br/>• 多语言代码块语法高亮<br/>• 标准答案折叠（防剧透自测） | 完美满足数理推导、算法分析、文科长难句等高阶题型的精细化整理诉求 |
+| ✍️ **压感真实手写草稿演练板** | • 硬件级 PointerEvent 压感<br/>• 手掌防误触（Pen Only 模式）<br/>• 多页草稿推导保存与归档 | 还原纸质笔记本演算推导触感，原汁原味记录考场推导灵感与顿笔痕迹 |
+| 🔄 **多次做题演练历程分区** | • 建立多次复盘时间轴<br/>• 结果/耗时/演算草稿/反思记录<br/>• 动态掌握度状态机联动 | 告别“做过一遍就算学会”的盲目，客观记录同一道题从不会到精通的全程蜕变 |
+| ☁️ **本地优先 + Git 免服务器云同步** | • 100% 离线可用，断网秒开<br/>• 支持 GitHub / Gitee 私有仓库<br/>• 三端互通，无中心化收费服务器 | 数据 100% 归属于你，绝不依赖第三方可能停运的云服务，隐私与安全坚如磐石 |
+| 🎨 **学者纯色典雅设计与壁纸** | • 6 款舒适耐看的沉静纯色<br/>• 自定义本地背景壁纸与透明度<br/>• 全平台 100% 全局自适应 | 拒绝刺眼荧光与杂乱渐变，打造沉浸、专注、纯粹的书卷学习空间 |
+| 🛡️ **覆盖式无损升级保障** | • 升级逻辑与本地数据库物理隔离<br/>• 自动清理旧构建缓存<br/>• 升级过程绝不损坏或丢失本地错题 | 放心升级新功能，每一次更新都安心无忧 |
 
 </div>
 
 ---
 
-## 🌟 核心特色与功能深度剖析
+## 🖼️ 全平台精选界面巡礼
 
-### 1. 📂 GoodNotes 拟物化层级分类
-* **多级学科与知识点归类**：自由创建一级科目（数学、物理、英语、算法等）以及无限层级子分类（例如：`数学 ➔ 函数与导数 ➔ 极值点偏移`）。
-* **拟物化封面色板**：支持 8 种高雅莫兰迪色系、个性化科目图标与掌握率环形进度条。
-* **无刷新流畅交互**：创建与编辑分类自由输入名称，绝无刷新丢字或位置错位烦恼。
+<div align="center">
 
-### 2. ✍️ Apple Pencil 触控手写画板 (草稿演练与订正推导)
-* **真实压感笔迹**：深度基于 PointerEvent 硬件压感引擎，支持 Apple Pencil 细致轻重顿笔。
-* **手掌防误触 (Pen Only)**：开启后仅响应手写笔触，手掌贴在屏幕上演算也不会发生误涂或页面拖动。
-* **多页草稿连载**：一键添加草稿页，快速保存并直接归档进当次做题记录。
+### 💻 宽屏桌面端与 iPad 平板大屏视图
+*拟物化 GoodNotes 学科封面、多级目录折叠导航、搜索与 Git 状态面板*
 
-### 3. 📝 三模态错题心得笔记
-* 📝 **纯文本极简模式**：无干扰沉浸记录第一感觉与考场心理。
-* 📖 **Markdown + LaTeX 公式模式**：内置常用公式符号栏，全面支持 行内公式（`$f'(x_0) = 0$`）与 块级公式（`$$\int_a^b f(x)dx$$`）秒级渲染。
-* 💻 **代码块模式**：支持 Python、C++、Java、JS、Rust、SQL 等十余种语言高亮显示与行号统计。
-* 🏷️ **错因速选标签**：审题失误、知识盲区、公式遗忘、计算失误、思维定势、分类讨论不全。
-
-### 4. 🔄 做题历程分区 (第1次做、第2次做、第3次做...)
-* 针对同一道难题建立多次复盘演练时间轴。
-* 详细记录：**做题结果（完全做对 / 步骤得分 / 依然做错）**、**做题耗时（分钟）**、**演算推导草稿图**、**阶段反思笔记**。
-* 联动掌握度状态机：`未掌握 ➔ 攻克复盘中 ➔ 已完全掌握`。
-
-### 5. ☁️ 本地优先 + Git 无服务器多端云同步
-* **数据 100% 属于你**：纯本地模式下所有数据存储在 IndexedDB 或本地 `data/` 目录中，即使完全断网也能秒开使用。
-* **三端互通**：支持配置 Gitee (国内极速免代理) 或 GitHub 私有仓库，通过 Git 协议实现 Android、iPadOS 与 Windows 双向无缝同步，无需任何中心化收费服务器！
+<img src="docs/images/desktop-showcase.png" alt="知微错题本桌面与平板视图" width="96%" style="border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 12px 36px rgba(0,0,0,0.06); margin-bottom: 24px;" />
 
 ---
 
-## 🚀 各端使用与安装教程
+### 📖 错题精细研读与多模态复盘视图
+*标准解析折叠防剧透、LaTeX 数学公式秒级渲染、历次演练做题记录与解题心得*
+
+<img src="docs/images/desktop-detail-view.png" alt="知微错题本错题精细研读视图" width="96%" style="border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 12px 36px rgba(0,0,0,0.06); margin-bottom: 24px;" />
+
+---
+
+### 📅 艾宾浩斯复盘计划与连续打卡日历
+*连续学习天数（Streak）徽章、历史最长连击、累计研习统计与月度足迹日历*
+
+<img src="docs/images/review-showcase.png" alt="知微错题本复盘与打卡日历" width="96%" style="border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 12px 36px rgba(0,0,0,0.06); margin-bottom: 24px;" />
+
+---
+
+### 📱 移动端与手机竖屏触控专属设计
+*左侧：手机端学科分类与错题卡片流 ｜ 右侧：艾宾浩斯复盘与连续学习打卡日历*
+
+<img src="docs/images/mobile-duo-showcase.png" alt="移动端双视图展示" width="80%" style="border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 12px 36px rgba(0,0,0,0.07); margin-bottom: 12px;" />
+
+</div>
+
+---
+
+## 🚀 各端安装与使用指南
 
 ### 🤖 Android 安卓端安装
-1. 在 Android 设备上下载 [**`知微错题本_v1.4_纯净版.apk`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/%E7%9F%A5%E5%BE%AE%E9%94%99%E9%A2%98%E6%9C%AC_v1.4_%E7%BA%AF%E5%87%80%E7%89%88.apk)。
-2. 点击安装文件，允许「允许安装未知来源应用」。
-3. 安装完成后打开，即可享受专门为手机端适配的抽屉侧边栏、相机扫题与双击返回防误触体验。
+1. 在 Android 设备上下载 [**`zhiwei-notebook-v1.6.5-android.apk`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.5/zhiwei-notebook-v1.6.5-android.apk)；
+2. 点击安装包，若系统提示请允许「允许安装来自此来源的应用」；
+3. 安装完成后打开，即可畅享专门为手机端适配的自适应顶栏、防软键盘遮挡、相机扫题与双击返回体验。
 
 ---
 
 ### 🍎 iPadOS / iOS 端安装
 
-#### 方案一：使用爱思助手安装原生 `.ipa`（最推荐）
-1. 下载 [**`知微错题本_iPad_v1.4.ipa`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/%E7%9F%A5%E5%BE%AE%E9%94%99%E9%A2%98%E6%9C%AC_iPad_v1.4.ipa) 到电脑；
-2. 用数据线连接 iPad 到电脑，打开电脑端「爱思助手」；
+#### 方案一：使用爱思助手安装原生 `.ipa`（最推荐 ⭐）
+1. 下载 [**`zhiwei-notebook-v1.6.5-ipad.ipa`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.5/zhiwei-notebook-v1.6.5-ipad.ipa) 到电脑；
+2. 用数据线将 iPad 连接到电脑，打开电脑端「爱思助手」；
 3. 进入 **「工具箱」➔「IPA 签名」**，导入下载好的 `.ipa` 文件；
 4. 选择 **「使用 Apple ID 签名」**，输入你自己的 Apple ID 即可免费签名并安装到 iPad；
 5. 首次在 iPad 上打开时，进入「设置」➔「通用」➔「VPN 与设备管理」中点击「信任开发者证书」即可畅享！
@@ -219,13 +156,13 @@
 ### 💻 Windows 桌面端使用指南
 
 #### 方式一：直接运行 Windows 单文件版 EXE（最推荐 ⭐）
-1. 下载 [**`zhiwei-notebook-v1.4-windows.exe`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-windows.exe)（或下载绿色便携版 ZIP 解压）；
+1. 下载 [**`zhiwei-notebook-v1.6.5-windows.exe`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.5/zhiwei-notebook-v1.6.5-windows.exe)（或下载绿色便携版 ZIP 解压）；
 2. 直接双击打开即可运行！无需安装任何额外环境，独立桌面窗口、无浏览器地址栏干扰，内嵌高精度手写与本地数据引擎。
 
 #### 方式二：一键批处理脚本启动
 直接双击项目根目录下的 **`启动错题本.bat`**，系统将自动拉起本地数据存储服务与浏览器前端界面！
 
-#### 方式三：开发者命令行启动
+#### 方式三：开发者源码启动
 ```bash
 # 1. 克隆代码仓库
 git clone https://github.com/xuewexin/zhiwei-notebook.git
@@ -249,15 +186,15 @@ npm run build
 知微错题本 (ZhiWei Note)
 ├── Web / UI 层: React 19 + TypeScript + Vite + TailwindCSS 4
 ├── 数学与代码引擎: KaTeX + PrismJS + Marked
-├── 手写笔迹引擎: PointerEvent + Pressure Sensitivity + Palm Rejection
+├── 笔迹演练引擎: PointerEvent + Pressure Sensitivity + Palm Rejection
 ├── 跨端原生容器: 
 │   ├── Windows 桌面端: .NET 9 + Microsoft Edge WebView2 (单文件独立打包)
 │   ├── Android 移动端: Capacitor 8 (Android SDK 34)
 │   └── iPadOS 平板端: Capacitor 8 (iOS SDK 17+ Swift Package Manager)
 ├── 数据持久化: 
-│   ├── Client 模式: IndexedDB / LocalStorage (纯本地秒级缓存)
+│   ├── Client 模式: IndexedDB / LocalStorage (纯本地秒级读写)
 │   ├── Server 模式: Express + Node.js (本地磁盘文件持久化)
-│   └── Cloud 模式: Git (GitHub / Gitee 双向同步通道)
+│   └── Cloud 模式: Git (GitHub / Gitee 私有仓库双向漫游)
 └── 自动化打包: GitHub Actions (macOS-14 ARM64 Xcode Runner)
 ```
 
@@ -265,4 +202,4 @@ npm run build
 
 ## 📄 开源许可证
 
-本项目基于 [MIT License](LICENSE) 开源。欢迎 Star、Fork 与提交 Issue 改进！
+本项目基于 [MIT License](LICENSE) 开源。欢迎 Star、Fork 与提交反馈改进！

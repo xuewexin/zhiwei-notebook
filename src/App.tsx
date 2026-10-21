@@ -36,6 +36,7 @@ import { UserProfileView } from './components/UserProfileView';
 import { ReviewCheckinView } from './components/ReviewCheckinView';
 import { checkForUpdates, UpdateInfo, CURRENT_VERSION } from './services/updateService';
 import { settingsService, ThemeColorKey, BackgroundConfig, UserProfile, THEME_PALETTES } from './services/settingsService';
+import { INITIAL_STARTER_QUESTIONS } from './api/localStorageEngine';
 
 export const App: React.FC = () => {
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -58,8 +59,10 @@ export const App: React.FC = () => {
         const raw = localStorage.getItem('zhiwei_questions_pure_v1');
         if (raw) {
           const qs = JSON.parse(raw);
-          return qs.find((item: any) => item.id === qId) || null;
+          const found = qs.find((item: any) => item.id === qId);
+          if (found) return found;
         }
+        return INITIAL_STARTER_QUESTIONS.find(item => item.id === qId) || null;
       }
     } catch {}
     return null;
@@ -112,6 +115,71 @@ export const App: React.FC = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+
+  // Virtual Keyboard & Active Input Detection for Mobile Navigation Bar
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const checkKeyboard = () => {
+      if (window.visualViewport) {
+        const heightDiff = window.innerHeight - window.visualViewport.height;
+        if (heightDiff > 120) {
+          setIsKeyboardVisible(true);
+          return;
+        }
+      }
+      const activeEl = document.activeElement;
+      const isInput = activeEl && (
+        activeEl.tagName === 'INPUT' ||
+        activeEl.tagName === 'TEXTAREA' ||
+        (activeEl as HTMLElement).isContentEditable
+      );
+      if (!isInput) {
+        setIsKeyboardVisible(false);
+      }
+    };
+
+    const onFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        setIsKeyboardVisible(true);
+      }
+    };
+
+    const onFocusOut = () => {
+      setTimeout(() => {
+        const activeEl = document.activeElement;
+        const isInput = activeEl && (
+          activeEl.tagName === 'INPUT' ||
+          activeEl.tagName === 'TEXTAREA' ||
+          (activeEl as HTMLElement).isContentEditable
+        );
+        if (!isInput) {
+          setIsKeyboardVisible(false);
+        }
+      }, 150);
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', checkKeyboard);
+      window.visualViewport.addEventListener('scroll', checkKeyboard);
+    }
+    window.addEventListener('resize', checkKeyboard);
+    window.addEventListener('focusin', onFocusIn);
+    window.addEventListener('focusout', onFocusOut);
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', checkKeyboard);
+        window.visualViewport.removeEventListener('scroll', checkKeyboard);
+      }
+      window.removeEventListener('resize', checkKeyboard);
+      window.removeEventListener('focusin', onFocusIn);
+      window.removeEventListener('focusout', onFocusOut);
+    };
+  }, []);
 
   // Smoothly transition and remove splash screen
   useEffect(() => {
@@ -845,7 +913,14 @@ export const App: React.FC = () => {
       </main>
 
       {/* 3. Mobile Bottom Navigation Bar (5 Streamlined Flagship Tabs) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 pb-[env(safe-area-inset-bottom,0px)] shadow-lg">
+      {/* Automatically hidden when soft keyboard pops up or when any modal/input is active */}
+      <nav 
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 pb-[env(safe-area-inset-bottom,0px)] shadow-lg transition-all duration-200 ${
+          isKeyboardVisible || isQuestionModalOpen || isGitModalOpen || !!viewerImageUrl || isUpdateModalOpen
+            ? 'hidden pointer-events-none'
+            : 'flex'
+        }`}
+      >
         <div className="flex items-center justify-around h-15 px-2 max-w-lg mx-auto relative">
           {/* Tab 1: 全部科目 (GoodNotes 学科分类) */}
           <button
@@ -985,7 +1060,7 @@ export const App: React.FC = () => {
 
       {/* 5. Git Not Configured Alert Modal */}
       {isGitNotConfiguredNoticeOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 animate-scale-in text-center">
             <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-3">
               <CloudOff className="w-6 h-6" />
