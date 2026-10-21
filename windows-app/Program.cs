@@ -45,7 +45,7 @@ public class MainForm : Form
         Size = new Size(1360, 860);
         MinimumSize = new Size(860, 600);
         StartPosition = FormStartPosition.CenterScreen;
-        BackColor = Color.FromArgb(15, 23, 42);
+        BackColor = Color.FromArgb(248, 250, 252);
 
         try
         {
@@ -56,7 +56,7 @@ public class MainForm : Form
         _webView = new WebView2
         {
             Dock = DockStyle.Fill,
-            DefaultBackgroundColor = Color.FromArgb(15, 23, 42)
+            DefaultBackgroundColor = Color.FromArgb(248, 250, 252)
         };
 
         Controls.Add(_webView);
@@ -125,11 +125,31 @@ public class MainForm : Form
             _webView.CoreWebView2.Settings.AreDevToolsEnabled = true;
             _webView.CoreWebView2.Settings.IsZoomControlEnabled = true;
 
+            // Register native host bridge for folder dialog & browser launching
+            _webView.CoreWebView2.AddHostObjectToScript("nativeHost", new NativeHostBridge(this));
+
+            // Intercept external window requests to launch default browser
+            _webView.CoreWebView2.NewWindowRequested += (s, e) =>
+            {
+                e.Handled = true;
+                try
+                {
+                    Process.Start(new ProcessStartInfo(e.Uri) { UseShellExecute = true });
+                }
+                catch {}
+            };
+
+            // Allow downloads to trigger smoothly
+            _webView.CoreWebView2.DownloadStarting += (s, e) =>
+            {
+                e.Handled = false;
+            };
+
             // 1. Always extract and prioritize the fresh embedded web bundle from the executable
             string bundleDir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "ZhiWeiNote",
-                "Bundle_v161"
+                "Bundle_v162"
             );
 
             string distPath = "";
@@ -191,5 +211,50 @@ public class MainForm : Form
                 MessageBoxIcon.Error
             );
         }
+    }
+}
+
+[System.Runtime.InteropServices.ComVisible(true)]
+public class NativeHostBridge
+{
+    private readonly Form _parent;
+
+    public NativeHostBridge(Form parent)
+    {
+        _parent = parent;
+    }
+
+    public string PickFolder(string initialPath = "")
+    {
+        string selected = "";
+        try
+        {
+            _parent.Invoke(new Action(() =>
+            {
+                using var dialog = new FolderBrowserDialog();
+                dialog.Description = "请选择知微错题本的数据与备份存放目录";
+                dialog.UseDescriptionForTitle = true;
+                dialog.ShowNewFolderButton = true;
+                if (!string.IsNullOrEmpty(initialPath) && Directory.Exists(initialPath))
+                {
+                    dialog.InitialDirectory = initialPath;
+                }
+                if (dialog.ShowDialog(_parent) == DialogResult.OK)
+                {
+                    selected = dialog.SelectedPath;
+                }
+            }));
+        }
+        catch {}
+        return selected;
+    }
+
+    public void OpenUrl(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch {}
     }
 }

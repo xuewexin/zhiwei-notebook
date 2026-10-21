@@ -10,8 +10,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="知微错题本" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="theme-color" content="#2563eb" />
-    <title>知微错题本 - 见微知著，改错成金</title>
+    <meta name="theme-color" content="#416788" />
+    <title>知微错题本 - 见微知著，省思改错</title>
     <!-- KaTeX CSS for Math Formulas rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
     <!-- Prism CSS for Code Block highlighting -->
@@ -47,7 +47,38 @@
       }
     </style>
     <style>
-      /* Zero-delay Startup Splash Screen */
+      /* Theme Responsive Startup Splash Screen */
+      :root {
+        --splash-bg: #f8fafc;
+        --splash-bg-gradient: radial-gradient(circle at 50% 32%, #ffffff 0%, #f7f9fa 50%, #edf1f5 100%);
+        --splash-card-bg: rgba(255, 255, 255, 0.88);
+        --splash-card-border: rgba(65, 103, 136, 0.16);
+        --splash-card-shadow: 0 16px 36px -8px rgba(65, 103, 136, 0.08), 0 2px 8px rgba(0, 0, 0, 0.02);
+        --splash-text-main: #24303e;
+        --splash-text-sub: #64748b;
+        --splash-text-quote: #334155;
+        --splash-primary: #416788;
+        --splash-primary-rgb: 65, 103, 136;
+        --splash-tag-bg: rgba(65, 103, 136, 0.09);
+        --splash-tag-border: rgba(65, 103, 136, 0.22);
+        --splash-tag-text: #416788;
+        --splash-loader-track: rgba(65, 103, 136, 0.12);
+        --splash-footer-text: #8e9cae;
+      }
+
+      body.dark-splash, html.dark body.dark-splash {
+        --splash-bg: #141a22;
+        --splash-bg-gradient: radial-gradient(circle at 50% 32%, #1a222c 0%, #121820 60%, #0d1217 100%);
+        --splash-card-bg: rgba(26, 34, 44, 0.85);
+        --splash-card-border: rgba(255, 255, 255, 0.08);
+        --splash-card-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        --splash-text-main: #f1f5f9;
+        --splash-text-sub: #94a3b8;
+        --splash-text-quote: #cbd5e1;
+        --splash-loader-track: rgba(255, 255, 255, 0.08);
+        --splash-footer-text: #64748b;
+      }
+
       #app-splash {
         position: fixed;
         inset: 0;
@@ -56,11 +87,12 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: radial-gradient(circle at 50% 35%, #1e293b 0%, #0f172a 60%, #090d16 100%);
-        color: #ffffff;
+        background: var(--splash-bg-gradient);
+        color: var(--splash-text-main);
         font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         padding: 24px;
         box-sizing: border-box;
+        overflow: hidden;
         transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
       }
       #app-splash.splash-fade-out {
@@ -68,93 +100,117 @@
         pointer-events: none;
         transform: scale(1.02);
       }
+      .splash-custom-bg {
+        position: absolute;
+        inset: 0;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s ease;
+      }
       .splash-logo-box {
         position: relative;
-        width: 88px;
-        height: 88px;
-        border-radius: 24px;
-        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-        padding: 3px;
-        box-shadow: 0 16px 40px -10px rgba(59, 130, 246, 0.5), 0 0 35px rgba(99, 102, 241, 0.25);
-        animation: splash-pulse 3s ease-in-out infinite;
+        z-index: 2;
+        width: 82px;
+        height: 82px;
+        border-radius: 22px;
+        background: #ffffff;
+        padding: 4px;
+        border: 1.5px solid rgba(var(--splash-primary-rgb), 0.25);
+        box-shadow: 0 14px 30px -8px rgba(var(--splash-primary-rgb), 0.22), 0 3px 10px rgba(0, 0, 0, 0.03);
+        animation: splash-float 3.6s ease-in-out infinite;
+      }
+      body.dark-splash .splash-logo-box {
+        background: #1e2633;
+        border-color: rgba(var(--splash-primary-rgb), 0.4);
+        box-shadow: 0 14px 32px -8px rgba(0, 0, 0, 0.55);
       }
       .splash-logo-img {
         width: 100%;
         height: 100%;
-        border-radius: 21px;
+        border-radius: 18px;
         object-fit: cover;
         display: block;
       }
       .splash-title {
-        margin-top: 22px;
-        font-size: 24px;
+        position: relative;
+        z-index: 2;
+        margin-top: 20px;
+        font-size: 23px;
         font-weight: 800;
-        letter-spacing: 2px;
-        background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        letter-spacing: 2.5px;
+        color: var(--splash-text-main);
       }
       .splash-subtitle {
+        position: relative;
+        z-index: 2;
         margin-top: 6px;
         font-size: 11px;
-        letter-spacing: 3px;
-        color: #64748b;
-        font-weight: 500;
+        letter-spacing: 2px;
+        color: var(--splash-primary);
+        font-weight: 600;
+        opacity: 0.9;
       }
       .splash-quote-card {
-        margin-top: 36px;
-        max-width: 440px;
-        width: 100%;
-        padding: 16px 22px;
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.035);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        position: relative;
+        z-index: 2;
+        margin-top: 32px;
+        max-width: 430px;
+        width: 88%;
+        padding: 18px 24px;
+        border-radius: 20px;
+        background: var(--splash-card-bg);
+        border: 1px solid var(--splash-card-border);
+        box-shadow: var(--splash-card-shadow);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         text-align: center;
       }
       .splash-quote-tag {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 3px 10px;
+        padding: 3.5px 12px;
         border-radius: 9999px;
-        background: rgba(59, 130, 246, 0.15);
-        border: 1px solid rgba(59, 130, 246, 0.3);
-        color: #60a5fa;
-        font-size: 10px;
+        background: var(--splash-tag-bg);
+        border: 1px solid var(--splash-tag-border);
+        color: var(--splash-tag-text);
+        font-size: 10.5px;
         font-weight: 600;
         letter-spacing: 1px;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
       }
       .splash-quote-dot {
         width: 5px;
         height: 5px;
         border-radius: 50%;
-        background-color: #38bdf8;
-        box-shadow: 0 0 8px #38bdf8;
+        background-color: var(--splash-primary);
+        box-shadow: 0 0 6px rgba(var(--splash-primary-rgb), 0.6);
       }
       .splash-quote-text {
         font-size: 13.5px;
-        line-height: 1.65;
-        color: #e2e8f0;
+        line-height: 1.7;
+        color: var(--splash-text-quote);
         margin: 0;
+        font-weight: 500;
       }
       .splash-quote-author {
         font-size: 11px;
-        color: #64748b;
+        color: var(--splash-text-sub);
         margin-top: 8px;
         font-weight: 500;
       }
       .splash-loader-bar {
         position: relative;
-        width: 160px;
+        z-index: 2;
+        width: 140px;
         height: 3px;
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--splash-loader-track);
         border-radius: 9999px;
         overflow: hidden;
-        margin-top: 32px;
+        margin-top: 30px;
       }
       .splash-loader-inner {
         position: absolute;
@@ -162,19 +218,21 @@
         left: -100%;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, transparent 0%, #38bdf8 50%, #818cf8 100%);
+        background: linear-gradient(90deg, transparent 0%, var(--splash-primary) 50%, transparent 100%);
         border-radius: 9999px;
-        animation: splash-shimmer 1.8s infinite ease-in-out;
+        animation: splash-shimmer 2s infinite ease-in-out;
       }
       .splash-footer-note {
-        margin-top: 12px;
-        font-size: 10px;
-        color: #475569;
-        letter-spacing: 1px;
+        position: relative;
+        z-index: 2;
+        margin-top: 14px;
+        font-size: 10.5px;
+        color: var(--splash-footer-text);
+        letter-spacing: 1.5px;
       }
-      @keyframes splash-pulse {
-        0%, 100% { transform: scale(1); box-shadow: 0 16px 40px -10px rgba(59, 130, 246, 0.5), 0 0 35px rgba(99, 102, 241, 0.25); }
-        50% { transform: scale(1.03); box-shadow: 0 20px 48px -8px rgba(59, 130, 246, 0.7), 0 0 45px rgba(99, 102, 241, 0.4); }
+      @keyframes splash-float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
       }
       @keyframes splash-shimmer {
         0% { left: -100%; }
@@ -185,11 +243,12 @@
   <body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-500 selection:text-white">
     <!-- Zero-Delay Native Startup Cover -->
     <div id="app-splash">
+      <div id="splash-custom-bg" class="splash-custom-bg"></div>
       <div class="splash-logo-box">
         <img src="/app-icon.png" alt="知微错题本" class="splash-logo-img" />
       </div>
       <div class="splash-title">知微错题本</div>
-      <div class="splash-subtitle">见微知著 · 改错成金 · 登峰造极</div>
+      <div class="splash-subtitle">见微知著 · 省思改错 · 登峰造极</div>
 
       <div class="splash-quote-card">
         <div class="splash-quote-tag">
@@ -208,8 +267,54 @@
 
     <div id="root"></div>
     <script>
-      // Curated Inspiring Learning Quotes
+      // Instantly synchronize splash with active theme & user background
       (function() {
+        try {
+          var themeKey = localStorage.getItem('zhiwei_theme_color') || 'blue';
+          var isDark = localStorage.getItem('theme') === 'dark' || 
+                       (!('theme' in localStorage) && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          
+          var palettes = {
+            blue: { primary: '#416788', rgb: '65, 103, 136' },
+            violet: { primary: '#6b5b7b', rgb: '107, 91, 123' },
+            emerald: { primary: '#4d725a', rgb: '77, 114, 90' },
+            amber: { primary: '#966844', rgb: '150, 104, 68' },
+            rose: { primary: '#9b626e', rgb: '155, 98, 110' },
+            slate: { primary: '#4a5568', rgb: '74, 85, 104' }
+          };
+
+          var p = palettes[themeKey] || palettes.blue;
+          var root = document.documentElement;
+          root.style.setProperty('--splash-primary', p.primary);
+          root.style.setProperty('--splash-primary-rgb', p.rgb);
+          root.style.setProperty('--splash-tag-bg', 'rgba(' + p.rgb + ', ' + (isDark ? '0.2' : '0.09') + ')');
+          root.style.setProperty('--splash-tag-border', 'rgba(' + p.rgb + ', ' + (isDark ? '0.35' : '0.25') + ')');
+          root.style.setProperty('--splash-tag-text', isDark ? '#e2e8f0' : p.primary);
+          root.style.setProperty('--splash-card-border', 'rgba(' + p.rgb + ', ' + (isDark ? '0.22' : '0.16') + ')');
+
+          var metaTheme = document.querySelector('meta[name="theme-color"]');
+          if (metaTheme) metaTheme.setAttribute('content', p.primary);
+
+          if (isDark) {
+            document.body.classList.add('dark-splash');
+          }
+
+          // Custom user wallpaper
+          var bgRaw = localStorage.getItem('zhiwei_background_config');
+          if (bgRaw) {
+            var bg = JSON.parse(bgRaw);
+            if (bg && bg.imageUrl) {
+              var bgEl = document.getElementById('splash-custom-bg');
+              if (bgEl) {
+                bgEl.style.backgroundImage = 'url(' + bg.imageUrl + ')';
+                bgEl.style.opacity = (bg.opacity || 0.15);
+                if (bg.blur) bgEl.style.filter = 'blur(' + bg.blur + 'px)';
+              }
+            }
+          }
+        } catch (e) {}
+
+        // Curated inspiring learning quotes
         var quotes = [
           { text: "博观而约取，厚积而薄发。", author: "—— 苏轼" },
           { text: "知不足然后能自反也，知困然后能自强也。", author: "—— 《礼记·学记》" },

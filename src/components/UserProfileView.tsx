@@ -219,8 +219,64 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
     }
   };
 
-  // Directory Picker Modal open
-  const handlePickDirectory = () => {
+  // Native folder input ref for HTML5 directory selection fallback
+  const nativeFolderInputRef = useRef<HTMLInputElement>(null);
+
+  // Directly trigger system native folder picker on click
+  const handlePickDirectory = async () => {
+    // 1. Windows Native Host (WebView2 WinForms FolderBrowserDialog)
+    const host = (window as any).chrome?.webview?.hostObjects?.nativeHost;
+    if (host && typeof host.PickFolder === 'function') {
+      try {
+        const picked = await host.PickFolder(customDirInput || '');
+        if (picked) {
+          handleApplyDirectory(picked);
+          return;
+        }
+      } catch (err) {
+        console.warn('Windows native folder pick error:', err);
+      }
+    }
+
+    // 2. Android Native Bridge (SAF ACTION_OPEN_DOCUMENT_TREE)
+    const androidBridge = (window as any).AndroidNativeBridge;
+    if (androidBridge && typeof androidBridge.pickFolder === 'function') {
+      try {
+        (window as any).onAndroidFolderSelected = (path: string) => {
+          if (path) {
+            handleApplyDirectory(path);
+          }
+        };
+        androidBridge.pickFolder();
+        return;
+      } catch (err) {
+        console.warn('Android native folder pick error:', err);
+      }
+    }
+
+    // 3. Web Chromium File System Access API
+    if (typeof window !== 'undefined' && 'showDirectoryPicker' in window) {
+      try {
+        const handle = await (window as any).showDirectoryPicker();
+        if (handle && handle.name) {
+          const selectedPath = isNativePlatform
+            ? `Download/${handle.name}`
+            : `D:\\${handle.name}`;
+          handleApplyDirectory(selectedPath);
+          return;
+        }
+      } catch (err: any) {
+        if (err.name === 'AbortError') return; // User cancelled
+      }
+    }
+
+    // 4. HTML5 input webkitdirectory
+    if (nativeFolderInputRef.current) {
+      nativeFolderInputRef.current.click();
+      return;
+    }
+
+    // 5. Fallback: Open directory preset modal
     setIsDirPickerModalOpen(true);
   };
 
@@ -238,22 +294,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
 
   // Try Native System Picker if supported
   const handleNativeSystemPick = async () => {
-    if (typeof window !== 'undefined' && 'showDirectoryPicker' in window) {
-      try {
-        const handle = await (window as any).showDirectoryPicker();
-        if (handle && handle.name) {
-          const selectedPath = isNativePlatform
-            ? `Download/${handle.name}`
-            : `D:\\${handle.name}`;
-          handleApplyDirectory(selectedPath);
-          return;
-        }
-      } catch (e: any) {
-        if (e.name === 'AbortError') return;
-      }
-    }
-    // Fallback preset
-    handleApplyDirectory(isNativePlatform ? 'Download/知微错题本' : 'D:\\知微错题本数据');
+    handlePickDirectory();
   };
 
   // Save Name & Motto
@@ -671,14 +712,34 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2">
+            {/* Hidden native input for webkitdirectory */}
+            <input
+              ref={nativeFolderInputRef}
+              type="file"
+              // @ts-ignore
+              webkitdirectory="true"
+              directory="true"
+              className="hidden"
+              onChange={(e) => {
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                  const relative = files[0].webkitRelativePath || '';
+                  const folderName = relative.split('/')[0] || relative.split('\\')[0];
+                  if (folderName) {
+                    handleApplyDirectory(folderName);
+                  }
+                }
+              }}
+            />
+
             <div className="flex-1 relative flex items-center">
-              <FolderOpen className="w-4 h-4 text-blue-500 absolute left-3 pointer-events-none" />
+              <FolderOpen className="w-4 h-4 text-[#416788] absolute left-3 pointer-events-none" />
               <input 
                 type="text"
                 value={customDirInput}
                 onChange={(e) => setCustomDirInput(e.target.value)}
-                placeholder={isNativePlatform ? '例如: Download/知微错题本' : '例如: D:\\知微错题库'}
-                className="w-full text-xs pl-9 pr-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                placeholder={isNativePlatform ? '例如: Download/知微错题本' : '例如: D:\\知微错题本数据'}
+                className="w-full text-xs pl-9 pr-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-[#416788] font-medium"
               />
             </div>
             
@@ -686,10 +747,19 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               type="button"
               onClick={handlePickDirectory}
               className="px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-xs shrink-0 flex items-center justify-center gap-1.5"
-              title="点击快捷选择/切换系统目录"
+              title="直接调起系统原生文件夹选择对话框（Windows / Android / 电脑浏览器）"
             >
-              <FolderOpen className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>快捷选择目录</span>
+              <FolderOpen className="w-3.5 h-3.5 text-[#416788] dark:text-[#719dbf]" />
+              <span>选择系统文件夹</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsDirPickerModalOpen(true)}
+              className="px-3 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium transition-all cursor-pointer shadow-xs shrink-0 flex items-center justify-center gap-1"
+              title="查看移动端与电脑端推荐预设"
+            >
+              <span>推荐预设</span>
             </button>
 
             <button
@@ -700,7 +770,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                 setPathSavedNotice(true);
                 setTimeout(() => setPathSavedNotice(false), 2500);
               }}
-              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0 flex items-center justify-center gap-1.5"
+              className="px-4 py-2.5 bg-[#416788] hover:bg-[#34526d] text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0 flex items-center justify-center gap-1.5"
             >
               <Check className="w-3.5 h-3.5" />
               <span>保存路径</span>
@@ -1089,7 +1159,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
                 📮 作者唯一官方反馈邮箱
               </span>
-              <span className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400 select-all">
+              <span className="text-xs font-mono font-bold text-[#416788] dark:text-[#719dbf] select-all">
                 2792893068@qq.com
               </span>
             </div>
@@ -1100,13 +1170,13 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                 onClick={handleCopyEmail}
                 className="flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-2xs"
               >
-                <Copy className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                <Copy className="w-3.5 h-3.5 text-[#416788] dark:text-[#719dbf]" />
                 <span>复制邮箱</span>
               </button>
 
               <a
                 href="mailto:2792893068@qq.com?subject=【知微错题本】使用反馈与建议"
-                className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2 bg-[#416788] hover:bg-[#34526d] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
               >
                 <Mail className="w-3.5 h-3.5" />
                 <span>立即发送邮件</span>
@@ -1126,7 +1196,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-xl">
+                <div className="p-2 bg-slate-100 dark:bg-slate-800 text-[#416788] dark:text-[#719dbf] rounded-xl">
                   <FolderOpen className="w-5 h-5" />
                 </div>
                 <div>
@@ -1179,10 +1249,10 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                     className="flex flex-col items-start p-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-blue-50/70 dark:hover:bg-blue-950/40 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-600 rounded-2xl text-left transition-all cursor-pointer group"
                   >
                     <div className="flex items-center justify-between w-full">
-                      <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                      <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-100 group-hover:text-[#416788] dark:group-hover:text-[#719dbf]">
                         {item.name}
                       </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-blue-600 group-hover:text-white font-bold transition-colors">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-[#416788] group-hover:text-white font-bold transition-colors">
                         选用
                       </span>
                     </div>
@@ -1197,7 +1267,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             {/* PC Recommended Presets */}
             <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
-                <Laptop className="w-3.5 h-3.5 text-purple-500" />
+                <Laptop className="w-3.5 h-3.5 text-[#6b5b7b]" />
                 <span>💻 电脑端推荐存储目录 (点击一键选用)</span>
               </div>
               <div className="grid grid-cols-1 gap-2">
@@ -1222,13 +1292,13 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                     key={idx}
                     type="button"
                     onClick={() => handleApplyDirectory(item.path)}
-                    className="flex flex-col items-start p-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-purple-50/70 dark:hover:bg-purple-950/40 border border-slate-200 dark:border-slate-700 hover:border-purple-400 dark:hover:border-purple-600 rounded-2xl text-left transition-all cursor-pointer group"
+                    className="flex flex-col items-start p-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-[#6b5b7b] dark:hover:border-[#a390b0] rounded-2xl text-left transition-all cursor-pointer group"
                   >
                     <div className="flex items-center justify-between w-full">
-                      <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                      <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-100 group-hover:text-[#6b5b7b] dark:group-hover:text-[#a390b0]">
                         {item.name}
                       </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-purple-600 group-hover:text-white font-bold transition-colors">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-[#6b5b7b] group-hover:text-white font-bold transition-colors">
                         选用
                       </span>
                     </div>
@@ -1249,7 +1319,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                 <button
                   type="button"
                   onClick={handleNativeSystemPick}
-                  className="text-[11px] font-semibold text-blue-600 hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-[11px] font-semibold text-[#416788] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <FolderOpen className="w-3.5 h-3.5" />
                   <span>调起系统原生文件夹选择器</span>
@@ -1262,12 +1332,12 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                   value={customDirInput}
                   onChange={(e) => setCustomDirInput(e.target.value)}
                   placeholder="输入自定义绝对路径或相对路径..."
-                  className="flex-1 text-xs px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 text-xs px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-[#416788]"
                 />
                 <button
                   type="button"
                   onClick={() => handleApplyDirectory(customDirInput)}
-                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+                  className="px-4 py-2.5 bg-[#416788] hover:bg-[#34526d] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
                 >
                   应用保存
                 </button>

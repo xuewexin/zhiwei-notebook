@@ -735,7 +735,7 @@ export const App: React.FC = () => {
                 }}
                 className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl transition-all cursor-pointer border ${
                   mobileTab === 'profile'
-                    ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-bold border-blue-300 dark:border-blue-700 shadow-2xs'
+                    ? 'bg-slate-100 dark:bg-slate-800 text-[#416788] dark:text-[#719dbf] font-bold border-slate-300 dark:border-slate-600 shadow-2xs'
                     : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700'
                 }`}
                 title="个人主页与系统设置"
@@ -743,7 +743,7 @@ export const App: React.FC = () => {
                 <img
                   src={userProfile.avatar || '/app-icon.png'}
                   alt={userProfile.name}
-                  className="w-5 h-5 rounded-full object-cover ring-1 ring-blue-500/40 shrink-0"
+                  className="w-5 h-5 rounded-full object-cover ring-1 ring-slate-400/40 shrink-0"
                 />
                 <span className="text-xs font-bold truncate max-w-[95px]">
                   {userProfile.name || '知微学者'}
@@ -753,7 +753,7 @@ export const App: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsQuestionModalOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-[#416788] hover:bg-[#34526d] text-white rounded-xl shadow-xs transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>录入错题</span>
@@ -860,7 +860,7 @@ export const App: React.FC = () => {
             }}
             className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors ${
               mobileTab === 'folders' && !selectedQuestion
-                ? 'text-blue-600 dark:text-blue-400 font-bold'
+                ? 'text-[#416788] dark:text-[#719dbf] font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
             }`}
           >
@@ -880,7 +880,7 @@ export const App: React.FC = () => {
             }}
             className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors ${
               mobileTab === 'questions' && !selectedQuestion
-                ? 'text-blue-600 dark:text-blue-400 font-bold'
+                ? 'text-[#416788] dark:text-[#719dbf] font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
             }`}
           >
@@ -893,10 +893,10 @@ export const App: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsQuestionModalOpen(true)}
-              className="w-13 h-13 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 transform active:scale-95 transition-all cursor-pointer ring-4 ring-white dark:ring-slate-900"
+              className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#344d67] to-[#416788] hover:from-[#2c4358] hover:to-[#34526d] text-white flex items-center justify-center shadow-md shadow-slate-600/20 transform active:scale-95 transition-all cursor-pointer ring-4 ring-white dark:ring-slate-900"
               title="录入新错题"
             >
-              <Plus className="w-6 h-6" strokeWidth={2.5} />
+              <Plus className="w-5 h-5" strokeWidth={2.5} />
             </button>
           </div>
 
@@ -910,7 +910,7 @@ export const App: React.FC = () => {
             }}
             className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors relative ${
               mobileTab === 'review' && !selectedQuestion
-                ? 'text-indigo-600 dark:text-indigo-400 font-bold'
+                ? 'text-[#416788] dark:text-[#719dbf] font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
             }`}
           >
@@ -934,7 +934,7 @@ export const App: React.FC = () => {
             }}
             className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors relative ${
               mobileTab === 'profile'
-                ? 'text-purple-600 dark:text-purple-400 font-bold'
+                ? 'text-[#416788] dark:text-[#719dbf] font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
             }`}
           >
