@@ -19,7 +19,15 @@ import {
   Save,
   Check,
   Folder as FolderIcon,
-  History
+  History,
+  Brain,
+  Flame,
+  CheckCircle2,
+  XCircle,
+  FileText,
+  Camera,
+  FileCode,
+  X
 } from 'lucide-react';
 import { Question, Attempt, Folder, MasteryStatus, WorkspaceTab, OverlayDrawings } from '../types';
 import { AttemptCard } from './AttemptCard';
@@ -546,7 +554,7 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-2.5 mb-2.5">
           <div className="flex items-center gap-2">
             <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xs sm:text-sm font-bold shadow-xs shrink-0">
-              🧠
+              <Brain className="w-4 h-4 text-white" />
             </span>
             <div>
               <div className="flex items-center gap-1.5">
@@ -554,8 +562,9 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
                   艾宾浩斯遗忘复盘
                 </h4>
                 {isDueToday ? (
-                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white animate-pulse">
-                    🔥 今日待复习
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white flex items-center gap-1 animate-pulse shadow-xs">
+                    <Flame className="w-3 h-3 fill-white" />
+                    今日待复习
                   </span>
                 ) : (
                   <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
@@ -852,20 +861,20 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
             currentDefaultTab={question.questionDefaultTab || 'md'}
             onSetDefaultTab={(tab) => handleSetUnitDefaultTab('question', tab)}
             labels={{
-              mdTab: '📝 题目内容 (MD)',
-              pdfTab: '📑 试卷 PDF',
-              imagesTab: '📷 题目原图',
-              drawingTab: '🎨 题目手绘',
-              allTab: '🔲 四区平铺',
-              mdTitle: '📝 题目内容 (Markdown 格式)',
+              mdTab: '题目内容 (MD)',
+              pdfTab: '试卷 PDF',
+              imagesTab: '题目原图',
+              drawingTab: '题目手绘',
+              allTab: '四区平铺',
+              mdTitle: '题目内容 (Markdown 格式)',
               mdSubtitle: '(支持排版、推导步骤、LaTeX 数学公式)',
-              pdfTitle: '📑 试卷与题目 PDF 文档',
+              pdfTitle: '试卷与题目 PDF 文档',
               pdfSubtitle: '(试卷原卷 / 题目专题 PDF)',
               pdfEmptyHint: '可上传试卷原题 PDF 文档，支持内置嵌入式预览与全屏阅读',
-              imagesTitle: '📷 题目原图与截图',
+              imagesTitle: '题目原图与截图',
               imagesSubtitle: '(试题截图、题目原画、配图等)',
               imagesEmptyHint: '可上传或 Ctrl+V 粘贴题目照片或截图',
-              drawingTitle: '🎨 题目手绘草稿与批注'
+              drawingTitle: '题目手绘草稿与批注'
             }}
           />
         </div>
@@ -991,20 +1000,20 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
                 currentDefaultTab={question.answerDefaultTab || 'md'}
                 onSetDefaultTab={(tab) => handleSetUnitDefaultTab('answer', tab)}
                 labels={{
-                  mdTab: '📝 答案解答 (MD)',
-                  pdfTab: '📑 答案 PDF',
-                  imagesTab: '📷 解答图片',
-                  drawingTab: '🎨 答案手绘',
-                  allTab: '🔲 四区平铺',
-                  mdTitle: '📝 标准解答与详细解析 (Markdown)',
+                  mdTab: '答案解答 (MD)',
+                  pdfTab: '答案 PDF',
+                  imagesTab: '解答图片',
+                  drawingTab: '答案手绘',
+                  allTab: '四区平铺',
+                  mdTitle: '标准解答与详细解析 (Markdown)',
                   mdSubtitle: '(支持推导步骤、LaTeX 评分要点、公式化简)',
-                  pdfTitle: '📑 官方解析与讲义 PDF',
+                  pdfTitle: '官方解析与讲义 PDF',
                   pdfSubtitle: '(标准答案讲义 / 官方红皮书 PDF)',
                   pdfEmptyHint: '可上传官方解析 PDF 或老师补充讲义，支持随时翻阅',
-                  imagesTitle: '📷 答案手稿与解析图片',
+                  imagesTitle: '答案手稿与解析图片',
                   imagesSubtitle: '(标准答案照片、答案解析截图)',
                   imagesEmptyHint: '可上传或 Ctrl+V 粘贴标准答案照片',
-                  drawingTitle: '🎨 标准解答手绘草稿与批注'
+                  drawingTitle: '标准解答手绘草稿与批注'
                 }}
               />
             </div>
@@ -1107,23 +1116,27 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
                   </div>
                 )}
                 {reflectionMd && (
-                  <span className="truncate text-slate-700 dark:text-slate-300 font-medium">
-                    📝 {reflectionMd.replace(/[#*`$\n]/g, ' ').slice(0, 50)}...
+                  <span className="truncate text-slate-700 dark:text-slate-300 font-medium flex items-center gap-1">
+                    <FileCode className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                    {reflectionMd.replace(/[#*`$\n]/g, ' ').slice(0, 50)}...
                   </span>
                 )}
                 {reflectionPdfUrl && (
-                  <span className="text-rose-600 dark:text-rose-400 font-medium text-[11px]">
-                    📑 附 PDF: {reflectionPdfName || '讲义资料'}
+                  <span className="text-rose-600 dark:text-rose-400 font-medium text-[11px] flex items-center gap-1">
+                    <FileText className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                    附 PDF: {reflectionPdfName || '讲义资料'}
                   </span>
                 )}
                 {reflectionImages.length > 0 && (
-                  <span className="text-amber-600 dark:text-amber-400 font-medium text-[11px]">
-                    📷 {reflectionImages.length} 张笔记照片
+                  <span className="text-amber-600 dark:text-amber-400 font-medium text-[11px] flex items-center gap-1">
+                    <Camera className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                    {reflectionImages.length} 张笔记照片
                   </span>
                 )}
                 {(reflectionDrawing || (reflectionDrawingPages && reflectionDrawingPages.length > 0)) && (
-                  <span className="text-purple-600 dark:text-purple-400 font-medium text-[11px]">
-                    🎨 附手绘画稿
+                  <span className="text-purple-600 dark:text-purple-400 font-medium text-[11px] flex items-center gap-1">
+                    <PenTool className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                    附手绘画稿
                   </span>
                 )}
                 {!reflectionMd && !reflectionPdfUrl && reflectionImages.length === 0 && errorCauses.length === 0 && (
@@ -1161,8 +1174,8 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
                             : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-400'
                         }`}
                       >
-                        {isSelected && '✓ '}
-                        {cause}
+                        {isSelected && <Check className="w-3 h-3 text-rose-600 dark:text-rose-400" />}
+                        <span>{cause}</span>
                       </button>
                     );
                   })}
@@ -1226,20 +1239,20 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
                 currentDefaultTab={question.reflectionDefaultTab || 'md'}
                 onSetDefaultTab={(tab) => handleSetUnitDefaultTab('reflection', tab)}
                 labels={{
-                  mdTab: '📝 心得笔记 (MD)',
-                  pdfTab: '📑 拓展资料 PDF',
-                  imagesTab: '📷 笔记照片',
-                  drawingTab: '🎨 心得手绘',
-                  allTab: '🔲 四区平铺',
-                  mdTitle: '📝 错因剖析与心得体会 (Markdown)',
+                  mdTab: '心得笔记 (MD)',
+                  pdfTab: '拓展资料 PDF',
+                  imagesTab: '笔记照片',
+                  drawingTab: '心得手绘',
+                  allTab: '四区平铺',
+                  mdTitle: '错因剖析与心得体会 (Markdown)',
                   mdSubtitle: '(支持归纳核心模型、解题套路与易错陷阱)',
-                  pdfTitle: '📑 拓展资料与讲义 PDF',
+                  pdfTitle: '拓展资料与讲义 PDF',
                   pdfSubtitle: '(专题拓展文档 / 易错考点总结 PDF)',
                   pdfEmptyHint: '可上传归纳总结、专题拓展文档 PDF',
-                  imagesTitle: '📷 错题手写反思与模型手卡',
+                  imagesTitle: '错题手写反思与模型手卡',
                   imagesSubtitle: '(手写纠错笔记、手卡照片)',
                   imagesEmptyHint: '可上传或 Ctrl+V 粘贴手写复盘笔记照片',
-                  drawingTitle: '🎨 心得反思手绘草稿与批注'
+                  drawingTitle: '心得反思手绘草稿与批注'
                 }}
               />
             </div>
@@ -1327,13 +1340,14 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
                   <button
                     type="button"
                     onClick={() => setNewAttemptResult('correct')}
-                    className={`flex-1 py-1.5 text-xs rounded-xl border font-semibold transition-all cursor-pointer ${
+                    className={`flex-1 py-1.5 text-xs rounded-xl border font-semibold transition-all cursor-pointer flex items-center justify-center gap-1 ${
                       newAttemptResult === 'correct'
                         ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
                         : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                     }`}
                   >
-                    ✓ 做对了
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>做对了</span>
                   </button>
                   <button
                     type="button"
@@ -1349,13 +1363,14 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
                   <button
                     type="button"
                     onClick={() => setNewAttemptResult('wrong')}
-                    className={`flex-1 py-1.5 text-xs rounded-xl border font-semibold transition-all cursor-pointer ${
+                    className={`flex-1 py-1.5 text-xs rounded-xl border font-semibold transition-all cursor-pointer flex items-center justify-center gap-1 ${
                       newAttemptResult === 'wrong'
                         ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
                         : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                     }`}
                   >
-                    ✕ 做错了
+                    <XCircle className="w-3.5 h-3.5" />
+                    <span>做错了</span>
                   </button>
                 </div>
               </div>
@@ -1405,15 +1420,15 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
                 currentDefaultTab={newAttemptDefaultTab}
                 onSetDefaultTab={(tab) => setNewAttemptDefaultTab(tab)}
                 labels={{
-                  mdTab: '📝 演练草稿',
-                  pdfTab: '📑 对应 PDF',
-                  imagesTab: '📷 演算纸照片',
-                  drawingTab: '🎨 触控手绘板',
-                  allTab: '🔲 四区平铺',
-                  mdTitle: '📝 做题过程与草稿演算 (Markdown)',
-                  pdfTitle: '📑 练习作答 PDF',
-                  imagesTitle: '📷 演算草稿照片与做题截图',
-                  drawingTitle: '🎨 做题手绘演算板与笔迹批注'
+                  mdTab: '演练草稿',
+                  pdfTab: '对应 PDF',
+                  imagesTab: '演算纸照片',
+                  drawingTab: '触控手绘板',
+                  allTab: '四区平铺',
+                  mdTitle: '做题过程与草稿演算 (Markdown)',
+                  pdfTitle: '练习作答 PDF',
+                  imagesTitle: '演算草稿照片与做题截图',
+                  drawingTitle: '做题手绘演算板与笔迹批注'
                 }}
               />
             </div>

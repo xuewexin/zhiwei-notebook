@@ -16,7 +16,10 @@ import {
   ChevronRight,
   Eye,
   Check,
-  Tag
+  Tag,
+  XCircle,
+  Lightbulb,
+  Target
 } from 'lucide-react';
 import { Question, QuestionVersion } from '../types';
 import { api } from '../api/client';
@@ -357,7 +360,19 @@ export const VersionHistoryModal: React.FC<VersionHistoryModalProps> = ({
                         <div>
                           <span className="text-slate-400 block mb-0.5">掌握程度</span>
                           <span className="font-bold text-slate-700 dark:text-slate-200">
-                            {snapshot.mastery === 'mastered' ? '✅ 已掌握' : snapshot.mastery === 'reviewing' ? '🔄 攻关中' : '❌ 未掌握'}
+                            {snapshot.mastery === 'mastered' ? (
+                              <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                                <CheckCircle2 className="w-3.5 h-3.5" /> 已掌握
+                              </span>
+                            ) : snapshot.mastery === 'reviewing' ? (
+                              <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                                <Clock className="w-3.5 h-3.5" /> 攻关中
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-rose-600 dark:text-rose-400">
+                                <XCircle className="w-3.5 h-3.5" /> 未掌握
+                              </span>
+                            )}
                           </span>
                         </div>
                         <div>
@@ -385,35 +400,38 @@ export const VersionHistoryModal: React.FC<VersionHistoryModalProps> = ({
                         <button
                           type="button"
                           onClick={() => setActiveTab('reflection')}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
                             activeTab === 'reflection'
                               ? 'bg-indigo-600 text-white shadow-xs'
                               : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`}
                         >
-                          💡 当时的复盘与推导心得
+                          <Lightbulb className="w-3.5 h-3.5" />
+                          <span>当时复盘与心得</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setActiveTab('attempts')}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
                             activeTab === 'attempts'
                               ? 'bg-indigo-600 text-white shadow-xs'
                               : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`}
                         >
-                          🎯 历次做题历程 ({(snapshot.attempts || []).length})
+                          <Target className="w-3.5 h-3.5" />
+                          <span>历次做题历程 ({(snapshot.attempts || []).length})</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setActiveTab('content')}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
                             activeTab === 'content'
                               ? 'bg-indigo-600 text-white shadow-xs'
                               : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`}
                         >
-                          📌 题干与标准答案
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>题干与标准答案</span>
                         </button>
                       </div>
 

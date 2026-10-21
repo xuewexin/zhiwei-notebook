@@ -253,7 +253,7 @@ export const SeparatedWorkspace: React.FC<SeparatedWorkspaceProps> = ({
             }`}
           >
             <FileCode className="w-3.5 h-3.5 text-blue-500" />
-            <span>{labels.mdTab || '📝 MD 文档'}</span>
+            <span>{labels.mdTab || 'MD 文档'}</span>
             {hasMd && <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
             {Boolean(internalOverlays.md) && (
               <span className="w-1.5 h-1.5 rounded-full bg-purple-500" title="MD已有独立批注" />
@@ -271,7 +271,7 @@ export const SeparatedWorkspace: React.FC<SeparatedWorkspaceProps> = ({
             }`}
           >
             <FileText className="w-3.5 h-3.5 text-rose-500" />
-            <span>{labels.pdfTab || '📑 PDF 展示'}</span>
+            <span>{labels.pdfTab || 'PDF 展示'}</span>
             {hasPdf && (
               <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 font-bold">
                 1
@@ -293,7 +293,7 @@ export const SeparatedWorkspace: React.FC<SeparatedWorkspaceProps> = ({
             }`}
           >
             <ImageIcon className="w-3.5 h-3.5 text-amber-500" />
-            <span>{labels.imagesTab || '📷 照片展示'}</span>
+            <span>{labels.imagesTab || '照片展示'}</span>
             {photoCount > 0 && (
               <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 font-bold">
                 {photoCount}
@@ -315,7 +315,7 @@ export const SeparatedWorkspace: React.FC<SeparatedWorkspaceProps> = ({
             }`}
           >
             <PenTool className="w-3.5 h-3.5 text-purple-500" />
-            <span>{labels.drawingTab || '🎨 手绘草稿'}</span>
+            <span>{labels.drawingTab || '手绘草稿'}</span>
             {pageCount > 1 ? (
               <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300 font-bold">
                 {pageCount}页
@@ -336,7 +336,7 @@ export const SeparatedWorkspace: React.FC<SeparatedWorkspaceProps> = ({
             }`}
           >
             <Layers className="w-3.5 h-3.5 text-indigo-500" />
-            <span>{labels.allTab || '🔲 平铺'}</span>
+            <span>{labels.allTab || '平铺'}</span>
           </button>
         </div>
 
@@ -357,7 +357,7 @@ export const SeparatedWorkspace: React.FC<SeparatedWorkspaceProps> = ({
               title="针对当前展示区域开启独立透明手写批注"
             >
               <PenTool className="w-3 h-3" />
-              <span>{isOverlayAnnotationActive ? '批注中' : '✏️ 批注'}</span>
+              <span>{isOverlayAnnotationActive ? '批注中' : '手写批注'}</span>
               {hasCurrentTabOverlay && !isOverlayAnnotationActive && (
                 <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
               )}

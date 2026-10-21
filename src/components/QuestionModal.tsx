@@ -405,7 +405,7 @@ export const QuestionModal: React.FC<QuestionModalProps> = ({
                         className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer active:scale-95"
                       >
                         <Camera className="w-4 h-4" />
-                        <span>📷 拍照录题</span>
+                        <span>即时拍照录题</span>
                       </button>
 
                       <button
@@ -415,7 +415,7 @@ export const QuestionModal: React.FC<QuestionModalProps> = ({
                         className="flex items-center gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 disabled:opacity-50 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer active:scale-95"
                       >
                         <Upload className="w-4 h-4 text-blue-600" />
-                        <span>🖼️ 从相册选择照片</span>
+                        <span>从相册选择照片</span>
                       </button>
                     </div>
                   </div>

@@ -58,7 +58,7 @@ export const AttemptCard: React.FC<AttemptCardProps> = ({
       parts.push(att.solutionContent);
     }
     if (att.notesContent) {
-      parts.push(`### 💡 复盘反思\n${att.notesContent}`);
+      parts.push(`### 复盘反思\n${att.notesContent}`);
     }
     return parts.join('\n\n');
   };
@@ -417,15 +417,15 @@ export const AttemptCard: React.FC<AttemptCardProps> = ({
             currentDefaultTab={attempt.defaultTab || 'md'}
             onSetDefaultTab={(tab) => onUpdate({ defaultTab: tab })}
             labels={{
-              mdTab: '📝 演练草稿',
-              pdfTab: '📑 对应 PDF',
-              imagesTab: '📷 演算纸照片',
-              drawingTab: '🎨 触控手绘板',
-              allTab: '🔲 四区平铺',
-              mdTitle: '📝 做题过程与草稿演算 (Markdown)',
-              pdfTitle: '📑 练习作答 PDF',
-              imagesTitle: '📷 演算草稿照片与做题截图',
-              drawingTitle: '🎨 做题手绘演算板与笔迹批注'
+              mdTab: '演练草稿',
+              pdfTab: '对应 PDF',
+              imagesTab: '演算纸照片',
+              drawingTab: '触控手绘板',
+              allTab: '四区平铺',
+              mdTitle: '做题过程与草稿演算 (Markdown)',
+              pdfTitle: '练习作答 PDF',
+              imagesTitle: '演算草稿照片与做题截图',
+              drawingTitle: '做题手绘演算板与笔迹批注'
             }}
           />
 

@@ -11,7 +11,8 @@ import {
   Plus, 
   Layers,
   ArrowRight,
-  TrendingUp
+  TrendingUp,
+  Flame
 } from 'lucide-react';
 import { Question, Folder, MasteryStatus } from '../types';
 
@@ -138,8 +139,9 @@ export const QuestionList: React.FC<QuestionListProps> = ({
 
                     {/* Ebbinghaus Spaced Repetition Due Badge */}
                     {(!q.nextReviewDate || new Date(q.nextReviewDate).getTime() <= Date.now() + 24 * 60 * 60 * 1000) ? (
-                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-300">
-                        🔥 待复习
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-300">
+                        <Flame className="w-3 h-3 text-rose-500 fill-rose-500/20" />
+                        <span>待复习</span>
                       </span>
                     ) : (
                       <span className="text-[10px] text-slate-400">

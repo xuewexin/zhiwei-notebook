@@ -12,6 +12,8 @@ windows-app/bin/
 windows-app/obj/
 windows-app/release-*/
 windows-app/dist.zip
+release-win/
+release_*/
 
 # Android
 android/.gradle

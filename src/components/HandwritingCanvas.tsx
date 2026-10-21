@@ -18,6 +18,7 @@ import {
   Sparkles,
   Plus,
   Minus,
+  Layers,
   ChevronLeft,
   ChevronRight,
   Copy,
@@ -1130,7 +1131,8 @@ export const HandwritingCanvas: React.FC<HandwritingCanvasProps> = ({
               {/* Left: Multi-page Badge Pills */}
               <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto py-0.5">
                 <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mr-1 flex items-center gap-1">
-                  📑 草稿页签:
+                  <Layers className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                  <span>草稿页签:</span>
                 </span>
                 
                 {pages.map((pUrl, idx) => {
@@ -1234,8 +1236,9 @@ export const HandwritingCanvas: React.FC<HandwritingCanvasProps> = ({
         {!isOverlay && !isFullscreen && (
           <div className="relative z-20 py-2.5 px-4 border-t border-slate-200/60 dark:border-slate-800/60 bg-slate-50/90 dark:bg-slate-900/90 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-slate-600 dark:text-slate-400 font-medium">
-                📄 页高: {canvasHeight}px
+              <span className="font-mono text-slate-600 dark:text-slate-400 font-medium flex items-center gap-1">
+                <FileText className="w-3.5 h-3.5 text-slate-400" />
+                <span>页高: {canvasHeight}px</span>
               </span>
               {contentBottomY > 0 && (
                 <span className="text-[11px] text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2 py-0.5 rounded-md border border-purple-200 dark:border-purple-800">
@@ -1252,7 +1255,8 @@ export const HandwritingCanvas: React.FC<HandwritingCanvasProps> = ({
                 className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                 title={`缩短纸张 (-200px)，极限保留已有内容末尾 (当前底端: ${contentBottomY}px)`}
               >
-                <span>➖ 缩短纸张</span>
+                <Minus className="w-3 h-3 text-slate-500" />
+                <span>缩短纸张</span>
               </button>
 
               <button
@@ -1272,7 +1276,7 @@ export const HandwritingCanvas: React.FC<HandwritingCanvasProps> = ({
                 className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-purple-600 dark:text-purple-400 bg-white dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 rounded-lg border border-purple-200 dark:border-purple-800 transition-colors cursor-pointer"
               >
                 <ArrowUpDown className="w-3 h-3" />
-                <span>➕ 加长纸张 (+250px)</span>
+                <span>加长纸张 (+250px)</span>
               </button>
 
               <button

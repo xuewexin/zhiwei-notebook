@@ -10,7 +10,7 @@
   融合 **GoodNotes 拟物层级分类**、**Apple Pencil 压感手写草稿演练**、**多次做题历程分区**、**LaTeX 公式 / 代码块多模态笔记** 及 **Git 无服务器多端云同步**。
 
   <p>
-    <a href="https://github.com/xuewexin/zhiwei-notebook/releases/latest"><img src="https://img.shields.io/badge/Release-v1.4.0-blue.svg?style=flat-square" alt="Version"></a>
+    <a href="https://github.com/xuewexin/zhiwei-notebook/releases/latest"><img src="https://img.shields.io/badge/Release-v1.5.0-blue.svg?style=flat-square" alt="Version"></a>
     <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iPadOS%20%7C%20Windows%20%7C%20PWA-indigo.svg?style=flat-square" alt="Platform">
     <img src="https://img.shields.io/badge/Frontend-React%2019%20%2B%20Vite%20%2B%20TailwindCSS-teal.svg?style=flat-square" alt="Stack">
     <img src="https://img.shields.io/badge/Runtime-Capacitor%208-orange.svg?style=flat-square" alt="Capacitor">
@@ -22,20 +22,36 @@
 
 ---
 
-## 📥 最新版本极速下载 (v1.4.0)
+## 📥 最新版本极速下载 (v1.5.0)
 
 本项目提供全平台打包好的纯净安装包，无任何强制联网、无广告，下载即用：
 
 | 平台 | 安装包名称 | 文件大小 | 适用设备与特性 | 直接下载链接 |
 | :--- | :--- | :--- | :--- | :--- |
-| 💻 **Windows 原生版** | `zhiwei-notebook-v1.4-windows.exe` | ~2.0 MB | **Windows 独立原生桌面软件**（双击即开、高分辨率图标、极速启动） | [点击下载 EXE](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-windows.exe) |
-| 💻 **Windows 便携版** | `zhiwei-notebook-v1.4-windows-portable.zip` | ~1.2 MB | Windows 绿色免安装压缩包 | [点击下载 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-windows-portable.zip) |
-| 🤖 **Android** | `zhiwei-notebook-v1.4-android-pure.apk` | ~3.98 MB | 安卓手机 / 安卓平板（全新竖屏适配、相册录题、防误触） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-android-pure.apk) |
-| 🤖 **Android** | `zhiwei-notebook-v1.4-android-clear.apk` | ~3.98 MB | 模块边界清晰强化版，适合深浅主题切换 | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-android-clear.apk) |
-| 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.4-ipad.ipa` | ~3.45 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-ipad.ipa) |
-| 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.4-ios-xcode-project.zip` | ~926 KB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.4.0/zhiwei-notebook-v1.4-ios-xcode-project.zip) |
+| 💻 **Windows 原生版** | `zhiwei-notebook-v1.5-windows.exe` | ~2.0 MB | **Windows 独立原生桌面软件**（双击即开、零白屏启动、自动版本比对与平滑更新） | [点击下载 EXE](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-windows.exe) |
+| 💻 **Windows 便携版** | `zhiwei-notebook-v1.5-windows-portable.zip` | ~1.2 MB | Windows 绿色免安装压缩包 | [点击下载 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-windows-portable.zip) |
+| 🤖 **Android 原生版** | `zhiwei-notebook-v1.5-android.apk` | ~3.98 MB | 安卓手机 / 安卓平板（全新矢量图标、励志启动封面、相册录题、防误触） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-android.apk) |
+| 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.5-ipad.ipa` | ~3.45 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-ipad.ipa) |
+| 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.5-ios-xcode-project.zip` | ~926 KB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-ios-xcode-project.zip) |
 | 🌐 **iPad / PC 极速版** | `启动iPad局域网极速连接.bat` | 脚本文件 | **免安装、免证书、永不过期**。iPad Safari 添加到主屏幕秒变全屏桌面 App | [查看使用步骤](#-方案二ipad-专属-pwa-桌面原生体验免签名) |
 | 💻 **本地运行脚本** | `启动错题本.bat` | 脚本文件 | 双击脚本即开，搭配本地 Node.js 极速做题 | [查看运行方法](#-windows-桌面端使用指南) |
+
+---
+
+## ✨ v1.5.0 重大更新亮点
+
+1. 🎨 **全新高雅矢量图标体系（告别原生 Emoji）**：
+   - 彻底淘汰原有简陋杂乱的系统 Emoji（如 `🧠`、`📝`、`📑`、`📷`、`🔥` 等）。
+   - 全面引入高精度 Lucide 矢量图标，重塑 24 种学科专属徽章、草稿页签、复盘状态机与导航系统，视觉更高级、纯粹、专业。
+2. 🔄 **自动检测与覆盖式无损更新**：
+   - 每次进入软件自动与 GitHub 官方仓库比对最新 Release 版本。
+   - 发现新版时弹出高颜值更新提醒，支持一键直达下载覆盖升级；
+   - **严格保证用户数据安全**：更新仅替换软件主程序，用户所有本地错题、分类与配置物理隔离，升级绝不丢失任何数据！
+3. 🚀 **零延迟原生励志开屏封面（彻底解决开屏白窗）**：
+   - 为 Windows 原生端和移动端设计高颜值极速启动封面，杜绝引擎加载时的几秒白色窗口闪烁。
+   - 呈现呼吸光晕 App 徽章与每日精选励志学习名言（苏轼、孔子、《礼记》等经典名篇随机展现），平滑过渡至学习空间。
+4. 📱 **移动端与防刷新机制持续强化**：
+   - 深度修复安卓端操作按钮与输入联动机制，杜绝偶发刷新丢失未保存笔记的问题。
 
 ---
 

@@ -45,7 +45,7 @@ public class MainForm : Form
         Size = new Size(1360, 860);
         MinimumSize = new Size(860, 600);
         StartPosition = FormStartPosition.CenterScreen;
-        BackColor = Color.FromArgb(248, 250, 252);
+        BackColor = Color.FromArgb(15, 23, 42);
 
         try
         {
@@ -55,7 +55,8 @@ public class MainForm : Form
 
         _webView = new WebView2
         {
-            Dock = DockStyle.Fill
+            Dock = DockStyle.Fill,
+            DefaultBackgroundColor = Color.FromArgb(15, 23, 42)
         };
 
         Controls.Add(_webView);
@@ -138,7 +139,7 @@ public class MainForm : Form
                 string bundleDir = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "ZhiWeiNote",
-                    "Bundle_v14"
+                    "Bundle_v15"
                 );
 
                 try

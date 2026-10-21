@@ -14,7 +14,10 @@ import {
   Layers,
   Menu,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Brain,
+  Sparkles,
+  ArrowUpCircle
 } from 'lucide-react';
 import { Folder, Question, GitStatus, MasteryStatus } from './types';
 import { api, isNativePlatform } from './api/client';
@@ -26,6 +29,8 @@ import { QuestionModal } from './components/QuestionModal';
 import { GitSyncModal } from './components/GitSyncModal';
 import { ImageViewerModal } from './components/ImageViewerModal';
 import { OneNoteSyncIndicator } from './components/OneNoteSyncIndicator';
+import { UpdateModal } from './components/UpdateModal';
+import { checkForUpdates, UpdateInfo, CURRENT_VERSION } from './services/updateService';
 
 export const App: React.FC = () => {
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -55,6 +60,60 @@ export const App: React.FC = () => {
   const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
   const [isGitModalOpen, setIsGitModalOpen] = useState(false);
   const [viewerImageUrl, setViewerImageUrl] = useState<string | null>(null);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+
+  // Smoothly transition and remove splash screen
+  useEffect(() => {
+    const splash = document.getElementById('app-splash');
+    if (splash) {
+      const timer = setTimeout(() => {
+        splash.classList.add('splash-fade-out');
+        setTimeout(() => {
+          splash.remove();
+        }, 650);
+      }, 750);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // Auto check for updates on startup (after 2.8s calm delay)
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      try {
+        const res = await checkForUpdates({ checkIgnored: true });
+        if (res && res.hasUpdate) {
+          setUpdateInfo(res);
+          setIsUpdateModalOpen(true);
+        }
+      } catch (err) {
+        console.warn('Auto update check failed:', err);
+      }
+    }, 2800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleManualCheckUpdate = async () => {
+    setIsCheckingUpdate(true);
+    setSyncNotice('正在比对 GitHub 官方仓库最新版本...');
+    try {
+      const res = await checkForUpdates({ checkIgnored: false });
+      if (res && res.hasUpdate) {
+        setUpdateInfo(res);
+        setIsUpdateModalOpen(true);
+        setSyncNotice(`发现新版本 v${res.latestVersion}！`);
+      } else {
+        setSyncNotice(`当前已是最新版本 (v${CURRENT_VERSION})`);
+      }
+      setTimeout(() => setSyncNotice(null), 3500);
+    } catch (err) {
+      setSyncNotice('检测更新失败，请检查网络');
+      setTimeout(() => setSyncNotice(null), 3500);
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  };
 
   // Auto-restore or sync selected question from loaded list
   useEffect(() => {
@@ -559,6 +618,16 @@ export const App: React.FC = () => {
 
               <button
                 type="button"
+                onClick={handleManualCheckUpdate}
+                disabled={isCheckingUpdate}
+                className="p-2 text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+                title={`检测软件更新 (当前 v${CURRENT_VERSION})`}
+              >
+                <ArrowUpCircle className={`w-4 h-4 ${isCheckingUpdate ? 'animate-spin text-blue-600' : ''}`} />
+              </button>
+
+              <button
+                type="button"
                 onClick={() => setIsQuestionModalOpen(true)}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs transition-all cursor-pointer"
               >
@@ -586,8 +655,10 @@ export const App: React.FC = () => {
               {/* Ebbinghaus Review Banner (when Review Mode is active) */}
               {isReviewOnly && (
                 <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-3.5 sm:p-4 rounded-2xl shadow-sm flex items-center justify-between">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="text-2xl sm:text-3xl shrink-0">🧠</span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 shadow-inner">
+                      <Brain className="w-5 h-5 text-white" />
+                    </div>
                     <div className="min-w-0">
                       <h3 className="text-xs sm:text-sm font-bold flex items-center gap-2 truncate">
                         今日艾宾浩斯复盘 ({displayQuestions.length} 题)
@@ -699,7 +770,7 @@ export const App: React.FC = () => {
             }`}
           >
             <div className="relative">
-              <span className="text-lg leading-none mb-0.5 block">🧠</span>
+              <Brain className="w-5 h-5 mb-0.5" />
               {dueTodayCount > 0 && (
                 <span className="absolute -top-1 -right-2.5 bg-rose-500 text-white text-[9px] font-bold px-1 rounded-full min-w-[16px] text-center">
                   {dueTodayCount}
@@ -748,6 +819,15 @@ export const App: React.FC = () => {
         imageUrl={viewerImageUrl || ''}
         onClose={() => setViewerImageUrl(null)}
       />
+
+      {/* 4. Auto Update Modal */}
+      {updateInfo && (
+        <UpdateModal
+          updateInfo={updateInfo}
+          isOpen={isUpdateModalOpen}
+          onClose={() => setIsUpdateModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

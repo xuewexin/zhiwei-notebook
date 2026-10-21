@@ -206,7 +206,7 @@ export const GitSyncModal: React.FC<GitSyncModalProps> = ({
 
             <div>
               <div className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                {config.enabled ? '🟢 Git 同步已激活' : '⚪ Git 同步未启用'}
+                <span>{config.enabled ? 'Git 同步已激活' : 'Git 同步未启用'}</span>
                 {config.autoSync && config.enabled && (
                   <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
                     · 每 {config.autoSyncIntervalMinutes || 10} 分钟自动拉取
@@ -302,7 +302,10 @@ export const GitSyncModal: React.FC<GitSyncModalProps> = ({
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
-            📱 安卓 / iOS 三端互通说明
+            <span className="flex items-center gap-1.5">
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>安卓 / iOS 三端互通说明</span>
+            </span>
           </button>
         </div>
 

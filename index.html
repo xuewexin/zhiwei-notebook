@@ -46,9 +46,202 @@
         font-family: 'Fira Code', Consolas, Monaco, monospace;
       }
     </style>
+    <style>
+      /* Zero-delay Startup Splash Screen */
+      #app-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 999999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at 50% 35%, #1e293b 0%, #0f172a 60%, #090d16 100%);
+        color: #ffffff;
+        font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        padding: 24px;
+        box-sizing: border-box;
+        transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      #app-splash.splash-fade-out {
+        opacity: 0;
+        pointer-events: none;
+        transform: scale(1.02);
+      }
+      .splash-logo-box {
+        position: relative;
+        width: 88px;
+        height: 88px;
+        border-radius: 24px;
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+        padding: 3px;
+        box-shadow: 0 16px 40px -10px rgba(59, 130, 246, 0.5), 0 0 35px rgba(99, 102, 241, 0.25);
+        animation: splash-pulse 3s ease-in-out infinite;
+      }
+      .splash-logo-img {
+        width: 100%;
+        height: 100%;
+        border-radius: 21px;
+        object-fit: cover;
+        display: block;
+      }
+      .splash-title {
+        margin-top: 22px;
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .splash-subtitle {
+        margin-top: 6px;
+        font-size: 11px;
+        letter-spacing: 3px;
+        color: #64748b;
+        font-weight: 500;
+      }
+      .splash-quote-card {
+        margin-top: 36px;
+        max-width: 440px;
+        width: 100%;
+        padding: 16px 22px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        text-align: center;
+      }
+      .splash-quote-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 10px;
+        border-radius: 9999px;
+        background: rgba(59, 130, 246, 0.15);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        color: #60a5fa;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+      }
+      .splash-quote-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background-color: #38bdf8;
+        box-shadow: 0 0 8px #38bdf8;
+      }
+      .splash-quote-text {
+        font-size: 13.5px;
+        line-height: 1.65;
+        color: #e2e8f0;
+        margin: 0;
+      }
+      .splash-quote-author {
+        font-size: 11px;
+        color: #64748b;
+        margin-top: 8px;
+        font-weight: 500;
+      }
+      .splash-loader-bar {
+        position: relative;
+        width: 160px;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 9999px;
+        overflow: hidden;
+        margin-top: 32px;
+      }
+      .splash-loader-inner {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent 0%, #38bdf8 50%, #818cf8 100%);
+        border-radius: 9999px;
+        animation: splash-shimmer 1.8s infinite ease-in-out;
+      }
+      .splash-footer-note {
+        margin-top: 12px;
+        font-size: 10px;
+        color: #475569;
+        letter-spacing: 1px;
+      }
+      @keyframes splash-pulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 16px 40px -10px rgba(59, 130, 246, 0.5), 0 0 35px rgba(99, 102, 241, 0.25); }
+        50% { transform: scale(1.03); box-shadow: 0 20px 48px -8px rgba(59, 130, 246, 0.7), 0 0 45px rgba(99, 102, 241, 0.4); }
+      }
+      @keyframes splash-shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
+      }
+    </style>
   </head>
   <body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-500 selection:text-white">
+    <!-- Zero-Delay Native Startup Cover -->
+    <div id="app-splash">
+      <div class="splash-logo-box">
+        <img src="/app-icon.png" alt="知微错题本" class="splash-logo-img" />
+      </div>
+      <div class="splash-title">知微错题本</div>
+      <div class="splash-subtitle">见微知著 · 改错成金 · 登峰造极</div>
+
+      <div class="splash-quote-card">
+        <div class="splash-quote-tag">
+          <span class="splash-quote-dot"></span>
+          <span>今日励志箴言</span>
+        </div>
+        <p id="splash-quote-text" class="splash-quote-text">博观而约取，厚积而薄发。</p>
+        <div id="splash-quote-author" class="splash-quote-author">—— 苏轼</div>
+      </div>
+
+      <div class="splash-loader-bar">
+        <div class="splash-loader-inner"></div>
+      </div>
+      <div class="splash-footer-note">知微本地错题库就绪中 · 见微以明志</div>
+    </div>
+
     <div id="root"></div>
+    <script>
+      // Curated Inspiring Learning Quotes
+      (function() {
+        var quotes = [
+          { text: "博观而约取，厚积而薄发。", author: "—— 苏轼" },
+          { text: "知不足然后能自反也，知困然后能自强也。", author: "—— 《礼记·学记》" },
+          { text: "见微以知萌，见端以知末；每一处错题，皆是通往卓越的阶梯。", author: "—— 知微学训" },
+          { text: "流水不争先，争的是滔滔不绝。", author: "—— 励志箴言" },
+          { text: "日日行，不怕千万里；常常做，不怕千万事。", author: "—— 《格言联璧》" },
+          { text: "学而不思则罔，思而不学则殆；错题是认知的灯塔。", author: "—— 《论语》" },
+          { text: "把每一道错题彻底弄懂，就是把未来的路筑牢。", author: "—— 知微错题本" },
+          { text: "天下大事，必作于细；天下难事，必作于易。", author: "—— 《道德经》" },
+          { text: "不积跬步，无以至千里；不积小流，无以成江海。", author: "—— 荀子《劝学》" },
+          { text: "每一次认真的订正与复盘，都是向满分迈进的一步。", author: "—— 学习心法" }
+        ];
+        try {
+          var pick = quotes[Math.floor(Math.random() * quotes.length)];
+          var textEl = document.getElementById('splash-quote-text');
+          var authorEl = document.getElementById('splash-quote-author');
+          if (textEl && authorEl) {
+            textEl.textContent = pick.text;
+            authorEl.textContent = pick.author;
+          }
+        } catch(e) {}
+
+        // Fallback: auto-dismiss splash after 6 seconds if React takes long
+        setTimeout(function() {
+          var s = document.getElementById('app-splash');
+          if (s) {
+            s.classList.add('splash-fade-out');
+            setTimeout(function() { s.remove(); }, 650);
+          }
+        }, 6000);
+      })();
+    </script>
     <script>
       // Globally prevent any unhandled form submission or navigation from reloading the page
       document.addEventListener('submit', function(e) {
