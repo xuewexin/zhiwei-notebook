@@ -31,7 +31,8 @@ import {
   ThemeColorKey, 
   THEME_PALETTES, 
   BackgroundConfig, 
-  AiConfig 
+  AiConfig,
+  StoragePathConfig
 } from '../services/settingsService';
 import { CURRENT_VERSION, checkForUpdates, UpdateInfo } from '../services/updateService';
 import { api, isNativePlatform } from '../api/client';
@@ -58,6 +59,9 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   const [themeKey, setThemeKey] = useState<ThemeColorKey>(settingsService.getThemeColor());
   const [bgConfig, setBgConfig] = useState<BackgroundConfig>(settingsService.getBackground());
   const [aiConfig, setAiConfig] = useState<AiConfig>(settingsService.getAiConfig());
+  const [storagePath, setStoragePath] = useState<StoragePathConfig>(() => settingsService.getStoragePath());
+  const [customDirInput, setCustomDirInput] = useState<string>(() => settingsService.getStoragePath().customDirectory);
+  const [pathSavedNotice, setPathSavedNotice] = useState(false);
 
   // Editing profile modal/state
   const [isEditingName, setIsEditingName] = useState(false);
@@ -464,9 +468,9 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-slate-600 dark:text-slate-400">设备存储路径:</span>
             <span className="font-mono text-[11px] text-slate-700 dark:text-slate-300">
-              {isNativePlatform 
+              {storagePath.customDirectory || (isNativePlatform 
                 ? '应用私有加密沙盒 (Android App Sandboxed Storage)' 
-                : '%LOCALAPPDATA%\\ZhiWeiNote & IndexedDB'}
+                : '%LOCALAPPDATA%\\ZhiWeiNote & IndexedDB')}
             </span>
           </div>
 
@@ -475,6 +479,147 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             <span className="font-bold text-slate-800 dark:text-slate-200">
               {questions.length} 道错题 · {folders.length} 个分类文件夹
             </span>
+          </div>
+        </div>
+
+        {/* Custom Storage Directory Setting */}
+        <div className="p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-750 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
+                {isNativePlatform ? '📱 手机端本地存储与备份文件夹' : '💻 电脑端本地存储与备份文件夹'}
+              </span>
+              <span className="text-[11px] text-slate-400">
+                {isNativePlatform 
+                  ? '支持自定义手机内部存储目录，导出备份与导出错题将自动归档至此目录' 
+                  : '支持设置 Windows 电脑本地磁盘目录，数据及备份将自动归档至此目录'}
+              </span>
+            </div>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
+              已启用自定义
+            </span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input 
+              type="text"
+              value={customDirInput}
+              onChange={(e) => setCustomDirInput(e.target.value)}
+              placeholder={isNativePlatform ? '例如: Download/知微错题本' : '例如: D:\\知微错题库'}
+              className="flex-1 text-xs px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const updated = settingsService.saveStoragePath({ customDirectory: customDirInput.trim() });
+                setStoragePath(updated);
+                setPathSavedNotice(true);
+                setTimeout(() => setPathSavedNotice(false), 2500);
+              }}
+              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0 flex items-center justify-center gap-1.5"
+            >
+              <Check className="w-3.5 h-3.5" />
+              <span>保存路径</span>
+            </button>
+          </div>
+
+          {pathSavedNotice && (
+            <div className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1 animate-fade-in">
+              <Check className="w-3.5 h-3.5" />
+              <span>文件存储目录已更新为: {storagePath.customDirectory}</span>
+            </div>
+          )}
+
+          {/* Quick presets */}
+          <div>
+            <span className="text-[10px] text-slate-400 block mb-1.5">常用预设目录（点击即换）:</span>
+            <div className="flex flex-wrap gap-1.5">
+              {isNativePlatform ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomDirInput('Download/知微错题本');
+                      const u = settingsService.saveStoragePath({ customDirectory: 'Download/知微错题本' });
+                      setStoragePath(u);
+                      setPathSavedNotice(true);
+                      setTimeout(() => setPathSavedNotice(false), 2500);
+                    }}
+                    className="px-2.5 py-1 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] border border-slate-200 dark:border-slate-700 cursor-pointer font-mono"
+                  >
+                    Download/知微错题本
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomDirInput('Documents/知微错题本');
+                      const u = settingsService.saveStoragePath({ customDirectory: 'Documents/知微错题本' });
+                      setStoragePath(u);
+                      setPathSavedNotice(true);
+                      setTimeout(() => setPathSavedNotice(false), 2500);
+                    }}
+                    className="px-2.5 py-1 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] border border-slate-200 dark:border-slate-700 cursor-pointer font-mono"
+                  >
+                    Documents/知微错题本
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomDirInput('/storage/emulated/0/Download/ZhiWeiNote');
+                      const u = settingsService.saveStoragePath({ customDirectory: '/storage/emulated/0/Download/ZhiWeiNote' });
+                      setStoragePath(u);
+                      setPathSavedNotice(true);
+                      setTimeout(() => setPathSavedNotice(false), 2500);
+                    }}
+                    className="px-2.5 py-1 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] border border-slate-200 dark:border-slate-700 cursor-pointer font-mono"
+                  >
+                    /storage/emulated/0/Download/ZhiWeiNote
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomDirInput('D:\\知微错题库');
+                      const u = settingsService.saveStoragePath({ customDirectory: 'D:\\知微错题库' });
+                      setStoragePath(u);
+                      setPathSavedNotice(true);
+                      setTimeout(() => setPathSavedNotice(false), 2500);
+                    }}
+                    className="px-2.5 py-1 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] border border-slate-200 dark:border-slate-700 cursor-pointer font-mono"
+                  >
+                    D:\知微错题库
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomDirInput('E:\\我的错题本');
+                      const u = settingsService.saveStoragePath({ customDirectory: 'E:\\我的错题本' });
+                      setStoragePath(u);
+                      setPathSavedNotice(true);
+                      setTimeout(() => setPathSavedNotice(false), 2500);
+                    }}
+                    className="px-2.5 py-1 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] border border-slate-200 dark:border-slate-700 cursor-pointer font-mono"
+                  >
+                    E:\我的错题本
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomDirInput('%LOCALAPPDATA%\\ZhiWeiNote');
+                      const u = settingsService.saveStoragePath({ customDirectory: '%LOCALAPPDATA%\\ZhiWeiNote' });
+                      setStoragePath(u);
+                      setPathSavedNotice(true);
+                      setTimeout(() => setPathSavedNotice(false), 2500);
+                    }}
+                    className="px-2.5 py-1 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] border border-slate-200 dark:border-slate-700 cursor-pointer font-mono"
+                  >
+                    系统默认应用目录
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
 

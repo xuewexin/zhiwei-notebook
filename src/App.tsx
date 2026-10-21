@@ -53,10 +53,25 @@ export const App: React.FC = () => {
   const [selectedMastery, setSelectedMastery] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [mobileTab, setMobileTab] = useState<'folders' | 'questions' | 'review' | 'profile'>('folders');
   const [isReviewOnly, setIsReviewOnly] = useState(false);
   const [isProfileView, setIsProfileView] = useState(false);
   const [themeKey, setThemeKey] = useState<ThemeColorKey>(() => settingsService.getThemeColor());
   const [bgConfig, setBgConfig] = useState<BackgroundConfig>(() => settingsService.getBackground());
+
+  // Sync mobileTab with review and profile modes
+  useEffect(() => {
+    if (mobileTab === 'profile') {
+      setIsProfileView(true);
+      setIsReviewOnly(false);
+    } else if (mobileTab === 'review') {
+      setIsReviewOnly(true);
+      setIsProfileView(false);
+    } else {
+      setIsProfileView(false);
+      setIsReviewOnly(false);
+    }
+  }, [mobileTab]);
 
   // Apply active theme color
   useEffect(() => {
@@ -197,12 +212,12 @@ export const App: React.FC = () => {
         }
         // Priority 5.2: Exit Profile View
         if (isProfileView) {
-          setIsProfileView(false);
+          setMobileTab('folders');
           return;
         }
         // Priority 5.5: Exit review-only mode
         if (isReviewOnly) {
-          setIsReviewOnly(false);
+          setMobileTab('folders');
           return;
         }
         // Priority 6: Return from subfolder to all questions
@@ -470,13 +485,13 @@ export const App: React.FC = () => {
           selectedMastery={selectedMastery}
           gitStatus={gitStatus}
           onSelectFolder={(fId) => {
-            setIsProfileView(false);
+            setMobileTab('folders');
             setIsReviewOnly(false);
             setCurrentFolderId(fId);
             handleSelectQuestion(null);
           }}
           onSelectMastery={(m) => {
-            setIsProfileView(false);
+            setMobileTab('questions');
             setIsReviewOnly(false);
             setSelectedMastery(m);
             handleSelectQuestion(null);
@@ -535,44 +550,37 @@ export const App: React.FC = () => {
             </div>
           ) : (
             <div className="flex items-center justify-between w-full md:hidden">
-              {/* Left: Top-left Drawer Button + App Logo + Title */}
-              <div className="flex items-center gap-2 min-w-0">
+              {/* Left: Top-left Drawer Button + Clean Title (No bloated logo or subtitle) */}
+              <div className="flex items-center gap-2.5 min-w-0">
                 <button
                   type="button"
                   onClick={() => setIsMobileSidebarOpen(true)}
-                  className="p-1.5 -ml-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer shrink-0"
-                  title="打开分类与抽屉"
+                  className="p-1.5 -ml-1 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer shrink-0"
+                  title="打开学科分类抽屉"
                 >
                   <Menu className="w-5 h-5" />
                 </button>
-                <img
-                  src="/app-icon.png"
-                  alt="知微错题本"
-                  className="w-7 h-7 rounded-xl object-cover shadow-2xs shrink-0"
-                />
-                <div className="leading-tight truncate">
+                <div className="flex items-center gap-1.5 min-w-0">
                   <h1 className="text-sm font-bold text-slate-900 dark:text-white truncate">
-                    {isProfileView
-                      ? '个人主页与设置'
-                      : selectedQuestion
+                    {selectedQuestion
                       ? (selectedQuestion.title || '错题详情')
-                      : isReviewOnly
-                      ? '艾宾浩斯复盘'
-                      : currentFolder
-                      ? currentFolder.name
-                      : selectedMastery
-                      ? (selectedMastery === 'mastered' ? '已掌握错题' : selectedMastery === 'reviewing' ? '攻关中错题' : '未掌握错题')
-                      : '知微错题本'}
+                      : mobileTab === 'profile'
+                      ? '个人主页'
+                      : mobileTab === 'review'
+                      ? '今日复盘'
+                      : mobileTab === 'folders'
+                      ? (currentFolder ? currentFolder.name : '全部科目')
+                      : (currentFolder ? currentFolder.name : selectedMastery ? (selectedMastery === 'mastered' ? '已掌握错题' : selectedMastery === 'reviewing' ? '攻关中错题' : '未掌握错题') : '全部错题')}
                   </h1>
-                  <span className="text-[10px] text-slate-400 block truncate">
-                    {isProfileView
-                      ? '个性化主题 · 存储管理 · 软件信息'
-                      : selectedQuestion
-                      ? '精细记录 · 考点剖析'
-                      : isReviewOnly
-                      ? `今日待复习 ${dueTodayCount} 题`
-                      : `${displayQuestions.length} 道错题`}
-                  </span>
+                  {!selectedQuestion && (
+                    <span className="text-[11px] font-semibold text-slate-400 shrink-0">
+                      ({mobileTab === 'review' 
+                        ? `${dueTodayCount} 题` 
+                        : mobileTab === 'folders' 
+                        ? (currentFolder ? `${displayQuestions.length} 题` : `${folders.length} 科目`) 
+                        : `${displayQuestions.length} 题`})
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -671,10 +679,10 @@ export const App: React.FC = () => {
                 type="button"
                 onClick={() => {
                   handleSelectQuestion(null);
-                  setIsProfileView(prev => !prev);
+                  setMobileTab(prev => prev === 'profile' ? 'folders' : 'profile');
                 }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
-                  isProfileView
+                  mobileTab === 'profile'
                     ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-800'
                     : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700'
                 }`}
@@ -696,9 +704,9 @@ export const App: React.FC = () => {
           </div>
         </header>
 
-        {/* Workspace Body: Profile View OR Detail View OR FolderGrid + List */}
+        {/* Workspace Body: Profile View OR Detail View OR Folders / Questions */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-6 pb-24 md:pb-6 relative z-10">
-          {isProfileView ? (
+          {mobileTab === 'profile' ? (
             <UserProfileView
               questions={allQuestions}
               folders={folders}
@@ -709,7 +717,7 @@ export const App: React.FC = () => {
                 loadQuestions();
               }}
               onCheckUpdate={handleManualCheckUpdate}
-              onBackToQuestions={() => setIsProfileView(false)}
+              onBackToQuestions={() => setMobileTab('folders')}
             />
           ) : selectedQuestion ? (
             <QuestionDetail
@@ -724,7 +732,7 @@ export const App: React.FC = () => {
           ) : (
             <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
               {/* Ebbinghaus Review Banner (when Review Mode is active) */}
-              {isReviewOnly && (
+              {mobileTab === 'review' && (
                 <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-3.5 sm:p-4 rounded-2xl shadow-sm flex items-center justify-between">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 shadow-inner">
@@ -741,7 +749,7 @@ export const App: React.FC = () => {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setIsReviewOnly(false)}
+                    onClick={() => setMobileTab('questions')}
                     className="px-2.5 py-1 text-xs font-semibold bg-white/20 hover:bg-white/30 rounded-xl transition-colors cursor-pointer shrink-0 ml-2"
                   >
                     全部错题
@@ -749,8 +757,8 @@ export const App: React.FC = () => {
                 </div>
               )}
 
-              {/* 1. GoodNotes Folder Grid Hierarchy (hidden in review-only mode for focus) */}
-              {!isReviewOnly && (
+              {/* 1. GoodNotes Folder Grid Hierarchy (Shown when in 'folders' tab or on desktop) */}
+              {mobileTab !== 'review' && (mobileTab === 'folders' || typeof window === 'undefined' || window.innerWidth >= 768) && (
                 <FolderGrid
                   currentFolderId={currentFolderId}
                   folders={folders}
@@ -762,52 +770,85 @@ export const App: React.FC = () => {
                 />
               )}
 
-              {/* 2. Questions in this Category */}
-              <QuestionList
-                questions={displayQuestions}
-                folders={folders}
-                currentFolderId={currentFolderId}
-                onSelectQuestion={handleSelectQuestion}
-                onOpenCreateModal={() => setIsQuestionModalOpen(true)}
-              />
+              {/* 2. Questions in this Category or Flat List */}
+              {/* On mobile: if on 'folders' and currentFolderId is null, keep focus on folder covers; otherwise show questions */}
+              {(mobileTab === 'questions' || mobileTab === 'review' || currentFolderId !== null || (typeof window !== 'undefined' && window.innerWidth >= 768)) && (
+                <QuestionList
+                  questions={displayQuestions}
+                  folders={folders}
+                  currentFolderId={currentFolderId}
+                  onSelectQuestion={handleSelectQuestion}
+                  onOpenCreateModal={() => setIsQuestionModalOpen(true)}
+                />
+              )}
             </div>
           )}
         </div>
       </main>
 
-      {/* 3. Mobile Bottom Navigation Bar (Streamlined Flagship Mobile UX) */}
+      {/* 3. Mobile Bottom Navigation Bar (5 Streamlined Flagship Tabs) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 pb-[env(safe-area-inset-bottom,0px)] shadow-lg">
-        <div className="flex items-center justify-around h-15 px-3 max-w-md mx-auto relative">
-          {/* Tab 1: 错题本 */}
+        <div className="flex items-center justify-around h-15 px-2 max-w-lg mx-auto relative">
+          {/* Tab 1: 全部科目 (GoodNotes 学科分类) */}
           <button
             type="button"
             onClick={() => {
-              setIsProfileView(false);
+              setMobileTab('folders');
+              setIsReviewOnly(false);
+              handleSelectQuestion(null);
+            }}
+            className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors ${
+              mobileTab === 'folders' && !selectedQuestion
+                ? 'text-blue-600 dark:text-blue-400 font-bold'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
+            }`}
+          >
+            <FolderIcon className="w-5 h-5 mb-0.5" />
+            <span className="text-[10px]">全部科目</span>
+          </button>
+
+          {/* Tab 2: 全部错题 */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileTab('questions');
               setIsReviewOnly(false);
               handleSelectQuestion(null);
               setCurrentFolderId(null);
               setSelectedMastery(null);
             }}
             className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors ${
-              !isProfileView && !isReviewOnly && !selectedQuestion
+              mobileTab === 'questions' && !selectedQuestion
                 ? 'text-blue-600 dark:text-blue-400 font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
             }`}
           >
             <BookOpen className="w-5 h-5 mb-0.5" />
-            <span className="text-[10px]">错题本</span>
+            <span className="text-[10px]">全部错题</span>
           </button>
 
-          {/* Tab 2: 今日复盘 (艾宾浩斯) */}
+          {/* Center Elevated Floating Plus Button */}
+          <div className="flex-1 flex justify-center -mt-5">
+            <button
+              type="button"
+              onClick={() => setIsQuestionModalOpen(true)}
+              className="w-13 h-13 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 transform active:scale-95 transition-all cursor-pointer ring-4 ring-white dark:ring-slate-900"
+              title="录入新错题"
+            >
+              <Plus className="w-6 h-6" strokeWidth={2.5} />
+            </button>
+          </div>
+
+          {/* Tab 4: 今日复盘 */}
           <button
             type="button"
             onClick={() => {
-              setIsProfileView(false);
+              setMobileTab('review');
               handleSelectQuestion(null);
               setIsReviewOnly(true);
             }}
             className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors relative ${
-              !isProfileView && isReviewOnly && !selectedQuestion
+              mobileTab === 'review' && !selectedQuestion
                 ? 'text-indigo-600 dark:text-indigo-400 font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
             }`}
@@ -823,27 +864,15 @@ export const App: React.FC = () => {
             <span className="text-[10px]">今日复盘</span>
           </button>
 
-          {/* Center Elevated Floating Plus Button */}
-          <div className="flex-1 flex justify-center -mt-5">
-            <button
-              type="button"
-              onClick={() => setIsQuestionModalOpen(true)}
-              className="w-13 h-13 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 transform active:scale-95 transition-all cursor-pointer ring-4 ring-white dark:ring-slate-900"
-              title="录入新错题"
-            >
-              <Plus className="w-6 h-6" strokeWidth={2.5} />
-            </button>
-          </div>
-
-          {/* Tab 3: 个人主页与系统设置 */}
+          {/* Tab 5: 个人主页 */}
           <button
             type="button"
             onClick={() => {
               handleSelectQuestion(null);
-              setIsProfileView(true);
+              setMobileTab('profile');
             }}
             className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors relative ${
-              isProfileView
+              mobileTab === 'profile'
                 ? 'text-purple-600 dark:text-purple-400 font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
             }`}

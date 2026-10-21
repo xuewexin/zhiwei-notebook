@@ -144,15 +144,12 @@ public class MainForm : Form
 
                 try
                 {
-                    if (!Directory.Exists(bundleDir) || !File.Exists(Path.Combine(bundleDir, "index.html")))
+                    Directory.CreateDirectory(bundleDir);
+                    using var stream = typeof(Program).Assembly.GetManifestResourceStream("ZhiWeiNote.dist.zip");
+                    if (stream != null)
                     {
-                        Directory.CreateDirectory(bundleDir);
-                        using var stream = typeof(Program).Assembly.GetManifestResourceStream("ZhiWeiNote.dist.zip");
-                        if (stream != null)
-                        {
-                            using var archive = new System.IO.Compression.ZipArchive(stream);
-                            archive.ExtractToDirectory(bundleDir, true);
-                        }
+                        using var archive = new System.IO.Compression.ZipArchive(stream);
+                        archive.ExtractToDirectory(bundleDir, true);
                     }
 
                     if (File.Exists(Path.Combine(bundleDir, "index.html")))

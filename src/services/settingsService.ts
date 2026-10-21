@@ -81,6 +81,11 @@ export interface BackgroundConfig {
   blur: number;    // 0 to 10 px
 }
 
+export interface StoragePathConfig {
+  customDirectory: string;
+  autoBackup: boolean;
+}
+
 export interface AiConfig {
   enabled: boolean;
   baseUrl: string;
@@ -108,6 +113,13 @@ export const DEFAULT_BG: BackgroundConfig = {
   imageUrl: '',
   opacity: 0.15,
   blur: 0
+};
+
+export const DEFAULT_STORAGE_PATH: StoragePathConfig = {
+  customDirectory: typeof navigator !== 'undefined' && /win/i.test(navigator.userAgent || '')
+    ? 'D:\\知微错题库'
+    : 'Download/知微错题本',
+  autoBackup: true
 };
 
 export const DEFAULT_AI_CONFIG: AiConfig = {
@@ -180,6 +192,25 @@ export const settingsService = {
     const updated = { ...curr, ...bg };
     try {
       localStorage.setItem(STORAGE_KEY_BG, JSON.stringify(updated));
+    } catch {}
+    return updated;
+  },
+
+  // 3.5 Custom Storage Directory
+  getStoragePath(): StoragePathConfig {
+    try {
+      const data = localStorage.getItem('zhiwei_custom_storage_path');
+      return data ? { ...DEFAULT_STORAGE_PATH, ...JSON.parse(data) } : DEFAULT_STORAGE_PATH;
+    } catch {
+      return DEFAULT_STORAGE_PATH;
+    }
+  },
+
+  saveStoragePath(cfg: Partial<StoragePathConfig>): StoragePathConfig {
+    const curr = this.getStoragePath();
+    const updated = { ...curr, ...cfg };
+    try {
+      localStorage.setItem('zhiwei_custom_storage_path', JSON.stringify(updated));
     } catch {}
     return updated;
   },
