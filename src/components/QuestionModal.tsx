@@ -285,13 +285,10 @@ export const QuestionModal: React.FC<QuestionModalProps> = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-5">
           <div className="flex items-center gap-2">
-            <span className="w-9 h-9 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
-              <Plus className="w-5 h-5" />
-            </span>
             <div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">录入新错题</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                支持题目拍照、截图粘贴、PDF 试卷上传及可选参考答案
+                支持题目拍照、截图粘贴、Markdown 公式排版、PDF 试卷上传及可选参考答案
               </p>
             </div>
           </div>
@@ -413,7 +410,7 @@ export const QuestionModal: React.FC<QuestionModalProps> = ({
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-800'
                   }`}
                 >
-                  <FileText className="w-3.5 h-3.5" /> 文本/公式
+                  <FileText className="w-3.5 h-3.5" /> MD 文档/公式
                 </button>
                 <button
                   type="button"
@@ -516,15 +513,20 @@ export const QuestionModal: React.FC<QuestionModalProps> = ({
               </div>
             )}
 
-            {/* Mode 2: Text / LaTeX */}
+            {/* Mode 2: Markdown Document with KaTeX & Preview */}
             {contentType === 'text' && (
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="直接键入题目题干，支持 LaTeX 公式（如 $f(x)=e^x+a$ 或 $$\int_0^1 x dx$$）与 Markdown 排版..."
-                className="w-full p-3.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-                rows={4}
-              />
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-[11px] text-slate-400">
+                  <span>支持完整 Markdown 语法、LaTeX 数学公式与代码高亮</span>
+                  <span className="hidden sm:inline">可直接分屏或渲染预览</span>
+                </div>
+                <MarkdownEditor
+                  value={content}
+                  onChange={setContent}
+                  placeholder="在此使用 Markdown 编写错题题干，支持 LaTeX 公式（如 $f(x)=e^x+a$ 或 $$\int_0^1 x dx$$）、列表与代码高亮..."
+                  minHeight="140px"
+                />
+              </div>
             )}
 
             {/* Mode 3: PDF Document Upload */}
@@ -625,7 +627,7 @@ export const QuestionModal: React.FC<QuestionModalProps> = ({
                         : 'text-slate-600 dark:text-slate-400'
                     }`}
                   >
-                    文字解析
+                    答案 MD/公式
                   </button>
                   <button
                     type="button"
@@ -656,12 +658,11 @@ export const QuestionModal: React.FC<QuestionModalProps> = ({
             {hasAnswer && (
               <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 animate-fade-in space-y-2">
                 {answerType === 'text' && (
-                  <textarea
+                  <MarkdownEditor
                     value={answerContent}
-                    onChange={(e) => setAnswerContent(e.target.value)}
-                    placeholder="输入标准解题步骤、参考答案推导，支持 LaTeX 公式..."
-                    className="w-full p-3 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    rows={3}
+                    onChange={setAnswerContent}
+                    placeholder="在此输入标准解答与解析 Markdown，支持 LaTeX 公式（如 $f(x)=2x+1$）、代码与分步推导..."
+                    minHeight="120px"
                   />
                 )}
 

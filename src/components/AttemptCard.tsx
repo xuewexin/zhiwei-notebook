@@ -286,7 +286,7 @@ export const AttemptCard: React.FC<AttemptCardProps> = ({
           className="px-4 py-2.5 bg-slate-50/50 dark:bg-slate-800/30 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/70 transition-colors select-none group"
         >
           <div className="flex flex-wrap items-center gap-3 truncate max-w-[85%]">
-            {mdContent ? (
+            {Boolean(mdContent && typeof mdContent === 'string') ? (
               <span className="flex items-center gap-1 font-semibold text-blue-600 dark:text-blue-400">
                 <FileCode className="w-3.5 h-3.5" />
                 <span>MD笔记: {mdContent.replace(/[#*`$\n]/g, ' ').slice(0, 45)}...</span>
@@ -298,7 +298,7 @@ export const AttemptCard: React.FC<AttemptCardProps> = ({
                 <span>PDF: {pdfName || '已附讲义'}</span>
               </span>
             ) : null}
-            {images.length > 0 ? (
+            {Array.isArray(images) && images.length > 0 ? (
               <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
                 <ImageIcon className="w-3.5 h-3.5" />
                 <span>{images.length} 张草稿图</span>

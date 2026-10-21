@@ -130,16 +130,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </button>
             )}
           </div>
-
-          {/* Primary Action Button: New Question */}
-          <button
-            type="button"
-            onClick={handleCreateQuestion}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-98 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>录入新错题</span>
-          </button>
         </div>
 
         {/* Middle Section: Scrollable Navigation Links */}

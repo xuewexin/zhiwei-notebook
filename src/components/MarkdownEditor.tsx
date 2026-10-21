@@ -471,10 +471,10 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         )}
       </div>
 
-      {/* Editor Footer: Quick tip bar */}
+      {/* Editor Footer: Quick tip bar (Shortcuts hidden on mobile) */}
       {!readOnly && (
         <div className="px-3 py-1 bg-slate-50/60 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2">
             <span className="flex items-center gap-1 font-medium text-slate-500 dark:text-slate-400">
               <Keyboard className="w-3 h-3" />
               快捷键支持:
@@ -485,7 +485,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
             <span><kbd className="px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">Ctrl+M</kbd> 公式</span>
             <span><kbd className="px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">Tab</kbd> 缩进</span>
           </div>
-          <span>{(value || '').length} 字符</span>
+          <span className="ml-auto">{(value || '').length} 字符</span>
         </div>
       )}
     </div>

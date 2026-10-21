@@ -111,7 +111,13 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
   const [showReflection, setShowReflection] = useState<boolean>(true);
   const [isEditingReflection, setIsEditingReflection] = useState<boolean>(false);
   const [isSavingReflection, setIsSavingReflection] = useState<boolean>(false);
-  const [reflectionMd, setReflectionMd] = useState<string>(question.reflectionMd || question.reflectionContent || '');
+  const [reflectionMd, setReflectionMd] = useState<string>(
+    typeof question.reflectionMd === 'string'
+      ? question.reflectionMd
+      : typeof question.reflectionContent === 'string'
+      ? question.reflectionContent
+      : ''
+  );
   const [reflectionPdfUrl, setReflectionPdfUrl] = useState<string>(question.reflectionPdfUrl || '');
   const [reflectionPdfName, setReflectionPdfName] = useState<string>(question.reflectionPdfName || '');
   const [reflectionImages, setReflectionImages] = useState<string[]>(Array.isArray(question.reflectionImages) ? question.reflectionImages : []);
@@ -122,6 +128,14 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
       : (question.reflectionDrawing ? [question.reflectionDrawing] : [''])
   );
   const [reflectionOverlayDrawings, setReflectionOverlayDrawings] = useState<OverlayDrawings>(question.reflectionOverlayDrawings || {});
+
+  const toggleReflectionCollapse = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (isEditingReflection) {
+      setIsEditingReflection(false);
+    }
+    setShowReflection(prev => !prev);
+  };
 
   // Quick error tag toggles
   const DEFAULT_ERROR_CAUSES = ['审题失误', '知识盲区', '公式遗忘', '计算失误', '思维定势', '分类讨论不全'];
@@ -1025,7 +1039,7 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
           <div className="flex flex-wrap items-center justify-between px-6 py-4 bg-blue-50/20 dark:bg-blue-950/20 gap-3 border-b border-slate-100 dark:border-slate-800">
             <button
               type="button"
-              onClick={() => setShowReflection(!showReflection)}
+              onClick={toggleReflectionCollapse}
               className="flex items-center gap-2.5 text-left cursor-pointer group"
             >
               <span className="w-2.5 h-2.5 rounded-full bg-blue-600 group-hover:scale-125 transition-transform" />
@@ -1050,7 +1064,7 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setShowReflection(!showReflection)}
+                onClick={toggleReflectionCollapse}
                 className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer transition-all"
               >
                 <span>{showReflection ? '收起' : '展开'}</span>
@@ -1106,7 +1120,7 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
               className="px-6 py-3 bg-blue-50/30 dark:bg-slate-800/20 text-xs text-slate-600 dark:text-slate-400 flex items-center justify-between cursor-pointer hover:bg-blue-50/50 dark:hover:bg-slate-800/50 transition-colors select-none group"
             >
               <div className="flex flex-wrap items-center gap-2.5 truncate max-w-[85%]">
-                {errorCauses.length > 0 && (
+                {Array.isArray(errorCauses) && errorCauses.length > 0 && (
                   <div className="flex items-center gap-1">
                     {errorCauses.map(c => (
                       <span key={c} className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border border-rose-200 dark:border-rose-900">
@@ -1115,7 +1129,7 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
                     ))}
                   </div>
                 )}
-                {reflectionMd && (
+                {Boolean(reflectionMd && typeof reflectionMd === 'string') && (
                   <span className="truncate text-slate-700 dark:text-slate-300 font-medium flex items-center gap-1">
                     <FileCode className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                     {reflectionMd.replace(/[#*`$\n]/g, ' ').slice(0, 50)}...
@@ -1127,19 +1141,19 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
                     附 PDF: {reflectionPdfName || '讲义资料'}
                   </span>
                 )}
-                {reflectionImages.length > 0 && (
+                {Array.isArray(reflectionImages) && reflectionImages.length > 0 && (
                   <span className="text-amber-600 dark:text-amber-400 font-medium text-[11px] flex items-center gap-1">
                     <Camera className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                     {reflectionImages.length} 张笔记照片
                   </span>
                 )}
-                {(reflectionDrawing || (reflectionDrawingPages && reflectionDrawingPages.length > 0)) && (
+                {(reflectionDrawing || (Array.isArray(reflectionDrawingPages) && reflectionDrawingPages.length > 0)) && (
                   <span className="text-purple-600 dark:text-purple-400 font-medium text-[11px] flex items-center gap-1">
                     <PenTool className="w-3.5 h-3.5 text-purple-500 shrink-0" />
                     附手绘画稿
                   </span>
                 )}
-                {!reflectionMd && !reflectionPdfUrl && reflectionImages.length === 0 && errorCauses.length === 0 && (
+                {!reflectionMd && !reflectionPdfUrl && (!Array.isArray(reflectionImages) || reflectionImages.length === 0) && (!Array.isArray(errorCauses) || errorCauses.length === 0) && (
                   <span className="text-slate-400 italic">暂无心得记录，点击展开录入</span>
                 )}
               </div>

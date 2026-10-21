@@ -23,7 +23,11 @@ import {
   RefreshCw, 
   Eye, 
   EyeOff,
-  GitBranch
+  GitBranch,
+  FolderOpen,
+  Share2,
+  Mail,
+  Copy
 } from 'lucide-react';
 import { 
   settingsService, 
@@ -45,6 +49,7 @@ interface UserProfileViewProps {
   onRefreshData: () => void;
   onCheckUpdate: () => void;
   onBackToQuestions?: () => void;
+  onProfileUpdated?: (profile: UserProfile) => void;
 }
 
 export const UserProfileView: React.FC<UserProfileViewProps> = ({
@@ -53,7 +58,8 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   onOpenGitModal,
   onRefreshData,
   onCheckUpdate,
-  onBackToQuestions
+  onBackToQuestions,
+  onProfileUpdated
 }) => {
   const [profile, setProfile] = useState<UserProfile>(settingsService.getProfile());
   const [themeKey, setThemeKey] = useState<ThemeColorKey>(settingsService.getThemeColor());
@@ -62,6 +68,8 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   const [storagePath, setStoragePath] = useState<StoragePathConfig>(() => settingsService.getStoragePath());
   const [customDirInput, setCustomDirInput] = useState<string>(() => settingsService.getStoragePath().customDirectory);
   const [pathSavedNotice, setPathSavedNotice] = useState(false);
+  const [shareNotice, setShareNotice] = useState<string | null>(null);
+  const [copyEmailNotice, setCopyEmailNotice] = useState<string | null>(null);
 
   // Editing profile modal/state
   const [isEditingName, setIsEditingName] = useState(false);
@@ -99,6 +107,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
       const dataUrl = event.target?.result as string;
       const updated = settingsService.saveProfile({ avatar: dataUrl });
       setProfile(updated);
+      if (onProfileUpdated) onProfileUpdated(updated);
     };
     reader.readAsDataURL(file);
     e.target.value = '';
@@ -131,7 +140,73 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
       motto: tempMotto.trim() || '见微知著，省思改错'
     });
     setProfile(updated);
+    if (onProfileUpdated) onProfileUpdated(updated);
     setIsEditingName(false);
+  };
+
+  // Share Application
+  const handleShareApp = async () => {
+    const shareData = {
+      title: '知微错题本 (ZhiWei Note) - 跨平台本地优先错题复盘神器',
+      text: '推荐给你这款超棒的错题本应用！支持iPad/Apple Pencil手写演练、艾宾浩斯复盘算法、LaTeX与代码排版，本地优先且支持 Git 多端同步，完全免费纯净：',
+      url: 'https://github.com/xuewexin/zhiwei-notebook'
+    };
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (e: any) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(`${shareData.title}\n${shareData.text}\n下载地址: ${shareData.url}`);
+      setShareNotice('已复制分享推荐文案与下载链接至剪贴板，可直接粘贴发给学友！');
+      setTimeout(() => setShareNotice(null), 3500);
+    } catch {
+      alert('下载地址: https://github.com/xuewexin/zhiwei-notebook');
+    }
+  };
+
+  // Copy Author Email
+  const handleCopyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText('2792893068@qq.com');
+      setCopyEmailNotice('作者邮箱 2792893068@qq.com 已成功复制！');
+      setTimeout(() => setCopyEmailNotice(null), 3000);
+    } catch {
+      alert('作者联系邮箱: 2792893068@qq.com');
+    }
+  };
+
+  // Directory Picker
+  const handlePickDirectory = async () => {
+    if (typeof window !== 'undefined' && 'showDirectoryPicker' in window) {
+      try {
+        const handle = await (window as any).showDirectoryPicker();
+        if (handle && handle.name) {
+          const selectedPath = isNativePlatform
+            ? `Download/${handle.name}`
+            : `D:\\${handle.name}`;
+          setCustomDirInput(selectedPath);
+          const u = settingsService.saveStoragePath({ customDirectory: selectedPath });
+          setStoragePath(u);
+          setPathSavedNotice(true);
+          setTimeout(() => setPathSavedNotice(false), 2500);
+          return;
+        }
+      } catch (e: any) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+    const nextDir = isNativePlatform ? 'Download/知微错题本' : 'D:\\知微错题库';
+    setCustomDirInput(nextDir);
+    const u = settingsService.saveStoragePath({ customDirectory: nextDir });
+    setStoragePath(u);
+    setPathSavedNotice(true);
+    setTimeout(() => setPathSavedNotice(false), 2500);
   };
 
   // Test AI Connection
@@ -501,13 +576,27 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2">
-            <input 
-              type="text"
-              value={customDirInput}
-              onChange={(e) => setCustomDirInput(e.target.value)}
-              placeholder={isNativePlatform ? '例如: Download/知微错题本' : '例如: D:\\知微错题库'}
-              className="flex-1 text-xs px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
-            />
+            <div className="flex-1 relative flex items-center">
+              <FolderOpen className="w-4 h-4 text-blue-500 absolute left-3 pointer-events-none" />
+              <input 
+                type="text"
+                value={customDirInput}
+                onChange={(e) => setCustomDirInput(e.target.value)}
+                placeholder={isNativePlatform ? '例如: Download/知微错题本' : '例如: D:\\知微错题库'}
+                className="w-full text-xs pl-9 pr-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+              />
+            </div>
+            
+            <button
+              type="button"
+              onClick={handlePickDirectory}
+              className="px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-xs shrink-0 flex items-center justify-center gap-1.5"
+              title="点击快捷选择/切换系统目录"
+            >
+              <FolderOpen className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>快捷选择目录</span>
+            </button>
+
             <button
               type="button"
               onClick={() => {
@@ -858,6 +947,81 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             <ArrowUpCircle className="w-4 h-4" />
             <span>检测最新版本 (比对官方 Release)</span>
           </button>
+        </div>
+      </div>
+
+      {/* 6. Contact Author, Feedback & Share */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400">
+              <Mail className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">联系作者与问题反馈</h3>
+              <p className="text-xs text-slate-400">有任何使用疑问、Bug 报错或改进建议，欢迎随时反馈</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleShareApp}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+            title="向好友或同学分享本软件"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            <span>向学友分享</span>
+          </button>
+        </div>
+
+        {shareNotice && (
+          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 rounded-2xl text-xs flex items-center gap-2 animate-fade-in">
+            <Check className="w-4 h-4 text-emerald-600" />
+            <span>{shareNotice}</span>
+          </div>
+        )}
+
+        {copyEmailNotice && (
+          <div className="p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 rounded-2xl text-xs flex items-center gap-2 animate-fade-in">
+            <Check className="w-4 h-4 text-blue-600" />
+            <span>{copyEmailNotice}</span>
+          </div>
+        )}
+
+        <div className="p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-750 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
+                📮 作者唯一官方反馈邮箱
+              </span>
+              <span className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400 select-all">
+                2792893068@qq.com
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleCopyEmail}
+                className="flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-2xs"
+              >
+                <Copy className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                <span>复制邮箱</span>
+              </button>
+
+              <a
+                href="mailto:2792893068@qq.com?subject=【知微错题本】使用反馈与建议"
+                className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>立即发送邮件</span>
+              </a>
+            </div>
+          </div>
+
+          <p className="text-[11px] text-slate-400 leading-relaxed pt-1 border-t border-slate-100 dark:border-slate-700/60">
+            提示：在使用过程中如遇到手写板压感异常、同步连接错误或移动端界面适配问题，可随时将截图或操作步骤发至上述邮箱，作者将竭诚排查并持续发布优化更新！
+          </p>
         </div>
       </div>
     </div>
