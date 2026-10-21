@@ -56,6 +56,20 @@ export interface NextReviewPlan {
   summary: string;
 }
 
+export interface ReviewSettings {
+  dailyQuota: number; // 每日复盘题目数量，默认 5
+  folderScope: 'all' | 'custom'; // 'all' (不区分文件夹，默认) | 'custom' (指定文件夹)
+  selectedFolderIds: string[]; // 当 folderScope === 'custom' 时选中的文件夹 ID 列表，支持单个或多个
+}
+
+export const DEFAULT_REVIEW_SETTINGS: ReviewSettings = {
+  dailyQuota: 5,
+  folderScope: 'all',
+  selectedFolderIds: []
+};
+
+const REVIEW_SETTINGS_KEY = 'zhiwei_review_settings';
+
 export const reviewService = {
   /**
    * Preview or calculate the next review plan for a given question and tier without committing
@@ -142,5 +156,109 @@ export const reviewService = {
     }
 
     return { updatedQuestion, plan };
+  },
+
+  /**
+   * Get user's review configuration (daily quota, folder scope, etc.)
+   */
+  getReviewSettings(): ReviewSettings {
+    try {
+      const raw = localStorage.getItem(REVIEW_SETTINGS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return {
+          dailyQuota: typeof parsed.dailyQuota === 'number' && parsed.dailyQuota > 0 ? parsed.dailyQuota : DEFAULT_REVIEW_SETTINGS.dailyQuota,
+          folderScope: parsed.folderScope === 'custom' ? 'custom' : 'all',
+          selectedFolderIds: Array.isArray(parsed.selectedFolderIds) ? parsed.selectedFolderIds : []
+        };
+      }
+    } catch (e) {
+      console.warn('Failed to read review settings:', e);
+    }
+    return { ...DEFAULT_REVIEW_SETTINGS };
+  },
+
+  /**
+   * Persist user's review configuration
+   */
+  saveReviewSettings(settings: Partial<ReviewSettings>): ReviewSettings {
+    const current = this.getReviewSettings();
+    const updated: ReviewSettings = {
+      ...current,
+      ...settings,
+      dailyQuota: typeof settings.dailyQuota === 'number' && settings.dailyQuota > 0 ? settings.dailyQuota : current.dailyQuota,
+      folderScope: settings.folderScope || current.folderScope,
+      selectedFolderIds: Array.isArray(settings.selectedFolderIds) ? settings.selectedFolderIds : current.selectedFolderIds
+    };
+    try {
+      localStorage.setItem(REVIEW_SETTINGS_KEY, JSON.stringify(updated));
+    } catch (e) {
+      console.warn('Failed to save review settings:', e);
+    }
+    return updated;
+  },
+
+  /**
+   * Filter and sort questions according to Ebbinghaus memory curve and user settings
+   * - Folders: All (不区分文件夹) or Custom (多个或单个固定分类)
+   * - Memory curve sorting:
+   *   1. Overdue/due questions come first, with the most overdue (earliest nextReviewDate) first
+   *   2. Fragile memories (lower reviewStage, unmastered) take priority
+   *   3. Upcoming questions sorted by upcoming review timestamp
+   * - Limited to daily quota (default: 5)
+   */
+  getDailyReviewQuestions(allQuestions: Question[], customSettings?: ReviewSettings): {
+    reviewQuestions: Question[];
+    candidateCount: number;
+    settings: ReviewSettings;
+  } {
+    const settings = customSettings || this.getReviewSettings();
+
+    // 1. Filter by folder scope
+    let candidates = allQuestions;
+    if (settings.folderScope === 'custom' && settings.selectedFolderIds.length > 0) {
+      candidates = candidates.filter(q => settings.selectedFolderIds.includes(q.folderId));
+    }
+
+    // 2. Sort by Ebbinghaus memory curve urgency
+    const now = Date.now();
+    const tomorrow = now + 24 * 60 * 60 * 1000;
+
+    const sorted = [...candidates].sort((a, b) => {
+      const aNext = a.nextReviewDate ? new Date(a.nextReviewDate).getTime() : 0;
+      const bNext = b.nextReviewDate ? new Date(b.nextReviewDate).getTime() : 0;
+
+      const aIsDue = aNext <= tomorrow;
+      const bIsDue = bNext <= tomorrow;
+
+      // Rule 1: Due / Overdue questions always take priority over future scheduled questions
+      if (aIsDue && !bIsDue) return -1;
+      if (!aIsDue && bIsDue) return 1;
+
+      // Rule 2: Both are due/overdue -> Earliest due date (longest overdue) comes first
+      if (aIsDue && bIsDue) {
+        if (aNext !== bNext) return aNext - bNext;
+        // If equal, lower review stage (more fragile memory) comes first
+        const aStage = a.reviewStage ?? 0;
+        const bStage = b.reviewStage ?? 0;
+        if (aStage !== bStage) return aStage - bStage;
+        // Unmastered before reviewing before mastered
+        const masteryWeight: Record<MasteryStatus, number> = { unmastered: 0, reviewing: 1, mastered: 2 };
+        return (masteryWeight[a.mastery] ?? 1) - (masteryWeight[b.mastery] ?? 1);
+      }
+
+      // Rule 3: Both are future scheduled questions -> Soonest nextReviewDate first
+      if (aNext !== bNext) return aNext - bNext;
+      return (a.reviewStage ?? 0) - (b.reviewStage ?? 0);
+    });
+
+    const quota = Math.max(1, settings.dailyQuota || 5);
+    const reviewQuestions = sorted.slice(0, quota);
+
+    return {
+      reviewQuestions,
+      candidateCount: sorted.length,
+      settings
+    };
   }
 };

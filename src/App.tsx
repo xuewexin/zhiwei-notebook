@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 const CapApp = typeof window !== 'undefined' ? (window as any).Capacitor?.Plugins?.App : null;
 const StatusBar = typeof window !== 'undefined' ? (window as any).Capacitor?.Plugins?.StatusBar : null;
 import { 
@@ -34,6 +34,7 @@ import { OneNoteSyncIndicator } from './components/OneNoteSyncIndicator';
 import { UpdateModal } from './components/UpdateModal';
 import { UserProfileView } from './components/UserProfileView';
 import { ReviewCheckinView } from './components/ReviewCheckinView';
+import { reviewService, ReviewSettings } from './services/reviewService';
 import { checkForUpdates, UpdateInfo, CURRENT_VERSION } from './services/updateService';
 import { settingsService, ThemeColorKey, BackgroundConfig, UserProfile, THEME_PALETTES } from './services/settingsService';
 import { INITIAL_STARTER_QUESTIONS } from './api/localStorageEngine';
@@ -572,16 +573,19 @@ export const App: React.FC = () => {
 
   const currentFolder = folders.find(f => f.id === currentFolderId);
 
-  // Ebbinghaus Due Today calculations
-  const tomorrow = Date.now() + 24 * 60 * 60 * 1000;
-  const dueTodayQuestions = allQuestions.filter(
-    q => !q.nextReviewDate || new Date(q.nextReviewDate).getTime() <= tomorrow
-  );
+  // Ebbinghaus Daily Review Settings & Memory Curve calculations
+  const [reviewSettings, setReviewSettings] = useState<ReviewSettings>(() => reviewService.getReviewSettings());
+
+  const dailyReviewResult = useMemo(() => {
+    return reviewService.getDailyReviewQuestions(allQuestions, reviewSettings);
+  }, [allQuestions, reviewSettings]);
+
+  const dueTodayQuestions = dailyReviewResult.reviewQuestions;
   const dueTodayCount = dueTodayQuestions.length;
 
   // Final filtered questions to display
   const displayQuestions = isReviewOnly
-    ? allQuestions.filter(q => (!q.nextReviewDate || new Date(q.nextReviewDate).getTime() <= tomorrow) && (!searchQuery || q.title?.toLowerCase().includes(searchQuery.toLowerCase()) || q.content?.toLowerCase().includes(searchQuery.toLowerCase())))
+    ? dueTodayQuestions.filter(q => !searchQuery || q.title?.toLowerCase().includes(searchQuery.toLowerCase()) || q.content?.toLowerCase().includes(searchQuery.toLowerCase()))
     : questions;
 
   return (
@@ -870,6 +874,8 @@ export const App: React.FC = () => {
                 <ReviewCheckinView
                   currentTheme={currentTheme}
                   reviewQuestions={dueTodayQuestions}
+                  folders={folders}
+                  allQuestions={allQuestions}
                   onStartReview={() => {
                     if (dueTodayQuestions.length > 0) {
                       handleSelectQuestion(dueTodayQuestions[0]);
@@ -881,6 +887,7 @@ export const App: React.FC = () => {
                   }}
                   onQuestionUpdated={handleQuestionUpdated}
                   onSelectQuestion={handleSelectQuestion}
+                  onSettingsChange={setReviewSettings}
                 />
               )}
 

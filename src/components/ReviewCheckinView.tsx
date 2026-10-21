@@ -15,31 +15,39 @@ import {
   RotateCcw,
   Check,
   ExternalLink,
-  ImageIcon
+  ImageIcon,
+  Sliders,
+  X
 } from 'lucide-react';
 import { checkinService, CheckinData } from '../services/checkinService';
-import { reviewService, ReviewTier, REVIEW_TIERS } from '../services/reviewService';
+import { reviewService, ReviewTier, REVIEW_TIERS, ReviewSettings, DEFAULT_REVIEW_SETTINGS } from '../services/reviewService';
 import { ThemeConfig } from '../services/settingsService';
-import { Question } from '../types';
+import { Question, Folder } from '../types';
 import { marked } from 'marked';
 import katex from 'katex';
 
 interface ReviewCheckinViewProps {
   currentTheme: ThemeConfig;
   reviewQuestions: Question[];
+  folders?: Folder[];
+  allQuestions?: Question[];
   onStartReview: () => void;
   onViewAllQuestions: () => void;
   onQuestionUpdated?: (updated: Question) => void;
   onSelectQuestion?: (question: Question) => void;
+  onSettingsChange?: (settings: ReviewSettings) => void;
 }
 
 export const ReviewCheckinView: React.FC<ReviewCheckinViewProps> = ({
   currentTheme,
   reviewQuestions,
+  folders = [],
+  allQuestions = [],
   onStartReview,
   onViewAllQuestions,
   onQuestionUpdated,
-  onSelectQuestion
+  onSelectQuestion,
+  onSettingsChange
 }) => {
   const [checkinData, setCheckinData] = useState<CheckinData>(() => checkinService.getCheckinData());
   const [currentDate, setCurrentDate] = useState(() => new Date());
@@ -48,6 +56,52 @@ export const ReviewCheckinView: React.FC<ReviewCheckinViewProps> = ({
   const [showAnswer, setShowAnswer] = useState(false);
   const [reviewFeedback, setReviewFeedback] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Review Scope & Daily Quota Settings
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settings, setSettings] = useState<ReviewSettings>(() => reviewService.getReviewSettings());
+  const [tempQuota, setTempQuota] = useState(settings.dailyQuota);
+  const [tempScope, setTempScope] = useState<'all' | 'custom'>(settings.folderScope);
+  const [tempFolderIds, setTempFolderIds] = useState<string[]>(settings.selectedFolderIds);
+
+  const handleOpenSettings = () => {
+    setTempQuota(settings.dailyQuota);
+    setTempScope(settings.folderScope);
+    setTempFolderIds(settings.selectedFolderIds);
+    setIsSettingsOpen(true);
+  };
+
+  const handleSaveSettings = () => {
+    const updated = reviewService.saveReviewSettings({
+      dailyQuota: Math.max(1, Number(tempQuota) || 5),
+      folderScope: tempScope,
+      selectedFolderIds: tempFolderIds
+    });
+    setSettings(updated);
+    setIsSettingsOpen(false);
+    onSettingsChange?.(updated);
+  };
+
+  const handleResetSettings = () => {
+    setTempQuota(DEFAULT_REVIEW_SETTINGS.dailyQuota);
+    setTempScope(DEFAULT_REVIEW_SETTINGS.folderScope);
+    setTempFolderIds([]);
+  };
+
+  const getScopeLabel = () => {
+    if (settings.folderScope === 'all') {
+      return '全部科目 (不区分文件夹)';
+    }
+    if (settings.selectedFolderIds.length === 0) {
+      return '未选科目 (默认全题库)';
+    }
+    if (settings.selectedFolderIds.length === 1) {
+      const f = folders.find(item => item.id === settings.selectedFolderIds[0]);
+      return `固定: ${f ? f.name : '指定科目'}`;
+    }
+    const matchedNames = folders.filter(f => settings.selectedFolderIds.includes(f.id)).map(f => f.name);
+    return `已选 ${settings.selectedFolderIds.length} 个科目: ${matchedNames.slice(0, 2).join('、')}${settings.selectedFolderIds.length > 2 ? '等' : ''}`;
+  };
 
   const safeIndex = reviewQuestions.length > 0 
     ? Math.min(deckIndex, reviewQuestions.length - 1) 
@@ -149,6 +203,21 @@ export const ReviewCheckinView: React.FC<ReviewCheckinViewProps> = ({
                   (待攻克 {reviewQuestions.length} 题)
                 </span>
               </h2>
+
+              <div className="flex flex-wrap items-center gap-2 mt-2">
+                <button
+                  type="button"
+                  onClick={handleOpenSettings}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-semibold transition-all cursor-pointer backdrop-blur-xs border border-white/25 shadow-2xs active:scale-95"
+                  title="点击自定义每日复盘题目数量与出处分类"
+                >
+                  <Sliders className="w-3.5 h-3.5" />
+                  <span>每日计划: {settings.dailyQuota} 题</span>
+                  <span className="opacity-60">•</span>
+                  <span>出处: {getScopeLabel()}</span>
+                  <span className="ml-1 text-[10px] px-1.5 py-0.2 rounded-md bg-white/25 font-bold">设置</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -556,6 +625,254 @@ export const ReviewCheckinView: React.FC<ReviewCheckinViewProps> = ({
           </span>
         </div>
       </div>
+
+      {/* Review Settings Modal */}
+      {isSettingsOpen && (
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto animate-fade-in"
+          onClick={() => setIsSettingsOpen(false)}
+        >
+          <div 
+            className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 animate-scale-in my-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div 
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0"
+                  style={{ backgroundColor: currentTheme.primary }}
+                >
+                  <Sliders className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                    每日复盘个性化设置
+                  </h3>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    系统将依据记忆遗忘曲线与紧迫度智能排序抽题
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Section 1: 每日复盘题目数量 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                  <span>1. 每日复盘题目数量（目标上限）</span>
+                </label>
+                <span className="text-[11px] text-slate-400 font-mono">
+                  当前设定: {tempQuota} 题
+                </span>
+              </div>
+              
+              {/* Presets */}
+              <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+                {[3, 5, 10, 15, 20].map((num) => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => setTempQuota(num)}
+                    className={`py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                      tempQuota === num
+                        ? 'text-white border-transparent shadow-xs'
+                        : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+                    }`}
+                    style={tempQuota === num ? { backgroundColor: currentTheme.primary } : {}}
+                  >
+                    {num} 题
+                    {num === 5 && <span className="block text-[9px] font-normal opacity-85">默认</span>}
+                  </button>
+                ))}
+              </div>
+
+              {/* Custom input */}
+              <div className="flex items-center gap-2 pt-1">
+                <span className="text-xs text-slate-500">自定义题数:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={tempQuota}
+                  onChange={(e) => setTempQuota(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-16 px-2.5 py-1 text-xs text-center font-bold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
+                />
+                <span className="text-[11px] text-slate-400">道题 / 每天（系统按遗忘衰减程度截取前 {tempQuota} 道）</span>
+              </div>
+            </div>
+
+            {/* Section 2: 题目出处（文件夹范围） */}
+            <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
+                2. 题目出处与科目范围
+              </label>
+
+              {/* Scope Radio 1: All Folders */}
+              <div 
+                onClick={() => setTempScope('all')}
+                className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-start gap-2.5 ${
+                  tempScope === 'all'
+                    ? 'border-blue-500/80 bg-blue-50/50 dark:bg-blue-950/30'
+                    : 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 hover:bg-slate-100/60'
+                }`}
+              >
+                <input 
+                  type="radio" 
+                  name="review_scope" 
+                  checked={tempScope === 'all'} 
+                  onChange={() => setTempScope('all')} 
+                  className="mt-0.5 cursor-pointer"
+                />
+                <div className="flex-1 text-xs">
+                  <div className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                    <span>不区分文件夹（全部科目 · 默认）</span>
+                    <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">推荐</span>
+                  </div>
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5 leading-relaxed">
+                    跨越全部学科，系统严格按全题库的艾宾浩斯记忆遗忘紧迫度综合排序抽取题目，不偏科、遗忘阻断最高效。
+                  </p>
+                </div>
+              </div>
+
+              {/* Scope Radio 2: Custom Folders */}
+              <div 
+                onClick={() => setTempScope('custom')}
+                className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-start gap-2.5 ${
+                  tempScope === 'custom'
+                    ? 'border-blue-500/80 bg-blue-50/50 dark:bg-blue-950/30'
+                    : 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 hover:bg-slate-100/60'
+                }`}
+              >
+                <input 
+                  type="radio" 
+                  name="review_scope" 
+                  checked={tempScope === 'custom'} 
+                  onChange={() => setTempScope('custom')} 
+                  className="mt-0.5 cursor-pointer"
+                />
+                <div className="flex-1 text-xs">
+                  <div className="font-bold text-slate-800 dark:text-slate-100">
+                    指定科目与文件夹（可固定单个，也可多选组合）
+                  </div>
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5 leading-relaxed">
+                    仅从您勾选的指定分类中，依据记忆遗忘曲线排序抽题进行每日复盘。
+                  </p>
+                </div>
+              </div>
+
+              {/* Folder Multi-select Matrix (Visible when custom scope is active) */}
+              {tempScope === 'custom' && (
+                <div className="p-3 bg-slate-100/70 dark:bg-slate-800/60 rounded-2xl space-y-2 animate-fade-in">
+                  <div className="flex items-center justify-between text-[11px] px-1">
+                    <span className="font-semibold text-slate-600 dark:text-slate-300">
+                      请勾选复盘科目（已选 {tempFolderIds.length} 个）:
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTempFolderIds(folders?.map(f => f.id) || []);
+                        }}
+                        className="text-blue-600 dark:text-blue-400 font-semibold hover:underline cursor-pointer"
+                      >
+                        全选
+                      </button>
+                      <span className="text-slate-300">|</span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTempFolderIds([]);
+                        }}
+                        className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 cursor-pointer"
+                      >
+                        清空
+                      </button>
+                    </div>
+                  </div>
+
+                  {folders && folders.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-y-auto p-1">
+                      {folders.map(f => {
+                        const isSelected = tempFolderIds.includes(f.id);
+                        const qCount = allQuestions ? allQuestions.filter(q => q.folderId === f.id).length : 0;
+                        return (
+                          <button
+                            key={f.id}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setTempFolderIds(prev => 
+                                isSelected ? prev.filter(id => id !== f.id) : [...prev, f.id]
+                              );
+                            }}
+                            className={`p-2 rounded-xl text-left border text-xs transition-all flex items-center justify-between gap-1.5 cursor-pointer ${
+                              isSelected
+                                ? 'bg-white dark:bg-slate-900 border-blue-500 shadow-2xs font-bold text-slate-900 dark:text-white'
+                                : 'bg-white/60 dark:bg-slate-900/40 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-white'
+                            }`}
+                          >
+                            <div className="flex items-center gap-1.5 truncate">
+                              <span 
+                                className="w-2.5 h-2.5 rounded-full shrink-0" 
+                                style={{ backgroundColor: f.color || '#3b82f6' }} 
+                              />
+                              <span className="truncate">{f.name}</span>
+                            </div>
+                            <span className="text-[10px] text-slate-400 shrink-0 font-mono">
+                              {qCount}题
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-400 py-2 text-center">暂无文件夹分类</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={handleResetSettings}
+                className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
+              >
+                恢复默认 (5题/全部科目)
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveSettings}
+                  className="px-4 py-1.5 text-xs font-bold text-white rounded-xl shadow-xs hover:shadow transition-all cursor-pointer active:scale-95"
+                  style={{ backgroundColor: currentTheme.primary }}
+                >
+                  保存并应用
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
