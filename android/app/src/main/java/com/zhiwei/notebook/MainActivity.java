@@ -47,9 +47,16 @@ public class MainActivity extends BridgeActivity {
                     public void openInBrowser(String url) {
                         try {
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            intent.addCategory(Intent.CATEGORY_BROWSABLE);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
-                        } catch (Exception ignored) {}
+                        } catch (Exception e) {
+                            try {
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                            } catch (Exception ignored) {}
+                        }
                     }
                 }, "AndroidNativeBridge");
             }
