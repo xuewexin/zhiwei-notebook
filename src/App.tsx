@@ -915,13 +915,13 @@ export const App: React.FC = () => {
       {/* 3. Mobile Bottom Navigation Bar (5 Streamlined Flagship Tabs) */}
       {/* Automatically hidden when soft keyboard pops up or when any modal/input is active */}
       <nav 
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 pb-[env(safe-area-inset-bottom,0px)] shadow-lg transition-all duration-200 ${
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800/80 pb-[max(env(safe-area-inset-bottom,0px),6px)] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] transition-all duration-200 ${
           isKeyboardVisible || isQuestionModalOpen || isGitModalOpen || !!viewerImageUrl || isUpdateModalOpen
             ? 'hidden pointer-events-none'
-            : 'flex'
+            : 'block'
         }`}
       >
-        <div className="flex items-center justify-around h-15 px-2 max-w-lg mx-auto relative">
+        <div className="w-full max-w-md mx-auto grid grid-cols-5 items-center h-16 px-1 relative">
           {/* Tab 1: 全部科目 (GoodNotes 学科分类) */}
           <button
             type="button"
@@ -930,15 +930,15 @@ export const App: React.FC = () => {
               setIsReviewOnly(false);
               handleSelectQuestion(null);
             }}
-            className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors ${
+            className={`col-span-1 flex flex-col items-center justify-center py-1 cursor-pointer transition-all active:scale-92 select-none ${
               mobileTab === 'folders' && !selectedQuestion
                 ? 'font-bold'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
+                : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-normal'
             }`}
             style={mobileTab === 'folders' && !selectedQuestion ? { color: currentTheme.primary } : {}}
           >
-            <FolderIcon className="w-5 h-5 mb-0.5" />
-            <span className="text-[10px]">全部科目</span>
+            <FolderIcon className="w-5 h-5 mb-1" />
+            <span className="text-[10px] sm:text-[11px] tracking-tight whitespace-nowrap">全部科目</span>
           </button>
 
           {/* Tab 2: 全部错题 */}
@@ -951,27 +951,27 @@ export const App: React.FC = () => {
               setCurrentFolderId(null);
               setSelectedMastery(null);
             }}
-            className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors ${
+            className={`col-span-1 flex flex-col items-center justify-center py-1 cursor-pointer transition-all active:scale-92 select-none ${
               mobileTab === 'questions' && !selectedQuestion
                 ? 'font-bold'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
+                : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-normal'
             }`}
             style={mobileTab === 'questions' && !selectedQuestion ? { color: currentTheme.primary } : {}}
           >
-            <BookOpen className="w-5 h-5 mb-0.5" />
-            <span className="text-[10px]">全部错题</span>
+            <BookOpen className="w-5 h-5 mb-1" />
+            <span className="text-[10px] sm:text-[11px] tracking-tight whitespace-nowrap">全部错题</span>
           </button>
 
           {/* Center Elevated Floating Plus Button */}
-          <div className="flex-1 flex justify-center -mt-5">
+          <div className="col-span-1 flex items-center justify-center -mt-6">
             <button
               type="button"
               onClick={() => setIsQuestionModalOpen(true)}
-              className="w-12 h-12 rounded-full text-white flex items-center justify-center shadow-md shadow-slate-600/20 hover:opacity-95 transform active:scale-95 transition-all cursor-pointer ring-4 ring-white dark:ring-slate-900"
+              className="w-13 h-13 rounded-full text-white flex items-center justify-center shadow-lg shadow-blue-900/20 hover:scale-105 active:scale-95 transition-all cursor-pointer ring-4 ring-white dark:ring-slate-900"
               style={{ backgroundColor: currentTheme.primary }}
               title="录入新错题"
             >
-              <Plus className="w-5 h-5" strokeWidth={2.5} />
+              <Plus className="w-6 h-6" strokeWidth={2.5} />
             </button>
           </div>
 
@@ -983,22 +983,22 @@ export const App: React.FC = () => {
               handleSelectQuestion(null);
               setIsReviewOnly(true);
             }}
-            className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors relative ${
+            className={`col-span-1 flex flex-col items-center justify-center py-1 cursor-pointer transition-all active:scale-92 select-none relative ${
               mobileTab === 'review' && !selectedQuestion
                 ? 'font-bold'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
+                : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-normal'
             }`}
             style={mobileTab === 'review' && !selectedQuestion ? { color: currentTheme.primary } : {}}
           >
             <div className="relative">
-              <Brain className="w-5 h-5 mb-0.5" />
+              <Brain className="w-5 h-5 mb-1" />
               {dueTodayCount > 0 && (
-                <span className="absolute -top-1 -right-2.5 bg-rose-500 text-white text-[9px] font-bold px-1 rounded-full min-w-[16px] text-center">
+                <span className="absolute -top-1 -right-2.5 bg-rose-500 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full min-w-[16px] text-center shadow-xs">
                   {dueTodayCount}
                 </span>
               )}
             </div>
-            <span className="text-[10px]">今日复盘</span>
+            <span className="text-[10px] sm:text-[11px] tracking-tight whitespace-nowrap">今日复盘</span>
           </button>
 
           {/* Tab 5: 个人主页 */}
@@ -1008,15 +1008,15 @@ export const App: React.FC = () => {
               handleSelectQuestion(null);
               setMobileTab('profile');
             }}
-            className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors relative ${
+            className={`col-span-1 flex flex-col items-center justify-center py-1 cursor-pointer transition-all active:scale-92 select-none relative ${
               mobileTab === 'profile'
                 ? 'font-bold'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
+                : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-normal'
             }`}
             style={mobileTab === 'profile' ? { color: currentTheme.primary } : {}}
           >
-            <User className="w-5 h-5 mb-0.5" />
-            <span className="text-[10px]">个人主页</span>
+            <User className="w-5 h-5 mb-1" />
+            <span className="text-[10px] sm:text-[11px] tracking-tight whitespace-nowrap">个人主页</span>
           </button>
         </div>
       </nav>

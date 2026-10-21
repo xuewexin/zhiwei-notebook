@@ -31,6 +31,11 @@ import {
   X,
   Smartphone,
   Laptop,
+  Tablet,
+  Key,
+  ShieldAlert,
+  Layers,
+  HelpCircle,
   ChevronDown
 } from 'lucide-react';
 import { 
@@ -99,6 +104,36 @@ const compressImageForWallpaper = (file: File): Promise<string> => {
   });
 };
 
+// Safe external browser launcher across Android / Windows / Web
+const launchExternalBrowser = (targetUrl: string) => {
+  if (!targetUrl) return;
+  const androidBridge = (window as any).AndroidNativeBridge;
+  if (androidBridge && typeof androidBridge.openInBrowser === 'function') {
+    try {
+      androidBridge.openInBrowser(targetUrl);
+      return;
+    } catch {}
+  }
+  const winHost = (window as any).chrome?.webview?.hostObjects?.nativeHost;
+  if (winHost && typeof winHost.OpenUrl === 'function') {
+    try {
+      winHost.OpenUrl(targetUrl);
+      return;
+    } catch {}
+  }
+  try {
+    const a = document.createElement('a');
+    a.href = targetUrl;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch {
+    window.open(targetUrl, '_blank', 'noopener,noreferrer');
+  }
+};
+
 export const UserProfileView: React.FC<UserProfileViewProps> = ({
   questions,
   folders,
@@ -126,6 +161,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
     theme: false,
     background: false,
     storage: false,
+    syncTutorial: false,
     ai: false,
     version: false,
     contact: false,
@@ -873,6 +909,259 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                 <GitBranch className="w-4 h-4 text-emerald-500" />
                 <span>Git 云端同步设置</span>
               </button>
+            </div>
+
+            {/* Quick entry to sync tutorial */}
+            <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800/80">
+              <button
+                type="button"
+                onClick={() => {
+                  setOpenSections(prev => ({ ...prev, syncTutorial: true }));
+                  setTimeout(() => {
+                    document.getElementById('section-sync-tutorial')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 50);
+                }}
+                className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold hover:underline flex items-center gap-1.5 cursor-pointer py-1"
+              >
+                <Info className="w-3.5 h-3.5" />
+                <span>新手必读：查看设置私有仓库实现三端互通图文教程 ➔</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ============================================================== */}
+      {/* Collapsible Section: 三端互通与 Git 仓库同步图文教程 (Default Collapsed) */}
+      {/* ============================================================== */}
+      <div 
+        id="section-sync-tutorial"
+        className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
+      >
+        <button
+          type="button"
+          onClick={() => toggleSection('syncTutorial')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 shrink-0">
+              <GitBranch className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 flex-wrap">
+                <span>三端互通与 Git 仓库同步图文教程</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                  Windows · 安卓 · iPad
+                </span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                无需收费云服务器，依托 Gitee / GitHub 免费私有仓库实现多设备无缝漫游
+              </p>
+            </div>
+          </div>
+          <ChevronDown 
+            className={`w-5 h-5 text-slate-400 transition-transform duration-200 shrink-0 ${
+              openSections.syncTutorial ? 'rotate-180' : ''
+            }`} 
+          />
+        </button>
+
+        {openSections.syncTutorial && (
+          <div className="px-5 pb-6 sm:px-6 sm:pb-6 border-t border-slate-100 dark:border-slate-800 pt-5 space-y-6 animate-fade-in">
+            {/* 1. Architecture Diagram Showcase */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                  <Layers className="w-4 h-4 text-emerald-600" />
+                  <span>三端双向同步架构拓扑配图</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => launchExternalBrowser('/sync-tutorial-diagram.png')}
+                  className="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                >
+                  <span>查看原尺寸高清大图</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-950 shadow-sm relative group">
+                <img 
+                  src="/sync-tutorial-diagram.png" 
+                  alt="三端互通与 Git 云端同步架构图解"
+                  className="w-full h-auto object-cover rounded-2xl cursor-pointer transition-transform group-hover:scale-[1.005]"
+                  onClick={() => launchExternalBrowser('/sync-tutorial-diagram.png')}
+                  title="点击查看高清架构图"
+                />
+                <div className="p-3 bg-white/95 dark:bg-slate-900/95 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
+                  <span className="flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>所有错题数据 100% 留存在本地与您的私有代码仓库中，无任何中间服务器介入</span>
+                  </span>
+                  <span className="hidden sm:inline-block text-slate-400">点击图解可调起系统浏览器查看</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Step by Step Illustrated Cards */}
+            <div className="space-y-3">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                <span>极速 3 步设置指南（永久免费）</span>
+              </span>
+
+              {/* Step 1 */}
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-[#1e56a0] text-white flex items-center justify-center text-xs font-bold shrink-0">
+                      1
+                    </span>
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                      创建专属私有错题仓库（强烈推荐 Gitee 码云，国内直连免代理）
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => launchExternalBrowser('https://gitee.com')}
+                    className="px-2.5 py-1 text-[11px] font-semibold text-[#1e56a0] bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-colors flex items-center gap-1 shrink-0 cursor-pointer"
+                  >
+                    <span>打开 Gitee 官网</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </button>
+                </div>
+                <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed pl-7 space-y-1">
+                  <p>• 登录 <b>Gitee 码云</b>（国内访问速度极快，手机与电脑免任何网络设置）；</p>
+                  <p>• 点击右上角 <b>「+」号 ➔ 选择「新建仓库」</b>；</p>
+                  <p>• 仓库名称可填写如 <code className="px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-[#1e56a0] font-mono">zhiwei-notes</code>；</p>
+                  <p className="font-semibold text-rose-600 dark:text-rose-400">
+                    • 【关键注意】是否开源项务必勾选「私有 (Private)」，保护您的错题与手写笔记隐私！
+                  </p>
+                  <p>• 创建完成后，在仓库主页复制 <b>HTTPS 仓库链接</b>（如 <code className="px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-mono">https://gitee.com/用户名/zhiwei-notes.git</code>）。</p>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-[#b45309] text-white flex items-center justify-center text-xs font-bold shrink-0">
+                      2
+                    </span>
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                      生成个人访问密钥 (Personal Access Token)
+                    </h4>
+                  </div>
+                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold px-2 py-0.5 bg-amber-50 dark:bg-amber-950/40 rounded-md shrink-0">
+                    安全密钥替代明文密码
+                  </span>
+                </div>
+                <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed pl-7 space-y-1">
+                  <p>• 点击 Gitee 页面右上角个人头像 ➔ 进入<b>「设置」</b>；</p>
+                  <p>• 在左侧菜单中找到<b>「安全设置」➔ 点击「私人令牌」</b>；</p>
+                  <p>• 点击右上角<b>「+ 生成新令牌」</b>，描述可填写“知微错题本同步”；</p>
+                  <p>• 权限仅需勾选 <b><code className="px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-mono text-amber-700 dark:text-amber-300 font-bold">projects</code></b>（仓库读写操作）；</p>
+                  <p className="font-semibold text-amber-700 dark:text-amber-300">
+                    • 点击提交并输入账号密码，生成后立即完整复制 Token 字符串并妥善保存备用。
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-[#047857] text-white flex items-center justify-center text-xs font-bold shrink-0">
+                      3
+                    </span>
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                      在 Windows、安卓、iPad 三端软件中填入配置并同步
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onOpenGitModal}
+                    className="px-2.5 py-1 text-[11px] font-semibold text-white bg-[#047857] hover:bg-[#035f45] rounded-lg transition-colors flex items-center gap-1 shrink-0 cursor-pointer shadow-2xs"
+                  >
+                    <span>立即打开设置</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </button>
+                </div>
+                <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed pl-7 space-y-1">
+                  <p>• 点击上方<b>「立即打开设置」</b>按钮（或个人主页中的“Git 云端同步设置”）；</p>
+                  <p>• 仓库平台选 <b>Gitee (码云)</b>，仓库地址粘贴第 1 步的 HTTPS 链接；</p>
+                  <p>• 填写您的用户名与第 2 步复制的 Token，点击<b>「保存配置」并点击「立即同步」</b>；</p>
+                  <p>• 首次同步会自动建立云端主分支并上传题库；</p>
+                  <p className="font-semibold text-emerald-700 dark:text-emerald-400">
+                    • 接着在您的手机、iPad 或其他电脑上打开知微错题本，填入完全相同的仓库地址与 Token，点击同步即可瞬间完成题库与手写推导漫游！
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Three-Platform Device Synergy */}
+            <div className="space-y-2.5 pt-1">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <Laptop className="w-4 h-4 text-blue-600" />
+                <span>三端协同最佳学习场景推荐</span>
+              </span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/70 dark:border-slate-700/70 space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-[#1e56a0] dark:text-blue-400 flex items-center justify-center shrink-0">
+                      <Laptop className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      💻 Windows 桌面端
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    大屏双栏专注整理试卷，全键盘极速录入，精编 LaTeX 矩阵与代码块，沉浸搭建知识树。
+                  </p>
+                </div>
+
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/70 dark:border-slate-700/70 space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-[#047857] dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <Smartphone className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      🤖 Android 手机端
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    利用自习课间或通勤碎片时间复盘，相机随时拍摄录入试卷，每日艾宾浩斯复盘打卡。
+                  </p>
+                </div>
+
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/70 dark:border-slate-700/70 space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-[#6d28d9] dark:text-purple-400 flex items-center justify-center shrink-0">
+                      <Tablet className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      🍎 iPad 平板端
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    配合 Apple Pencil 原笔迹压感演算，多页草稿演练推导，错因剖析手写批注，仿真推导。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Troubleshooting & FAQ */}
+            <div className="p-4 bg-amber-50/60 dark:bg-amber-950/20 rounded-2xl border border-amber-200/60 dark:border-amber-900/40 text-xs space-y-2">
+              <span className="font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+                <HelpCircle className="w-4 h-4 text-amber-600" />
+                <span>常见疑问与故障排查</span>
+              </span>
+              <div className="space-y-1.5 text-slate-600 dark:text-slate-300 pl-5 text-[11px] leading-relaxed">
+                <p>• <b>提示 401 Unauthorized</b>：说明 Token 密钥有误或失效，请重新在 Gitee 生成并确保勾选了 <code className="font-mono text-amber-700 dark:text-amber-400">projects</code> 权限；</p>
+                <p>• <b>提示 URL 不正确</b>：请务必使用形如 <code className="font-mono text-amber-700 dark:text-amber-400">https://gitee.com/.../...git</code> 的 HTTPS 仓库地址；</p>
+                <p>• <b>多端合并机制</b>：系统采用智能增量时间戳合并，即使多端离线编辑，联网同步时也会自动汇聚全部新增题库。</p>
+              </div>
             </div>
           </div>
         )}
