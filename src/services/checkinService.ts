@@ -209,5 +209,61 @@ export const checkinService = {
     }
 
     return cells;
+  },
+
+  /**
+   * Get missed dates in the current month before today (sorted chronologically)
+   */
+  getMissedDatesThisMonth(): string[] {
+    const data = this.getCheckinData();
+    const dateSet = new Set(data.dates);
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const todayDate = now.getDate();
+
+    const missed: string[] = [];
+    for (let day = 1; day < todayDate; day++) {
+      const d = new Date(year, month, day);
+      const str = formatDateKey(d);
+      if (!dateSet.has(str)) {
+        missed.push(str);
+      }
+    }
+    return missed;
+  },
+
+  /**
+   * Make up a check-in for a specific missed date
+   */
+  makeUpCheckin(dateStr: string): CheckinData {
+    const data = this.getCheckinData();
+    const set = new Set(data.dates);
+    set.add(dateStr);
+
+    const newDates = Array.from(set).sort();
+    localStorage.setItem(STORAGE_KEY_CHECKINS, JSON.stringify(newDates));
+
+    const { currentStreak, maxStreak } = calculateStreak(set);
+    return {
+      dates: newDates,
+      currentStreak,
+      maxStreak: Math.max(maxStreak, currentStreak),
+      totalDays: newDates.length,
+      isTodayCheckedIn: set.has(formatDateKey(new Date()))
+    };
+  },
+
+  /**
+   * Automatically make up the earliest missed date in the current month
+   */
+  autoMakeUpOldestMissedThisMonth(): { success: boolean; dateStr?: string; checkinData: CheckinData } {
+    const missed = this.getMissedDatesThisMonth();
+    if (missed.length === 0) {
+      return { success: false, checkinData: this.getCheckinData() };
+    }
+    const targetDate = missed[0]; // earliest missed date
+    const updated = this.makeUpCheckin(targetDate);
+    return { success: true, dateStr: targetDate, checkinData: updated };
   }
 };

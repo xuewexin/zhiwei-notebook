@@ -638,7 +638,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
 
         {openSections.theme && (
           <div className="px-5 pb-6 sm:px-6 sm:pb-6 border-t border-slate-100 dark:border-slate-800 pt-4 space-y-3 animate-fade-in">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2.5">
               {(Object.keys(THEME_PALETTES) as ThemeColorKey[]).map((k) => {
                 const item = THEME_PALETTES[k];
                 const isActive = themeKey === k;

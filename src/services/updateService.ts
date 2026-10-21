@@ -21,7 +21,7 @@ export interface UpdateInfo {
   ipadIpaUrl?: string;
 }
 
-export const CURRENT_VERSION = '1.6.8';
+export const CURRENT_VERSION = '1.6.9';
 const GITHUB_REPO = 'xuewexin/zhiwei-notebook';
 const LAST_IGNORED_VERSION_KEY = 'zhiwei_ignored_update_version';
 

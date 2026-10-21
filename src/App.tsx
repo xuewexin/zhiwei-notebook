@@ -34,6 +34,7 @@ import { OneNoteSyncIndicator } from './components/OneNoteSyncIndicator';
 import { UpdateModal } from './components/UpdateModal';
 import { UserProfileView } from './components/UserProfileView';
 import { ReviewCheckinView } from './components/ReviewCheckinView';
+import { ReviewSessionView } from './components/ReviewSessionView';
 import { reviewService, ReviewSettings } from './services/reviewService';
 import { checkForUpdates, UpdateInfo, CURRENT_VERSION } from './services/updateService';
 import { settingsService, ThemeColorKey, BackgroundConfig, UserProfile, THEME_PALETTES } from './services/settingsService';
@@ -79,6 +80,7 @@ export const App: React.FC = () => {
     return 'folders';
   });
   const [isReviewOnly, setIsReviewOnly] = useState(false);
+  const [isReviewSessionActive, setIsReviewSessionActive] = useState(false);
   const [isProfileView, setIsProfileView] = useState(false);
   const [themeKey, setThemeKey] = useState<ThemeColorKey>(() => settingsService.getThemeColor());
   const currentTheme = THEME_PALETTES[themeKey] || THEME_PALETTES.blue;
@@ -91,12 +93,14 @@ export const App: React.FC = () => {
     if (mobileTab === 'profile') {
       setIsProfileView(true);
       setIsReviewOnly(false);
+      setIsReviewSessionActive(false);
     } else if (mobileTab === 'review') {
       setIsReviewOnly(true);
       setIsProfileView(false);
     } else {
       setIsProfileView(false);
       setIsReviewOnly(false);
+      setIsReviewSessionActive(false);
     }
   }, [mobileTab]);
 
@@ -582,6 +586,9 @@ export const App: React.FC = () => {
 
   const dueTodayQuestions = dailyReviewResult.reviewQuestions;
   const dueTodayCount = dueTodayQuestions.length;
+  const remainingReviewCount = useMemo(() => {
+    return reviewService.getRemainingDueCount(dueTodayQuestions);
+  }, [dueTodayQuestions, questions, allQuestions]);
 
   // Final filtered questions to display
   const displayQuestions = isReviewOnly
@@ -697,10 +704,10 @@ export const App: React.FC = () => {
                       ? (currentFolder ? currentFolder.name : '全部科目')
                       : (currentFolder ? currentFolder.name : selectedMastery ? (selectedMastery === 'mastered' ? '已掌握错题' : selectedMastery === 'reviewing' ? '攻关中错题' : '未掌握错题') : '全部错题')}
                   </h1>
-                  {!selectedQuestion && (
+                  {!selectedQuestion && !isReviewSessionActive && (
                     <span className="text-[11px] font-semibold text-slate-400 shrink-0">
                       ({mobileTab === 'review' 
-                        ? `${dueTodayCount} 题` 
+                        ? `待复盘 ${remainingReviewCount} 题` 
                         : mobileTab === 'folders' 
                         ? (currentFolder ? `${displayQuestions.length} 题` : `${folders.length} 科目`) 
                         : `${displayQuestions.length} 题`})
@@ -856,6 +863,15 @@ export const App: React.FC = () => {
               onBackgroundUpdated={(bg) => setBgConfig(bg)}
               onThemeUpdated={(t) => setThemeKey(t)}
             />
+          ) : isReviewSessionActive ? (
+            <ReviewSessionView
+              currentTheme={currentTheme}
+              questions={dueTodayQuestions}
+              folders={folders}
+              onBack={() => setIsReviewSessionActive(false)}
+              onQuestionUpdated={handleQuestionUpdated}
+              onViewImage={(url) => setViewerImageUrl(url)}
+            />
           ) : selectedQuestion ? (
             <QuestionDetail
               question={selectedQuestion}
@@ -877,9 +893,7 @@ export const App: React.FC = () => {
                   folders={folders}
                   allQuestions={allQuestions}
                   onStartReview={() => {
-                    if (dueTodayQuestions.length > 0) {
-                      handleSelectQuestion(dueTodayQuestions[0]);
-                    }
+                    setIsReviewSessionActive(true);
                   }}
                   onViewAllQuestions={() => {
                     setMobileTab('questions');
@@ -906,7 +920,7 @@ export const App: React.FC = () => {
 
               {/* 2. Questions in this Category or Flat List */}
               {/* On mobile: if on 'folders' and currentFolderId is null, keep focus on folder covers; otherwise show questions */}
-              {(mobileTab === 'questions' || mobileTab === 'review' || currentFolderId !== null || (typeof window !== 'undefined' && window.innerWidth >= 768)) && (
+              {(mobileTab === 'questions' || currentFolderId !== null || (typeof window !== 'undefined' && window.innerWidth >= 768 && mobileTab !== 'review' && mobileTab !== 'profile')) && (
                 <QuestionList
                   questions={displayQuestions}
                   folders={folders}
@@ -992,19 +1006,20 @@ export const App: React.FC = () => {
               setMobileTab('review');
               handleSelectQuestion(null);
               setIsReviewOnly(true);
+              setIsReviewSessionActive(false);
             }}
             className={`col-span-1 flex flex-col items-center justify-center py-1 cursor-pointer transition-all active:scale-92 select-none relative ${
-              mobileTab === 'review' && !selectedQuestion
+              mobileTab === 'review' && !selectedQuestion && !isReviewSessionActive
                 ? 'font-bold'
                 : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-normal'
             }`}
-            style={mobileTab === 'review' && !selectedQuestion ? { color: currentTheme.primary } : {}}
+            style={mobileTab === 'review' && !selectedQuestion && !isReviewSessionActive ? { color: currentTheme.primary } : {}}
           >
             <div className="relative">
               <Brain className="w-5 h-5 mb-1" />
-              {dueTodayCount > 0 && (
+              {remainingReviewCount > 0 && (
                 <span className="absolute -top-1 -right-2.5 bg-rose-500 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full min-w-[16px] text-center shadow-xs">
-                  {dueTodayCount}
+                  {remainingReviewCount}
                 </span>
               )}
             </div>

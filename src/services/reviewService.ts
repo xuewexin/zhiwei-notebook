@@ -1,8 +1,26 @@
 import { Question, Attempt, MasteryStatus } from '../types';
 import { api } from '../api/client';
-import { checkinService } from './checkinService';
+import { checkinService, formatDateKey } from './checkinService';
 
 export type ReviewTier = 'perfect' | 'good' | 'unfamiliar';
+
+export interface TodayReviewRecord {
+  questionId: string;
+  tier: ReviewTier;
+  reviewedAt: string;
+  timeSpentSeconds?: number;
+  note?: string;
+  previousState: {
+    reviewStage?: number;
+    lastReviewDate?: string;
+    nextReviewDate?: string;
+    mastery: MasteryStatus;
+  };
+  attemptId: string;
+}
+
+const getTodayReviewStorageKey = () => `zhiwei_today_reviews_${formatDateKey(new Date())}`;
+const getTodayMakeUpStorageKey = () => `zhiwei_makeup_awarded_${formatDateKey(new Date())}`;
 
 export interface ReviewTierMeta {
   tier: ReviewTier;
@@ -121,18 +139,132 @@ export const reviewService = {
   },
 
   /**
-   * Apply review completion: updates question, adds review attempt log, and marks daily check-in
+   * Get all review records completed today
    */
-  async completeReview(question: Question, tier: ReviewTier): Promise<{ updatedQuestion: Question; plan: NextReviewPlan }> {
+  getTodayReviews(): Record<string, TodayReviewRecord> {
+    try {
+      const raw = localStorage.getItem(getTodayReviewStorageKey());
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  },
+
+  /**
+   * Check if a specific question has already been reviewed today
+   */
+  isQuestionReviewedToday(questionId: string): TodayReviewRecord | null {
+    const reviews = this.getTodayReviews();
+    return reviews[questionId] || null;
+  },
+
+  /**
+   * Get total number of distinct questions reviewed today
+   */
+  getTodayCompletedCount(): number {
+    return Object.keys(this.getTodayReviews()).length;
+  },
+
+  /**
+   * Calculate remaining review quota count for today
+   * Drops by 1 for each completed question, down to 0 minimum
+   */
+  getRemainingDueCount(dailyReviewQuestions: Question[]): number {
+    const reviews = this.getTodayReviews();
+    const uncompleted = dailyReviewQuestions.filter(q => !reviews[q.id]);
+    return uncompleted.length;
+  },
+
+  /**
+   * Get double-quota make-up checkin status
+   */
+  getMakeUpStatus(): {
+    dailyQuota: number;
+    doubleQuota: number;
+    todayCompletedCount: number;
+    isDoubleReached: boolean;
+    remainingToDouble: number;
+    awardedDateStr: string | null;
+    missedDatesThisMonth: string[];
+  } {
+    const settings = this.getReviewSettings();
+    const dailyQuota = Math.max(1, settings.dailyQuota || 5);
+    const doubleQuota = dailyQuota * 2;
+    const todayCompletedCount = this.getTodayCompletedCount();
+    const isDoubleReached = todayCompletedCount >= doubleQuota;
+    const remainingToDouble = Math.max(0, doubleQuota - todayCompletedCount);
+    const awardedDateStr = localStorage.getItem(getTodayMakeUpStorageKey());
+    const missedDatesThisMonth = checkinService.getMissedDatesThisMonth();
+    return {
+      dailyQuota,
+      doubleQuota,
+      todayCompletedCount,
+      isDoubleReached,
+      remainingToDouble,
+      awardedDateStr,
+      missedDatesThisMonth
+    };
+  },
+
+  /**
+   * Trigger make-up checkin manually if double target reached
+   */
+  triggerMakeUp(): { success: boolean; dateStr?: string; message: string } {
+    const status = this.getMakeUpStatus();
+    if (!status.isDoubleReached) {
+      return {
+        success: false,
+        message: `还需再复盘 ${status.remainingToDouble} 道题，即可解锁双倍补打卡！`
+      };
+    }
+    const res = checkinService.autoMakeUpOldestMissedThisMonth();
+    if (res.success && res.dateStr) {
+      localStorage.setItem(getTodayMakeUpStorageKey(), res.dateStr);
+      return {
+        success: true,
+        dateStr: res.dateStr,
+        message: `恭喜达成双倍复盘！已成功为您补打本月 ${res.dateStr} 的打卡！`
+      };
+    } else {
+      return {
+        success: false,
+        message: '本月暂无漏打卡日期，您太勤奋了！'
+      };
+    }
+  },
+
+  /**
+   * Apply review completion: updates question, records attempt, locks today review, and triggers check-in/make-up
+   */
+  async completeReview(
+    question: Question, 
+    tier: ReviewTier, 
+    options?: { note?: string; timeSpentSeconds?: number }
+  ): Promise<{ 
+    updatedQuestion: Question; 
+    plan: NextReviewPlan; 
+    makeUpAwarded?: { dateStr: string } | null 
+  }> {
     const currentStage = question.reviewStage !== undefined ? question.reviewStage : 0;
     const plan = this.calculatePlan(currentStage, tier);
 
+    // Save snapshot of question state before this review for undo/revert support
+    const previousState = {
+      reviewStage: question.reviewStage,
+      lastReviewDate: question.lastReviewDate,
+      nextReviewDate: question.nextReviewDate,
+      mastery: question.mastery
+    };
+
+    const attemptId = 'att_rev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+    const noteText = options?.note?.trim() ? `\n【复盘做题笔记/思考反思】：\n${options.note.trim()}` : '';
+
     const newAttempt: Attempt = {
-      id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+      id: attemptId,
       date: new Date().toISOString(),
       result: tier === 'perfect' ? 'correct' : tier === 'good' ? 'partial' : 'wrong',
-      note: `【今日复盘】${REVIEW_TIERS[tier].label}：${plan.summary}`,
-      timeSpentSeconds: 0,
+      note: `【今日复盘】${REVIEW_TIERS[tier].label}：${plan.summary}${noteText}`,
+      timeSpentSeconds: options?.timeSpentSeconds || 0,
       defaultTab: 'md',
       images: [],
       drawingPages: ['']
@@ -148,6 +280,23 @@ export const reviewService = {
       attempts: updatedAttempts
     });
 
+    // Record today's review log for single-selection & undo mechanism
+    try {
+      const reviews = this.getTodayReviews();
+      reviews[question.id] = {
+        questionId: question.id,
+        tier,
+        reviewedAt: new Date().toISOString(),
+        timeSpentSeconds: options?.timeSpentSeconds || 0,
+        note: options?.note,
+        previousState,
+        attemptId
+      };
+      localStorage.setItem(getTodayReviewStorageKey(), JSON.stringify(reviews));
+    } catch (e) {
+      console.warn('Failed to save today review record:', e);
+    }
+
     // Automatically check in for today's review
     try {
       checkinService.checkInToday();
@@ -155,7 +304,61 @@ export const reviewService = {
       console.warn('Checkin trigger failed:', e);
     }
 
-    return { updatedQuestion, plan };
+    // Check double-quota rule for make-up checkin (多做一倍每日题目数量的题就可以补一次打卡，不过是本月补卡)
+    let makeUpAwarded: { dateStr: string } | null = null;
+    try {
+      const settings = this.getReviewSettings();
+      const doubleQuota = Math.max(2, (settings.dailyQuota || 5) * 2);
+      const completedToday = this.getTodayCompletedCount();
+
+      if (completedToday >= doubleQuota) {
+        const alreadyAwarded = localStorage.getItem(getTodayMakeUpStorageKey());
+        if (!alreadyAwarded) {
+          const res = checkinService.autoMakeUpOldestMissedThisMonth();
+          if (res.success && res.dateStr) {
+            localStorage.setItem(getTodayMakeUpStorageKey(), res.dateStr);
+            makeUpAwarded = { dateStr: res.dateStr };
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Make-up checkin auto calculation error:', e);
+    }
+
+    return { updatedQuestion, plan, makeUpAwarded };
+  },
+
+  /**
+   * Revert/Undo today's review selection for a question (一题一天只能选一次掌握程度，可以撤销重选)
+   */
+  async revertReview(question: Question): Promise<{ updatedQuestion: Question }> {
+    const reviews = this.getTodayReviews();
+    const record = reviews[question.id];
+
+    if (!record) {
+      return { updatedQuestion: question };
+    }
+
+    // Restore previous stage, dates, mastery and remove the review attempt
+    const updatedAttempts = (question.attempts || []).filter(a => a.id !== record.attemptId);
+
+    const updatedQuestion = await api.updateQuestion(question.id, {
+      reviewStage: record.previousState.reviewStage ?? 0,
+      lastReviewDate: record.previousState.lastReviewDate,
+      nextReviewDate: record.previousState.nextReviewDate,
+      mastery: record.previousState.mastery,
+      attempts: updatedAttempts
+    });
+
+    // Remove from today review registry
+    delete reviews[question.id];
+    try {
+      localStorage.setItem(getTodayReviewStorageKey(), JSON.stringify(reviews));
+    } catch (e) {
+      console.warn('Failed to delete today review record:', e);
+    }
+
+    return { updatedQuestion };
   },
 
   /**
@@ -213,6 +416,7 @@ export const reviewService = {
     settings: ReviewSettings;
   } {
     const settings = customSettings || this.getReviewSettings();
+    const reviews = this.getTodayReviews();
 
     // 1. Filter by folder scope
     let candidates = allQuestions;
@@ -220,11 +424,18 @@ export const reviewService = {
       candidates = candidates.filter(q => settings.selectedFolderIds.includes(q.folderId));
     }
 
-    // 2. Sort by Ebbinghaus memory curve urgency
+    // 2. Sort by Ebbinghaus memory curve urgency & today review status
     const now = Date.now();
     const tomorrow = now + 24 * 60 * 60 * 1000;
 
     const sorted = [...candidates].sort((a, b) => {
+      const aReviewed = Boolean(reviews[a.id]);
+      const bReviewed = Boolean(reviews[b.id]);
+
+      // Unreviewed questions for today take precedence so user sees what is remaining first
+      if (!aReviewed && bReviewed) return -1;
+      if (aReviewed && !bReviewed) return 1;
+
       const aNext = a.nextReviewDate ? new Date(a.nextReviewDate).getTime() : 0;
       const bNext = b.nextReviewDate ? new Date(b.nextReviewDate).getTime() : 0;
 
@@ -253,7 +464,10 @@ export const reviewService = {
     });
 
     const quota = Math.max(1, settings.dailyQuota || 5);
-    const reviewQuestions = sorted.slice(0, quota);
+    const todayReviewedCount = Object.keys(reviews).length;
+    // Ensure all already-reviewed questions today are included, plus enough unreviewed candidates to satisfy the daily quota
+    const finalLimit = Math.max(quota, todayReviewedCount + quota);
+    const reviewQuestions = sorted.slice(0, Math.min(sorted.length, finalLimit));
 
     return {
       reviewQuestions,

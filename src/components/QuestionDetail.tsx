@@ -37,6 +37,7 @@ import { SeparatedWorkspace } from './SeparatedWorkspace';
 import { VersionHistoryModal } from './VersionHistoryModal';
 import { api } from '../api/client';
 import { reviewService, ReviewTier } from '../services/reviewService';
+import { StopwatchTimer } from './StopwatchTimer';
 import { marked } from 'marked';
 import katex from 'katex';
 
@@ -153,6 +154,7 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
 
   const [newAttemptResult, setNewAttemptResult] = useState<'correct' | 'wrong' | 'partial'>('wrong');
   const [newAttemptTime, setNewAttemptTime] = useState<number>(15);
+  const [timerSeconds, setTimerSeconds] = useState<number>(0);
   // 4 Separated Areas for new attempt
   const [newAttemptMd, setNewAttemptMd] = useState<string>('');
   const [newAttemptPdfUrl, setNewAttemptPdfUrl] = useState<string>('');
@@ -542,6 +544,14 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
 
         {/* Mastery Status Selector & Actions */}
         <div className="flex items-center gap-1.5 sm:gap-2.5">
+          {/* Question Solving Stopwatch Timer */}
+          <StopwatchTimer
+            initialSeconds={0}
+            onTimeChange={setTimerSeconds}
+            autoStart={true}
+            label="做题计时"
+          />
+
           <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
             {(['unmastered', 'reviewing', 'mastered'] as MasteryStatus[]).map((st) => (
               <button
@@ -1430,7 +1440,12 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
             {!isAddingAttempt && (
               <button
                 type="button"
-                onClick={() => setIsAddingAttempt(true)}
+                onClick={() => {
+                  if (timerSeconds > 0) {
+                    setNewAttemptTime(Math.max(1, Math.round(timerSeconds / 60)));
+                  }
+                  setIsAddingAttempt(true);
+                }}
                 className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs hover:shadow transition-all"
               >
                 <Plus className="w-4 h-4" />

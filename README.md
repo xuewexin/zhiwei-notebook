@@ -10,7 +10,7 @@
   融合 **GoodNotes 拟物学科体系**、**艾宾浩斯复盘与连续打卡日历**、**Apple Pencil 真实压感手写演练**、**Markdown + LaTeX 公式多模态精析** 与 **Git 免服务器私有云双向漫游**。
 
   <p align="center">
-    <a href="https://github.com/xuewexin/zhiwei-notebook/releases/latest"><img src="https://img.shields.io/badge/Release-v1.6.8-1e56a0.svg?style=flat-square" alt="Version"></a>
+    <a href="https://github.com/xuewexin/zhiwei-notebook/releases/latest"><img src="https://img.shields.io/badge/Release-v1.6.9-1e56a0.svg?style=flat-square" alt="Version"></a>
     <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iPadOS%20%7C%20Windows%20%7C%20PWA-475569.svg?style=flat-square" alt="Platform">
     <img src="https://img.shields.io/badge/Storage-100%25%20Local--First-047857.svg?style=flat-square" alt="Local First">
     <img src="https://img.shields.io/badge/Frontend-React%2019%20%2B%20TypeScript-b45309.svg?style=flat-square" alt="Stack">
@@ -19,7 +19,7 @@
   </p>
 
   <p align="center">
-    <a href="#-最新版本极速下载-v168"><b>🚀 极速下载</b></a> &nbsp;•&nbsp;
+    <a href="#-最新版本极速下载-v169"><b>🚀 极速下载</b></a> &nbsp;•&nbsp;
     <a href="#-核心特色与功能矩阵"><b>✨ 核心特色</b></a> &nbsp;•&nbsp;
     <a href="#-全平台精选界面巡礼"><b>🖼️ 界面巡礼</b></a> &nbsp;•&nbsp;
     <a href="#-各端安装与使用指南"><b>📦 安装指南</b></a> &nbsp;•&nbsp;
@@ -30,47 +30,46 @@
 
 ---
 
-## 📥 最新版本极速下载 (v1.6.8)
+## 📥 最新版本极速下载 (v1.6.9)
 
 本项目提供全平台打包好的纯净安装包，无任何强制联网、无广告，下载即用：
 
 | 平台 | 安装包名称 | 文件大小 | 适用设备与特性 | 直接下载链接 |
 | :--- | :--- | :--- | :--- | :--- |
-| 💻 **Windows 原生版** | `zhiwei-notebook-v1.6.8-windows.exe` | ~1.9 MB | **Windows 独立原生桌面软件**（双击即开、原生目录浏览、官方发布页直达升级） | [点击下载 EXE](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.8/zhiwei-notebook-v1.6.8-windows.exe) |
-| 💻 **Windows 便携版** | `zhiwei-notebook-v1.6.8-windows-portable.zip` | ~1.3 MB | Windows 绿色免安装压缩包（解压即开，支持放入 U 盘随身携带） | [点击下载 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.8/zhiwei-notebook-v1.6.8-windows-portable.zip) |
-| 🤖 **Android 原生版** | `zhiwei-notebook-v1.6.8-android.apk` | ~4.0 MB | 安卓手机 / 安卓平板（复盘题量与出处自定义、三档评分、底栏等距排版、复盘日历） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.8/zhiwei-notebook-v1.6.8-android.apk) |
-| 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.6.8-ipad.ipa` | ~3.4 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店免费侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.8/zhiwei-notebook-v1.6.8-ipad.ipa) |
-| 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.6.8-ios-xcode-project.zip` | ~1.8 MB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机编译调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.8/zhiwei-notebook-v1.6.8-ios-xcode-project.zip) |
+| 💻 **Windows 原生版** | `zhiwei-notebook-v1.6.9-windows.exe` | ~1.9 MB | **Windows 独立原生桌面软件**（双击即开、原生目录浏览、官方发布页直达升级） | [点击下载 EXE](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.9/zhiwei-notebook-v1.6.9-windows.exe) |
+| 💻 **Windows 便携版** | `zhiwei-notebook-v1.6.9-windows-portable.zip` | ~1.3 MB | Windows 绿色免安装压缩包（解压即开，支持放入 U 盘随身携带） | [点击下载 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.9/zhiwei-notebook-v1.6.9-windows-portable.zip) |
+| 🤖 **Android 原生版** | `zhiwei-notebook-v1.6.9-android.apk` | ~4.0 MB | 安卓手机 / 安卓平板（全新独立沉浸复盘工作台、做题秒表计时、双倍补卡、底栏递减角标） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.9/zhiwei-notebook-v1.6.9-android.apk) |
+| 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.6.9-ipad.ipa` | ~3.4 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店免费侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.9/zhiwei-notebook-v1.6.9-ipad.ipa) |
+| 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.6.9-ios-xcode-project.zip` | ~1.8 MB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机编译调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.9/zhiwei-notebook-v1.6.9-ios-xcode-project.zip) |
 | 🌐 **iPad / PC 局域网版** | `启动iPad局域网极速连接.bat` | 脚本文件 | **免安装、免证书、永不过期**。iPad Safari 添加到主屏幕秒变全屏桌面 App | [查看使用步骤](#-方案二ipad-专属-pwa-桌面原生体验免签名) |
 | 💻 **本地运行脚本** | `启动错题本.bat` | 脚本文件 | 双击脚本即开，搭配本地 Node.js 极速做题 | [查看运行方法](#-windows-桌面端使用指南) |
 
 ---
 
-## ✨ v1.6.8 重大升级亮点
+## ✨ v1.6.9 重大升级亮点
 
-1. 🎯 **每日复盘题目数量与出处科目自由配置**：
-   - **每日复盘题量自行设定**：默认每天 5 道题，支持快捷选择 3/5/10/15/20 题或任意自定义数值；
-   - **记忆曲线智能排期抽取**：系统按艾宾浩斯遗忘曲线对错题进行优先级排序（逾期未复盘最久、记忆最脆弱的题目排在最前）；
-   - **题目出处与分类范围自由切换**：
-     - **不区分文件夹（默认）**：全学科统一按记忆衰减紧迫度综合排序，高效抗遗忘；
-     - **指定文件夹**：可固定单个学科（如高数），也可多选多个学科自由组合；
-   - 交互式复盘设置面板即调即存，即时重塑今日复盘任务队列。
-2. 🧠 **今日复习「复习完成」三档掌握度评级与艾宾浩斯智能排期**：
-   - 「今日复盘」速通卡与「错题详情」复盘卡新增「完全掌握」、「基本掌握」与「不熟悉」三档评分；
-   - 点击任一档位即时智能计算并展示下次复盘日期，同时自动完成今日复盘打卡、点亮连续学习天数（Streak）。
-3. 📱 **移动端底部快捷导航栏排版重构与等距优化**：
-   - 采用现代化等距栅格架构（Grid 5 等分），确保「全部科目、全部错题、新增题、今日复盘、个人主页」在全尺寸手机屏幕上保持舒展呼吸感与均衡对称。
-4. 🔄 **个人主页三端互通（Windows/Android/iPad）图文教程与架构配图**：
-   - 在个人主页新增「三端互通与 Git 仓库同步图文教程」卡片（默认优雅折叠），内置 200 DPI 双向漫游拓扑配图。
-3. 🛡️ **移动端键盘遮挡底栏与模态弹窗深度修复**：
-   - 软键盘唤起或模态窗开启时，移动端底栏智能隐藏；键盘收起即时归位；
-   - 文件夹新建与编辑弹窗提升为全局顶级 Portal 渲染（`z-[9999]`），彻底杜绝内容被底栏截断。
-4. 📅 **今日复盘打卡日历表与连续学习天数（艾宾浩斯复盘引擎）**：
-   - 连续打卡天数（Streak）统计与交互式月度打卡足迹日历网格，一键完成每日复盘。
-5. 🎨 **学者纯色典雅设计，彻底剔除渐变色与杂色**：
-   - 6 款沉静典雅的书卷纯色（知微蓝、紫罗兰、翡翠绿、琥珀橙、蔷薇红、水墨灰），纯平极简现代设计。
-6. 🌐 **版本更新直达 GitHub 官方发行页面**：
-   - 针对部分手机厂商系统直接下载 APK 后拦截并不提示安装的问题，更新时直接唤起系统外部默认浏览器打开 GitHub Releases 官方版本发行页面。
+1. 🎯 **全新沉浸式独立复盘刷题工作台 (ReviewSessionView)**：
+   - 告别原本复盘页内嵌卡片与列表混杂的局限，点击「开始今日复盘」即可进入纯粹沉浸式独立新界面；
+   - 题目左右无缝翻页切换（支持快捷键 `←` / `→`、顶部题号快速跳转与进度显示）；
+   - 完整展示原题原图、标准答案防剧透折叠查看；
+   - **做题记录与反思笔记即时编写**：在复盘过程中随时敲击思路与心得，一键归档至做题历程。
+2. ⏱️ **做题计时秒表与耗时精准归档**：
+   - 沉浸复盘界面与错题详情页均集成微型做题秒表（计时 / 暂停 / 重置归零）；
+   - 方便学生直观掌握每道题的推导用时，添加做题记录时自动带入耗时秒数，直观反映做题熟练度。
+3. 🔒 **单日评级防重复与随心撤销重选保障**：
+   - 三个档次掌握程度评分（完全掌握 🌟、基本掌握 👍、不熟悉 🔄）；
+   - **严格防手滑单日限制**：一题一天限评一次，评定后立即锁定并展示排期，杜绝手抖重复打乱记忆周期；
+   - **一键撤销重选**：若需重新研习或手误选错，点击「撤销重选」立即无损恢复题目评级前的上一状态，随时重新评分。
+4. 🎁 **双倍刷题激励与本月补打卡机制**：
+   - 复盘题量达到每日计划目标的 2 倍（例如每日目标 5 题，累计完成 10 题），系统自动解锁补卡资格；
+   - 自动检测并补齐本月过去未打卡的漏签日期，点亮日历足迹，延续学习连击（Streak）。
+5. 🌸 **全新「浪漫樱花粉」学者纯色主题**：
+   - 界面配色新增粉色纯色方案（`#db2777` 纯正樱花粉，鲜艳典雅不刺眼），全站 10 色阶自适应切换，彻底杜绝渐变与花哨杂色。
+6. 🔢 **底部快捷栏角标动态倒数与归零自动隐藏**：
+   - 移动端底栏「今日复盘」上方显示今日剩余未完成题数，每复盘完成一题自动减一；
+   - 最低为 0，当今日计划全部完成时角标自动隐藏，界面清爽无心理负担；若撤销重选角标即时恢复。
+7. 🔄 **三端私有仓库极速同步互通与图文教程**：
+   - 个人主页配有超详细的三端互通图文教程与架构拓扑配图，数据 100% 掌握在自己手中。
 
 ---
 
@@ -137,7 +136,7 @@
 ## 🚀 各端安装与使用指南
 
 ### 🤖 Android 安卓端安装
-1. 在 Android 设备上下载 [**`zhiwei-notebook-v1.6.8-android.apk`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.8/zhiwei-notebook-v1.6.8-android.apk)；
+1. 在 Android 设备上下载 [**`zhiwei-notebook-v1.6.9-android.apk`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.9/zhiwei-notebook-v1.6.9-android.apk)；
 2. 点击安装包，若系统提示请允许「允许安装来自此来源的应用」；
 3. 安装完成后打开，即可畅享专门为手机端适配的自适应顶栏、防软键盘遮挡、相机扫题与双击返回体验。
 
@@ -146,7 +145,7 @@
 ### 🍎 iPadOS / iOS 端安装
 
 #### 方案一：使用爱思助手安装原生 `.ipa`（最推荐 ⭐）
-1. 下载 [**`zhiwei-notebook-v1.6.8-ipad.ipa`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.8/zhiwei-notebook-v1.6.8-ipad.ipa) 到电脑；
+1. 下载 [**`zhiwei-notebook-v1.6.9-ipad.ipa`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.9/zhiwei-notebook-v1.6.9-ipad.ipa) 到电脑；
 2. 用数据线将 iPad 连接到电脑，打开电脑端「爱思助手」；
 3. 进入 **「工具箱」➔「IPA 签名」**，导入下载好的 `.ipa` 文件；
 4. 选择 **「使用 Apple ID 签名」**，输入你自己的 Apple ID 即可免费签名并安装到 iPad；
@@ -164,7 +163,7 @@
 ### 💻 Windows 桌面端使用指南
 
 #### 方式一：直接运行 Windows 单文件版 EXE（最推荐 ⭐）
-1. 下载 [**`zhiwei-notebook-v1.6.8-windows.exe`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.8/zhiwei-notebook-v1.6.8-windows.exe)（或下载绿色便携版 ZIP 解压）；
+1. 下载 [**`zhiwei-notebook-v1.6.9-windows.exe`**](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.9/zhiwei-notebook-v1.6.9-windows.exe)（或下载绿色便携版 ZIP 解压）；
 2. 直接双击打开即可运行！无需安装任何额外环境，独立桌面窗口、无浏览器地址栏干扰，内嵌高精度手写与本地数据引擎。
 
 #### 方式二：一键批处理脚本启动

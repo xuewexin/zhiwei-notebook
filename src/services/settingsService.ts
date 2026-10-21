@@ -6,7 +6,7 @@ export interface UserProfile {
   joinDate: string;
 }
 
-export type ThemeColorKey = 'blue' | 'violet' | 'emerald' | 'amber' | 'rose' | 'slate';
+export type ThemeColorKey = 'blue' | 'violet' | 'emerald' | 'amber' | 'rose' | 'slate' | 'pink';
 
 export interface ThemeConfig {
   key: ThemeColorKey;
@@ -98,6 +98,19 @@ export const THEME_SHADES: Record<ThemeColorKey, Record<string, string>> = {
     '800': '#0f172a',
     '900': '#090d16',
     '950': '#04070c',
+  },
+  pink: {
+    '50': '#fdf2f8',
+    '100': '#fce7f3',
+    '200': '#fbcfe8',
+    '300': '#f9a8d4',
+    '400': '#f472b6',
+    '500': '#ec4899',
+    '600': '#db2777', // 纯正樱花粉，鲜艳典雅不刺眼
+    '700': '#be185d',
+    '800': '#9d174d',
+    '900': '#831843',
+    '950': '#500724',
   }
 };
 
@@ -161,6 +174,16 @@ export const THEME_PALETTES: Record<ThemeColorKey, ThemeConfig> = {
     textAccent: 'text-[#334155] dark:text-[#94a3b8]',
     solidBg: 'bg-[#334155]',
     gradient: 'from-[#334155] to-[#334155]'
+  },
+  pink: {
+    key: 'pink',
+    name: '浪漫樱花粉',
+    primary: '#db2777',
+    primaryDark: '#be185d',
+    bgSoft: 'bg-pink-50/80 dark:bg-pink-950/40',
+    textAccent: 'text-[#db2777] dark:text-[#f472b6]',
+    solidBg: 'bg-[#db2777]',
+    gradient: 'from-[#db2777] to-[#db2777]'
   }
 };
 

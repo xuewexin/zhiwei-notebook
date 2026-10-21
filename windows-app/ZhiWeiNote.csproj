@@ -8,7 +8,7 @@
     <ApplicationIcon>app.ico</ApplicationIcon>
     <AssemblyName>知微错题本</AssemblyName>
     <RootNamespace>ZhiWeiNote</RootNamespace>
-    <Version>1.6.8</Version>
+    <Version>1.6.9</Version>
     <Authors>xuewexin</Authors>
     <Company>知微工作室</Company>
     <Product>知微错题本 (ZhiWei Note)</Product>
