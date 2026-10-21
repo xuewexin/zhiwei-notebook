@@ -30,6 +30,7 @@ import {
   X
 } from 'lucide-react';
 import { Question, Attempt, Folder, MasteryStatus, WorkspaceTab, OverlayDrawings } from '../types';
+import { ThemeConfig, THEME_PALETTES } from '../services/settingsService';
 import { AttemptCard } from './AttemptCard';
 import { MarkdownEditor } from './MarkdownEditor';
 import { SeparatedWorkspace } from './SeparatedWorkspace';
@@ -46,6 +47,7 @@ interface QuestionDetailProps {
   onUpdate: (updated: Question) => void;
   onDelete: (id: string) => void;
   onViewImage: (url: string) => void;
+  currentTheme?: ThemeConfig;
 }
 
 const EBBINGHAUS_STAGES = [
@@ -64,7 +66,8 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
   onBack,
   onUpdate,
   onDelete,
-  onViewImage
+  onViewImage,
+  currentTheme = THEME_PALETTES.blue
 }) => {
   // 1. Question (题目原题) state
   const [isEditingQuestion, setIsEditingQuestion] = useState(false);
@@ -563,11 +566,14 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
         </div>
       </div>
 
-      {/* 2. 艾宾浩斯遗忘循环算法卡片 (Ebbinghaus Spaced Repetition) */}
-      <div className="bg-gradient-to-r from-blue-50 via-indigo-50/60 to-purple-50 dark:from-slate-900 dark:via-indigo-950/30 dark:to-slate-900 p-3 sm:p-4 rounded-2xl shadow-xs border border-indigo-100 dark:border-indigo-900/50 mb-4 sm:mb-5">
+      {/* 2. 艾宾浩斯遗忘循环算法卡片 (Ebbinghaus Spaced Repetition) - 纯色无渐变 */}
+      <div className="bg-slate-50 dark:bg-slate-800/60 p-3 sm:p-4 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-700/80 mb-4 sm:mb-5">
         <div className="flex flex-wrap items-center justify-between gap-2.5 mb-2.5">
           <div className="flex items-center gap-2">
-            <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xs sm:text-sm font-bold shadow-xs shrink-0">
+            <span 
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl text-white flex items-center justify-center text-xs sm:text-sm font-bold shadow-xs shrink-0"
+              style={{ backgroundColor: currentTheme.primary }}
+            >
               <Brain className="w-4 h-4 text-white" />
             </span>
             <div>
@@ -594,7 +600,7 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
 
           <div className="text-right text-xs">
             <span className="text-slate-400 block text-[10px]">建议下次复盘</span>
-            <span className="font-bold text-indigo-700 dark:text-indigo-300 text-xs">
+            <span className="font-bold text-xs" style={{ color: currentTheme.primary }}>
               {question.nextReviewDate 
                 ? new Date(question.nextReviewDate).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric', weekday: 'short' }) 
                 : '明天'}
@@ -608,12 +614,20 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
             const isCompleted = currentStage >= s.stage;
             const isCurrent = currentStage === s.stage;
             return (
-              <div key={idx} className="text-center bg-white/50 dark:bg-slate-800/50 p-1.5 rounded-xl border border-indigo-100/40 dark:border-indigo-900/40">
-                <div className={`h-1.5 rounded-full mb-1 transition-all ${
-                  isCurrent ? 'bg-indigo-600 ring-2 ring-indigo-400 shadow-xs' :
-                  isCompleted ? 'bg-indigo-400' : 'bg-slate-200 dark:bg-slate-800'
-                }`} />
-                <span className={`text-[10px] block truncate ${isCurrent ? 'font-bold text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'}`}>
+              <div key={idx} className="text-center bg-white/70 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700/60">
+                <div 
+                  className={`h-1.5 rounded-full mb-1 transition-all ${
+                    !isCurrent && !isCompleted ? 'bg-slate-200 dark:bg-slate-700' : ''
+                  }`}
+                  style={
+                    isCurrent ? { backgroundColor: currentTheme.primary, boxShadow: `0 0 0 2px ${currentTheme.primary}40` } :
+                    isCompleted ? { backgroundColor: `${currentTheme.primary}80` } : {}
+                  }
+                />
+                <span 
+                  className={`text-[10px] block truncate ${isCurrent ? 'font-bold' : 'text-slate-500 dark:text-slate-400'}`}
+                  style={isCurrent ? { color: currentTheme.primary } : {}}
+                >
                   {s.label}
                 </span>
               </div>

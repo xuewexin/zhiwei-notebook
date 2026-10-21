@@ -30,7 +30,8 @@ import {
   Copy,
   X,
   Smartphone,
-  Laptop
+  Laptop,
+  ChevronDown
 } from 'lucide-react';
 import { 
   settingsService, 
@@ -41,7 +42,7 @@ import {
   AiConfig,
   StoragePathConfig
 } from '../services/settingsService';
-import { CURRENT_VERSION, checkForUpdates, UpdateInfo } from '../services/updateService';
+import { CURRENT_VERSION } from '../services/updateService';
 import { api, isNativePlatform } from '../api/client';
 import { Folder, Question } from '../types';
 
@@ -70,14 +71,12 @@ const compressImageForWallpaper = (file: File): Promise<string> => {
           const MAX_DIM = 1600;
           let width = img.width;
           let height = img.height;
-          if (width > MAX_DIM || height > MAX_DIM) {
-            if (width > height) {
-              height = Math.round((height * MAX_DIM) / width);
-              width = MAX_DIM;
-            } else {
-              width = Math.round((width * MAX_DIM) / height);
-              height = MAX_DIM;
-            }
+          if (width > height) {
+            height = Math.round((height * MAX_DIM) / width);
+            width = MAX_DIM;
+          } else {
+            width = Math.round((width * MAX_DIM) / height);
+            height = MAX_DIM;
           }
           const canvas = document.createElement('canvas');
           canvas.width = width;
@@ -121,7 +120,20 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   const [bgUploadNotice, setBgUploadNotice] = useState<string | null>(null);
   const [shareNotice, setShareNotice] = useState<string | null>(null);
   const [copyEmailNotice, setCopyEmailNotice] = useState<string | null>(null);
-  const [isDirPickerModalOpen, setIsDirPickerModalOpen] = useState(false);
+
+  // All settings sections are collapsed by default as requested by user
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    theme: false,
+    background: false,
+    storage: false,
+    ai: false,
+    version: false,
+    contact: false,
+  });
+
+  const toggleSection = (key: string) => {
+    setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   // Editing profile modal/state
   const [isEditingName, setIsEditingName] = useState(false);
@@ -139,66 +151,63 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bgInputRef = useRef<HTMLInputElement>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
+  const nativeFolderInputRef = useRef<HTMLInputElement>(null);
 
-  // Stats
-  const totalCount = questions.length;
-  const tomorrow = Date.now() + 24 * 60 * 60 * 1000;
-  const dueTodayCount = questions.filter(
-    q => !q.nextReviewDate || new Date(q.nextReviewDate).getTime() <= tomorrow
-  ).length;
-  const masteredCount = questions.filter(q => q.mastery === 'mastered').length;
+  // Sync state with settings
+  useEffect(() => {
+    setProfile(settingsService.getProfile());
+    setThemeKey(settingsService.getThemeColor());
+    setBgConfig(settingsService.getBackground());
+    setAiConfig(settingsService.getAiConfig());
+    setStoragePath(settingsService.getStoragePath());
+  }, []);
 
   const currentTheme = THEME_PALETTES[themeKey] || THEME_PALETTES.blue;
 
-  // Handle avatar upload
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle Avatar Upload with Canvas compression
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
+
+    try {
+      const dataUrl = await compressImageForWallpaper(file);
       const updated = settingsService.saveProfile({ avatar: dataUrl });
       setProfile(updated);
       if (onProfileUpdated) onProfileUpdated(updated);
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+    } catch {
+      alert('上传头像失败，请重试');
+    }
   };
 
-  // Handle custom background wallpaper upload with Canvas compression & multi-device sync
+  // Handle Background Upload with Canvas compression
   const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     try {
-      setBgUploadNotice('正在压缩优化背景壁纸...');
-      const compressedDataUrl = await compressImageForWallpaper(file);
+      const dataUrl = await compressImageForWallpaper(file);
       const updated = settingsService.saveBackground({ 
-        imageUrl: compressedDataUrl,
+        imageUrl: dataUrl,
         opacity: bgConfig.opacity || 0.18
       });
       setBgConfig(updated);
       if (onBackgroundUpdated) {
         onBackgroundUpdated(updated);
       }
-      setBgUploadNotice('背景壁纸已成功设置，已在全软件生效！');
+      setBgUploadNotice('背景壁纸已成功保存');
       setTimeout(() => setBgUploadNotice(null), 3000);
-    } catch (err: any) {
-      alert('设置壁纸失败: ' + (err.message || '未知错误'));
-      setBgUploadNotice(null);
-    } finally {
-      e.target.value = '';
+    } catch {
+      alert('处理背景壁纸失败，请重试');
     }
   };
 
-  // Clear custom background wallpaper
-  const handleClearBg = () => {
+  // Remove background
+  const handleClearBackground = () => {
     const updated = settingsService.saveBackground({ imageUrl: '' });
     setBgConfig(updated);
     if (onBackgroundUpdated) {
       onBackgroundUpdated(updated);
     }
-    setBgUploadNotice('已清除壁纸，恢复默认纯净背景');
-    setTimeout(() => setBgUploadNotice(null), 2500);
   };
 
   // Update background opacity
@@ -210,17 +219,14 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
     }
   };
 
-  // Switch Theme Color across the whole app
-  const handleSelectTheme = (k: ThemeColorKey) => {
+  // Switch Theme
+  const handleThemeChange = (k: ThemeColorKey) => {
     setThemeKey(k);
     settingsService.saveThemeColor(k);
     if (onThemeUpdated) {
       onThemeUpdated(k);
     }
   };
-
-  // Native folder input ref for HTML5 directory selection fallback
-  const nativeFolderInputRef = useRef<HTMLInputElement>(null);
 
   // Directly trigger system native folder picker on click
   const handlePickDirectory = async () => {
@@ -250,51 +256,35 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
         androidBridge.pickFolder();
         return;
       } catch (err) {
-        console.warn('Android native folder pick error:', err);
+        console.warn('Android SAF pick error:', err);
       }
     }
 
-    // 3. Web Chromium File System Access API
-    if (typeof window !== 'undefined' && 'showDirectoryPicker' in window) {
+    // 3. Modern Web standard showDirectoryPicker
+    if (typeof (window as any).showDirectoryPicker === 'function') {
       try {
-        const handle = await (window as any).showDirectoryPicker();
-        if (handle && handle.name) {
-          const selectedPath = isNativePlatform
-            ? `Download/${handle.name}`
-            : `D:\\${handle.name}`;
-          handleApplyDirectory(selectedPath);
+        const dirHandle = await (window as any).showDirectoryPicker({ mode: 'readwrite' });
+        if (dirHandle && dirHandle.name) {
+          handleApplyDirectory(dirHandle.name);
           return;
         }
-      } catch (err: any) {
-        if (err.name === 'AbortError') return; // User cancelled
-      }
+      } catch {}
     }
 
-    // 4. HTML5 input webkitdirectory
+    // 4. Fallback HTML5 directory input
     if (nativeFolderInputRef.current) {
       nativeFolderInputRef.current.click();
-      return;
     }
-
-    // 5. Fallback: Open directory preset modal
-    setIsDirPickerModalOpen(true);
   };
 
-  // Apply chosen directory
-  const handleApplyDirectory = (path: string) => {
-    const trimmed = path.trim();
-    if (!trimmed) return;
-    setCustomDirInput(trimmed);
-    const u = settingsService.saveStoragePath({ customDirectory: trimmed });
-    setStoragePath(u);
-    setIsDirPickerModalOpen(false);
+  const handleApplyDirectory = (dir: string) => {
+    if (!dir) return;
+    const clean = dir.trim();
+    setCustomDirInput(clean);
+    const updated = settingsService.saveStoragePath({ customDirectory: clean });
+    setStoragePath(updated);
     setPathSavedNotice(true);
     setTimeout(() => setPathSavedNotice(false), 3000);
-  };
-
-  // Try Native System Picker if supported
-  const handleNativeSystemPick = async () => {
-    handlePickDirectory();
   };
 
   // Save Name & Motto
@@ -316,97 +306,127 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
       url: 'https://github.com/xuewexin/zhiwei-notebook'
     };
 
-    if (typeof navigator !== 'undefined' && navigator.share) {
+    if (navigator.share) {
       try {
         await navigator.share(shareData);
+        setShareNotice('分享成功！感谢支持知微错题本');
+        setTimeout(() => setShareNotice(null), 3000);
         return;
-      } catch (e: any) {
-        if (e.name === 'AbortError') return;
-      }
+      } catch {}
     }
 
     try {
-      await navigator.clipboard.writeText(`${shareData.title}\n${shareData.text}\n下载地址: ${shareData.url}`);
-      setShareNotice('已复制分享推荐文案与下载链接至剪贴板，可直接粘贴发给学友！');
-      setTimeout(() => setShareNotice(null), 3500);
+      await navigator.clipboard.writeText(`${shareData.title}\n${shareData.text}\n${shareData.url}`);
+      setShareNotice('已复制分享推荐语与 GitHub 链接至剪贴板');
+      setTimeout(() => setShareNotice(null), 3000);
     } catch {
-      alert('下载地址: https://github.com/xuewexin/zhiwei-notebook');
+      alert(`分享链接: ${shareData.url}`);
     }
   };
 
-  // Copy Author Email
   const handleCopyEmail = async () => {
     try {
       await navigator.clipboard.writeText('2792893068@qq.com');
-      setCopyEmailNotice('作者邮箱 2792893068@qq.com 已成功复制！');
+      setCopyEmailNotice('已复制作者邮箱 (2792893068@qq.com) 至剪贴板');
       setTimeout(() => setCopyEmailNotice(null), 3000);
     } catch {
-      alert('作者联系邮箱: 2792893068@qq.com');
+      alert('作者邮箱: 2792893068@qq.com');
     }
   };
 
-  // Test AI Connection
-  const handleTestAi = async () => {
-    setIsTestingAi(true);
-    setAiTestResult(null);
-    try {
-      const res = await settingsService.testAiConnection(aiConfig);
-      setAiTestResult(res);
-    } finally {
-      setIsTestingAi(false);
-    }
-  };
-
-  // Save AI Config on change
+  // AI Config Save
   const handleAiChange = (partial: Partial<AiConfig>) => {
     const updated = settingsService.saveAiConfig(partial);
     setAiConfig(updated);
   };
 
-  // Export Backup JSON
-  const handleExportBackup = () => {
+  // Test AI Connection
+  const handleTestAi = async () => {
+    if (!aiConfig.apiKey) {
+      setAiTestResult({ success: false, message: '请先填写 API Key 密钥' });
+      return;
+    }
+    setIsTestingAi(true);
+    setAiTestResult(null);
+
     try {
-      const backupData = {
-        version: CURRENT_VERSION,
-        exportTime: new Date().toISOString(),
-        folders,
-        questions,
-        profile
-      };
-      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `知微错题本_题库备份_${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      setBackupNotice('备份文件导出成功！');
-      setTimeout(() => setBackupNotice(null), 3000);
-    } catch (e: any) {
-      alert('导出备份失败: ' + e.message);
+      const url = `${aiConfig.baseUrl.replace(/\/+$/, '')}/chat/completions`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${aiConfig.apiKey}`
+        },
+        body: JSON.stringify({
+          model: aiConfig.model || 'deepseek-chat',
+          messages: [
+            { role: 'system', content: 'You are a helpful educational tutor.' },
+            { role: 'user', content: '你好！请回复一句话测试连接。' }
+          ],
+          max_tokens: 50
+        })
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`HTTP ${res.status}: ${errText.slice(0, 100)}`);
+      }
+
+      const data = await res.json();
+      const reply = data.choices?.[0]?.message?.content || '连接成功！';
+      setAiTestResult({ success: true, message: `接口测试成功！助教回复: "${reply.trim()}"` });
+    } catch (err: any) {
+      setAiTestResult({ success: false, message: `连接失败: ${err.message || '请检查 Base URL 与 Key'}` });
+    } finally {
+      setIsTestingAi(false);
     }
   };
 
-  // Import Backup JSON
+  // Full Export JSON
+  const handleExportBackup = () => {
+    const backupData = {
+      version: CURRENT_VERSION,
+      exportTime: new Date().toISOString(),
+      folders,
+      questions,
+      profile,
+      storagePath
+    };
+    const jsonStr = JSON.stringify(backupData, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `知微错题本_题库备份_${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setBackupNotice('全量错题备份 JSON 文件已成功生成并导出！');
+    setTimeout(() => setBackupNotice(null), 3000);
+  };
+
+  // Full Import JSON
   const handleImportBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = async (event) => {
       try {
-        const text = event.target?.result as string;
-        const data = JSON.parse(text);
-        if (Array.isArray(data.folders) && Array.isArray(data.questions)) {
-          // Store folders & questions via API
-          for (const f of data.folders) {
-            await api.createFolder(f).catch(() => {});
+        const content = event.target?.result as string;
+        const parsed = JSON.parse(content);
+        if (parsed && Array.isArray(parsed.folders) && Array.isArray(parsed.questions)) {
+          if (!confirm(`备份包含 ${parsed.folders.length} 个分类和 ${parsed.questions.length} 道错题，确认导入并合并/恢复到当前错题库吗？`)) {
+            return;
           }
-          for (const q of data.questions) {
-            await api.createQuestion(q).catch(() => {});
+          localStorage.setItem('zhiwei_folders', JSON.stringify(parsed.folders));
+          localStorage.setItem('zhiwei_questions', JSON.stringify(parsed.questions));
+          if (parsed.profile) {
+            settingsService.saveProfile(parsed.profile);
+            setProfile(parsed.profile);
           }
-          setBackupNotice('题库恢复成功！');
+          setBackupNotice(`成功恢复 ${parsed.questions.length} 道错题与分类数据！正在刷新...`);
           onRefreshData();
           setTimeout(() => setBackupNotice(null), 3000);
         } else {
@@ -421,13 +441,12 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-20 animate-fade-in">
-      {/* 1. User Profile Header Card */}
-      <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${currentTheme.gradient} text-white p-6 sm:p-8 shadow-xl`}>
-        {/* Decorative backdrop shapes */}
-        <div className="absolute -right-10 -bottom-10 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute left-1/2 -top-12 w-36 h-36 bg-blue-300/15 rounded-full blur-xl pointer-events-none" />
-
+    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-5 pb-20 animate-fade-in">
+      {/* 1. User Profile Header Card - Pure Solid Color, No Gradient */}
+      <div 
+        className="relative overflow-hidden rounded-3xl text-white p-6 sm:p-8 shadow-sm"
+        style={{ backgroundColor: currentTheme.primary }}
+      >
         <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-5">
           {/* Avatar with upload trigger */}
           <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
@@ -438,7 +457,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
               className="hidden"
               onChange={handleAvatarUpload}
             />
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl overflow-hidden border-3 border-white/40 shadow-xl bg-white/20 backdrop-blur-md">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl overflow-hidden border-2 border-white/40 shadow-sm bg-white/20 backdrop-blur-md">
               <img 
                 src={profile.avatar || '/app-icon.png'} 
                 alt={profile.name}
@@ -448,904 +467,702 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                 }}
               />
             </div>
-            <div className="absolute inset-0 rounded-3xl bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-[10px] font-bold">
-              更换照片
+            <div className="absolute inset-0 bg-black/40 rounded-3xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-[11px] font-semibold">
+              更换头像
             </div>
           </div>
 
           {/* User Details */}
-          <div className="flex-1 text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start gap-2.5">
-              <h2 className="text-xl sm:text-2xl font-black tracking-wide">
-                {profile.name}
-              </h2>
-              <button
-                type="button"
-                onClick={() => {
-                  setTempName(profile.name);
-                  setTempMotto(profile.motto);
-                  setIsEditingName(true);
-                }}
-                className="p-1 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-colors cursor-pointer"
-                title="修改姓名与座右铭"
-              >
-                <Edit3 className="w-4 h-4" />
-              </button>
+          <div className="flex-1 text-center sm:text-left space-y-1.5">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
+              <div className="flex items-center justify-center sm:justify-start gap-2">
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                  {profile.name}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTempName(profile.name);
+                    setTempMotto(profile.motto);
+                    setIsEditingName(true);
+                  }}
+                  className="p-1.5 hover:bg-white/20 rounded-xl transition-colors cursor-pointer text-white/90"
+                  title="修改昵称与座右铭"
+                >
+                  <Edit3 className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Stats badges */}
+              <div className="flex items-center justify-center gap-2">
+                <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-semibold backdrop-blur-sm">
+                  {folders.length} 个分类笔记本
+                </span>
+                <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-semibold backdrop-blur-sm">
+                  {questions.length} 道错题记录
+                </span>
+              </div>
             </div>
 
-            <p className="text-xs sm:text-sm text-white/90 mt-1 max-w-lg font-medium leading-relaxed">
-              “{profile.motto}”
+            <p className="text-xs sm:text-sm text-white/85 max-w-xl font-medium">
+              "{profile.motto}"
             </p>
 
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-4 text-xs">
-              <span className="px-3 py-1 bg-white/15 backdrop-blur-md rounded-full font-semibold border border-white/20 flex items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5" />
-                收录错题: {totalCount} 道
-              </span>
-              <span className="px-3 py-1 bg-white/15 backdrop-blur-md rounded-full font-semibold border border-white/20 flex items-center gap-1.5">
-                <Flame className="w-3.5 h-3.5 text-amber-300" />
-                今日待复盘: {dueTodayCount} 题
-              </span>
-              <span className="px-3 py-1 bg-white/15 backdrop-blur-md rounded-full font-semibold border border-white/20 flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-                完全掌握: {masteredCount} 题
+            <div className="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3 text-[11px] text-white/75">
+              <span>研习加入时间: {profile.joinDate}</span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" />
+                数据纯本地加密存储
               </span>
             </div>
           </div>
         </div>
 
-        {/* Edit Name & Motto Form Overlay */}
+        {/* Edit profile inline modal */}
         {isEditingName && (
-          <div className="mt-5 pt-4 border-t border-white/20 flex flex-col sm:flex-row gap-3 items-center">
-            <input 
-              type="text"
-              value={tempName}
-              onChange={(e) => setTempName(e.target.value)}
-              placeholder="输入你的姓名/昵称"
-              className="w-full sm:w-48 text-xs px-3 py-2 bg-white/20 text-white placeholder-white/60 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-white"
-            />
-            <input 
-              type="text"
-              value={tempMotto}
-              onChange={(e) => setTempMotto(e.target.value)}
-              placeholder="输入励志座右铭"
-              className="flex-1 text-xs px-3 py-2 bg-white/20 text-white placeholder-white/60 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-white"
-            />
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleSaveProfile}
-                className="px-4 py-2 bg-white text-slate-900 rounded-xl text-xs font-bold shadow-md hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                保存
-              </button>
-              <button
+          <div className="mt-5 p-4 rounded-2xl bg-black/30 border border-white/20 space-y-3 animate-fade-in">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-white/80 mb-1">用户昵称</label>
+                <input 
+                  type="text" 
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  className="w-full text-xs px-3 py-2 bg-white/20 border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
+                  placeholder="输入昵称"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-white/80 mb-1">座右铭 / 励志寄语</label>
+                <input 
+                  type="text" 
+                  value={tempMotto}
+                  onChange={(e) => setTempMotto(e.target.value)}
+                  className="w-full text-xs px-3 py-2 bg-white/20 border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
+                  placeholder="输入座右铭"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button 
                 type="button"
                 onClick={() => setIsEditingName(false)}
-                className="px-3 py-2 bg-white/20 text-white rounded-xl text-xs font-semibold hover:bg-white/30 transition-colors cursor-pointer"
+                className="px-3 py-1.5 rounded-lg text-xs hover:bg-white/20 text-white transition-colors cursor-pointer"
               >
                 取消
+              </button>
+              <button 
+                type="button"
+                onClick={handleSaveProfile}
+                className="px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-900 hover:bg-white/90 transition-colors cursor-pointer"
+              >
+                保存修改
               </button>
             </div>
           </div>
         )}
       </div>
 
+      {/* Global Status Notices */}
       {backupNotice && (
-        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 rounded-2xl text-xs flex items-center gap-2 animate-bounce">
-          <Check className="w-4 h-4 text-emerald-600" />
+        <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 rounded-2xl text-xs flex items-center gap-2 animate-fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{backupNotice}</span>
         </div>
       )}
 
-      {/* 2. Theme & Appearance Customization */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
-        <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400">
-            <Palette className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">软件配置颜色与背景</h3>
-            <p className="text-xs text-slate-400">个性化定制学习空间，打造沉浸专注的高颜值界面</p>
-          </div>
-        </div>
-
-        {/* Theme Color Picker */}
-        <div>
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2.5">
-            软件主题主色调
-          </label>
-          <div className="grid grid-cols-2 sm:grid-cols-6 gap-2.5">
-            {(Object.keys(THEME_PALETTES) as ThemeColorKey[]).map((k) => {
-              const pal = THEME_PALETTES[k];
-              const isSelected = themeKey === k;
-              return (
-                <button
-                  key={k}
-                  type="button"
-                  onClick={() => handleSelectTheme(k)}
-                  className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between h-20 ${
-                    isSelected
-                      ? 'border-blue-600 dark:border-blue-400 ring-2 ring-blue-500/20 bg-blue-50/30 dark:bg-blue-950/20 shadow-xs'
-                      : 'border-slate-200 dark:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800/60'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span 
-                      className="w-5 h-5 rounded-full shadow-inner flex items-center justify-center"
-                      style={{ backgroundColor: pal.primary }}
-                    >
-                      {isSelected && <Check className="w-3 h-3 text-white" />}
-                    </span>
-                  </div>
-                  <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">
-                    {pal.name}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Custom Background Image Wallpaper */}
-        <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-          <div className="flex items-center justify-between mb-2.5">
-            <div>
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
-                自定义背景壁纸图片
-              </label>
-              <span className="text-[11px] text-slate-400">
-                可上传自己喜欢的壁纸，背景经过护眼低透明度渲染，不影响公式和文本阅读
-              </span>
+      {/* ============================================================== */}
+      {/* Collapsible Section 1: 界面外观与主题配色 (Default Collapsed) */}
+      {/* ============================================================== */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('theme')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div 
+              className="p-2.5 rounded-2xl text-white shrink-0"
+              style={{ backgroundColor: currentTheme.primary }}
+            >
+              <Palette className="w-5 h-5" />
             </div>
-            {bgConfig.imageUrl && (
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">界面外观与主题配色</h3>
+              <p className="text-xs text-slate-400">当前主题: {currentTheme.name} · 点击展开切换 6 款经典纯色</p>
+            </div>
+          </div>
+          <ChevronDown 
+            className={`w-5 h-5 text-slate-400 transition-transform duration-200 shrink-0 ${
+              openSections.theme ? 'rotate-180' : ''
+            }`} 
+          />
+        </button>
+
+        {openSections.theme && (
+          <div className="px-5 pb-6 sm:px-6 sm:pb-6 border-t border-slate-100 dark:border-slate-800 pt-4 space-y-3 animate-fade-in">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5">
+              {(Object.keys(THEME_PALETTES) as ThemeColorKey[]).map((k) => {
+                const item = THEME_PALETTES[k];
+                const isActive = themeKey === k;
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => handleThemeChange(k)}
+                    className={`relative p-3 rounded-2xl border transition-all text-left flex flex-col justify-between h-22 cursor-pointer shadow-2xs ${
+                      isActive 
+                        ? 'ring-2 bg-slate-50 dark:bg-slate-800 border-transparent shadow-xs' 
+                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
+                    }`}
+                    style={isActive ? { ringColor: item.primary } : {}}
+                  >
+                    <div 
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs shadow-xs"
+                      style={{ backgroundColor: item.primary }}
+                    >
+                      {isActive && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block">
+                        {item.name}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {item.primary}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ============================================================== */}
+      {/* Collapsible Section 2: 个性化背景壁纸 (Default Collapsed) */}
+      {/* ============================================================== */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('background')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 shrink-0">
+              <ImageIcon className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">个性化背景壁纸</h3>
+              <p className="text-xs text-slate-400">
+                {bgConfig.imageUrl ? '已启用自定义背景壁纸' : '未设置壁纸 · 支持上传本地图片'}
+              </p>
+            </div>
+          </div>
+          <ChevronDown 
+            className={`w-5 h-5 text-slate-400 transition-transform duration-200 shrink-0 ${
+              openSections.background ? 'rotate-180' : ''
+            }`} 
+          />
+        </button>
+
+        {openSections.background && (
+          <div className="px-5 pb-6 sm:px-6 sm:pb-6 border-t border-slate-100 dark:border-slate-800 pt-4 space-y-4 animate-fade-in">
+            <input 
+              ref={bgInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleBgUpload}
+            />
+
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 type="button"
-                onClick={handleClearBg}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer"
+                onClick={() => bgInputRef.current?.click()}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:hover:bg-purple-900/60 dark:text-purple-300 rounded-xl text-xs font-bold border border-purple-200 dark:border-purple-800 transition-all cursor-pointer shadow-2xs"
               >
-                <Trash2 className="w-3.5 h-3.5" /> 清除壁纸
+                <Upload className="w-3.5 h-3.5" />
+                <span>{bgConfig.imageUrl ? '更换本地背景图片' : '上传本地背景图片'}</span>
               </button>
-            )}
-          </div>
 
-          <input 
-            ref={bgInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleBgUpload}
-          />
-
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <button
-              type="button"
-              onClick={() => bgInputRef.current?.click()}
-              className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 rounded-2xl text-xs font-bold transition-all cursor-pointer"
-            >
-              <Upload className="w-4 h-4 text-purple-600" />
-              <span>上传本地背景图片</span>
-            </button>
+              {bgConfig.imageUrl && (
+                <button
+                  type="button"
+                  onClick={handleClearBackground}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 dark:bg-slate-800 dark:hover:bg-rose-950/40 dark:text-slate-300 dark:hover:text-rose-400 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>清除背景</span>
+                </button>
+              )}
+            </div>
 
             {bgConfig.imageUrl && (
-              <div className="flex-1 flex items-center gap-3 w-full">
-                <span className="text-xs text-slate-500 shrink-0">背景不透明度:</span>
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">
+                    背景透明度: {Math.round((bgConfig.opacity || 0.15) * 100)}%
+                  </span>
+                  <span className="text-[10px] text-slate-400">推荐 15%~25% 护眼且不影响阅读公式</span>
+                </div>
                 <input 
                   type="range"
                   min="0.05"
                   max="0.45"
-                  step="0.05"
-                  value={bgConfig.opacity}
+                  step="0.02"
+                  value={bgConfig.opacity || 0.15}
                   onChange={(e) => handleOpacityChange(parseFloat(e.target.value))}
-                  className="flex-1 accent-purple-600 cursor-pointer"
+                  className="w-full accent-purple-600 cursor-pointer"
                 />
-                <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 w-10">
-                  {Math.round(bgConfig.opacity * 100)}%
-                </span>
               </div>
             )}
-          </div>
 
-          {bgUploadNotice && (
-            <div className="mt-2.5 p-2.5 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 rounded-xl text-xs flex items-center gap-2 animate-fade-in font-medium">
-              <Check className="w-4 h-4 text-purple-600 shrink-0" />
-              <span>{bgUploadNotice}</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* 3. Storage Location & Backup Management */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-        <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">
-            <HardDrive className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">文件存储位置与数据管理</h3>
-            <p className="text-xs text-slate-400">数据 100% 存储于本地，无第三方中心化窥探</p>
-          </div>
-        </div>
-
-        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-slate-600 dark:text-slate-400">当前存储模式:</span>
-            <span className="font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              本地物理隔离模式 (Local-First)
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-slate-600 dark:text-slate-400">设备存储路径:</span>
-            <span className="font-mono text-[11px] text-slate-700 dark:text-slate-300">
-              {storagePath.customDirectory || (isNativePlatform 
-                ? '应用私有加密沙盒 (Android App Sandboxed Storage)' 
-                : '%LOCALAPPDATA%\\ZhiWeiNote & IndexedDB')}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-slate-600 dark:text-slate-400">错题库容量:</span>
-            <span className="font-bold text-slate-800 dark:text-slate-200">
-              {questions.length} 道错题 · {folders.length} 个分类文件夹
-            </span>
-          </div>
-        </div>
-
-        {/* Custom Storage Directory Setting */}
-        <div className="p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-750 space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
-                {isNativePlatform ? '📱 手机端本地存储与备份文件夹' : '💻 电脑端本地存储与备份文件夹'}
-              </span>
-              <span className="text-[11px] text-slate-400">
-                {isNativePlatform 
-                  ? '支持自定义手机内部存储目录，导出备份与导出错题将自动归档至此目录' 
-                  : '支持设置 Windows 电脑本地磁盘目录，数据及备份将自动归档至此目录'}
-              </span>
-            </div>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
-              已启用自定义
-            </span>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-2">
-            {/* Hidden native input for webkitdirectory */}
-            <input
-              ref={nativeFolderInputRef}
-              type="file"
-              // @ts-ignore
-              webkitdirectory="true"
-              directory="true"
-              className="hidden"
-              onChange={(e) => {
-                const files = e.target.files;
-                if (files && files.length > 0) {
-                  const relative = files[0].webkitRelativePath || '';
-                  const folderName = relative.split('/')[0] || relative.split('\\')[0];
-                  if (folderName) {
-                    handleApplyDirectory(folderName);
-                  }
-                }
-              }}
-            />
-
-            <div className="flex-1 relative flex items-center">
-              <FolderOpen className="w-4 h-4 text-[#416788] absolute left-3 pointer-events-none" />
-              <input 
-                type="text"
-                value={customDirInput}
-                onChange={(e) => setCustomDirInput(e.target.value)}
-                placeholder={isNativePlatform ? '例如: Download/知微错题本' : '例如: D:\\知微错题本数据'}
-                className="w-full text-xs pl-9 pr-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-[#416788] font-medium"
-              />
-            </div>
-            
-            <button
-              type="button"
-              onClick={handlePickDirectory}
-              className="px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-xs shrink-0 flex items-center justify-center gap-1.5"
-              title="直接调起系统原生文件夹选择对话框（Windows / Android / 电脑浏览器）"
-            >
-              <FolderOpen className="w-3.5 h-3.5 text-[#416788] dark:text-[#719dbf]" />
-              <span>选择系统文件夹</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsDirPickerModalOpen(true)}
-              className="px-3 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium transition-all cursor-pointer shadow-xs shrink-0 flex items-center justify-center gap-1"
-              title="查看移动端与电脑端推荐预设"
-            >
-              <span>推荐预设</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                const updated = settingsService.saveStoragePath({ customDirectory: customDirInput.trim() });
-                setStoragePath(updated);
-                setPathSavedNotice(true);
-                setTimeout(() => setPathSavedNotice(false), 2500);
-              }}
-              className="px-4 py-2.5 bg-[#416788] hover:bg-[#34526d] text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0 flex items-center justify-center gap-1.5"
-            >
-              <Check className="w-3.5 h-3.5" />
-              <span>保存路径</span>
-            </button>
-          </div>
-
-          {pathSavedNotice && (
-            <div className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1 animate-fade-in">
-              <Check className="w-3.5 h-3.5" />
-              <span>文件存储目录已更新为: {storagePath.customDirectory}</span>
-            </div>
-          )}
-
-          {/* Quick presets */}
-          <div>
-            <span className="text-[10px] text-slate-400 block mb-1.5">常用预设目录（点击即换）:</span>
-            <div className="flex flex-wrap gap-1.5">
-              {isNativePlatform ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCustomDirInput('Download/知微错题本');
-                      const u = settingsService.saveStoragePath({ customDirectory: 'Download/知微错题本' });
-                      setStoragePath(u);
-                      setPathSavedNotice(true);
-                      setTimeout(() => setPathSavedNotice(false), 2500);
-                    }}
-                    className="px-2.5 py-1 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] border border-slate-200 dark:border-slate-700 cursor-pointer font-mono"
-                  >
-                    Download/知微错题本
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCustomDirInput('Documents/知微错题本');
-                      const u = settingsService.saveStoragePath({ customDirectory: 'Documents/知微错题本' });
-                      setStoragePath(u);
-                      setPathSavedNotice(true);
-                      setTimeout(() => setPathSavedNotice(false), 2500);
-                    }}
-                    className="px-2.5 py-1 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] border border-slate-200 dark:border-slate-700 cursor-pointer font-mono"
-                  >
-                    Documents/知微错题本
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCustomDirInput('/storage/emulated/0/Download/ZhiWeiNote');
-                      const u = settingsService.saveStoragePath({ customDirectory: '/storage/emulated/0/Download/ZhiWeiNote' });
-                      setStoragePath(u);
-                      setPathSavedNotice(true);
-                      setTimeout(() => setPathSavedNotice(false), 2500);
-                    }}
-                    className="px-2.5 py-1 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] border border-slate-200 dark:border-slate-700 cursor-pointer font-mono"
-                  >
-                    /storage/emulated/0/Download/ZhiWeiNote
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCustomDirInput('D:\\知微错题库');
-                      const u = settingsService.saveStoragePath({ customDirectory: 'D:\\知微错题库' });
-                      setStoragePath(u);
-                      setPathSavedNotice(true);
-                      setTimeout(() => setPathSavedNotice(false), 2500);
-                    }}
-                    className="px-2.5 py-1 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] border border-slate-200 dark:border-slate-700 cursor-pointer font-mono"
-                  >
-                    D:\知微错题库
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCustomDirInput('E:\\我的错题本');
-                      const u = settingsService.saveStoragePath({ customDirectory: 'E:\\我的错题本' });
-                      setStoragePath(u);
-                      setPathSavedNotice(true);
-                      setTimeout(() => setPathSavedNotice(false), 2500);
-                    }}
-                    className="px-2.5 py-1 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] border border-slate-200 dark:border-slate-700 cursor-pointer font-mono"
-                  >
-                    E:\我的错题本
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCustomDirInput('%LOCALAPPDATA%\\ZhiWeiNote');
-                      const u = settingsService.saveStoragePath({ customDirectory: '%LOCALAPPDATA%\\ZhiWeiNote' });
-                      setStoragePath(u);
-                      setPathSavedNotice(true);
-                      setTimeout(() => setPathSavedNotice(false), 2500);
-                    }}
-                    className="px-2.5 py-1 bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-700 dark:text-slate-300 rounded-lg text-[11px] border border-slate-200 dark:border-slate-700 cursor-pointer font-mono"
-                  >
-                    系统默认应用目录
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Backup & Restore Controls */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-          <button
-            type="button"
-            onClick={handleExportBackup}
-            className="flex items-center justify-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 text-blue-700 dark:text-blue-300 rounded-2xl text-xs font-bold border border-blue-200 dark:border-blue-800 transition-all cursor-pointer"
-          >
-            <Download className="w-4 h-4" />
-            <span>导出题库全量备份 (.json)</span>
-          </button>
-
-          <input 
-            ref={importInputRef}
-            type="file"
-            accept=".json"
-            className="hidden"
-            onChange={handleImportBackup}
-          />
-
-          <button
-            type="button"
-            onClick={() => importInputRef.current?.click()}
-            className="flex items-center justify-center gap-2 p-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 text-slate-700 dark:text-slate-200 rounded-2xl text-xs font-bold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
-          >
-            <FileJson className="w-4 h-4 text-amber-500" />
-            <span>导入恢复错题库</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={onOpenGitModal}
-            className="flex items-center justify-center gap-2 p-3 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 rounded-2xl text-xs font-bold border border-indigo-200 dark:border-indigo-800 transition-all cursor-pointer"
-          >
-            <GitBranch className="w-4 h-4 text-indigo-500" />
-            <span>Git 云端仓库同步设置</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 4. AI Assistant API Configuration */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
-              <Cpu className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                AI 智能助教与复习规划接口
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-semibold">
-                  API 接口
-                </span>
-              </h3>
-              <p className="text-xs text-slate-400">
-                支持直连 DeepSeek、OpenAI、Kimi、通义千问等，APK 本地纯客户端发起，零服务器中转
-              </p>
-            </div>
-          </div>
-
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input 
-              type="checkbox" 
-              checked={aiConfig.enabled}
-              onChange={(e) => handleAiChange({ enabled: e.target.checked })}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
-        </div>
-
-        {aiConfig.enabled ? (
-          <div className="space-y-4 animate-fade-in">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  API 接口地址 (Base URL)
-                </label>
-                <input 
-                  type="text"
-                  value={aiConfig.baseUrl}
-                  onChange={(e) => handleAiChange({ baseUrl: e.target.value })}
-                  placeholder="例如: https://api.deepseek.com/v1"
-                  className="w-full text-xs px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+            {bgUploadNotice && (
+              <div className="p-2.5 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 rounded-xl text-xs flex items-center gap-2 animate-fade-in font-medium">
+                <Check className="w-4 h-4 text-purple-600 shrink-0" />
+                <span>{bgUploadNotice}</span>
               </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  模型名称 (Model)
-                </label>
-                <input 
-                  type="text"
-                  value={aiConfig.model}
-                  onChange={(e) => handleAiChange({ model: e.target.value })}
-                  placeholder="例如: deepseek-chat 或 gpt-4o-mini"
-                  className="w-full text-xs px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                API 密钥 (API Key)
-              </label>
-              <div className="relative">
-                <input 
-                  type={showApiKey ? 'text' : 'password'}
-                  value={aiConfig.apiKey}
-                  onChange={(e) => handleAiChange({ apiKey: e.target.value })}
-                  placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx"
-                  className="w-full text-xs pl-3 pr-10 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowApiKey(!showApiKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* AI Features Checklist */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
-              <label className="flex items-center gap-2 p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer text-xs">
-                <input 
-                  type="checkbox"
-                  checked={aiConfig.autoAnalyzeErrorCauses}
-                  onChange={(e) => handleAiChange({ autoAnalyzeErrorCauses: e.target.checked })}
-                  className="accent-blue-600"
-                />
-                <span className="font-semibold text-slate-700 dark:text-slate-300">错题错因智能诊断</span>
-              </label>
-
-              <label className="flex items-center gap-2 p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer text-xs">
-                <input 
-                  type="checkbox"
-                  checked={aiConfig.autoStudyPlan}
-                  onChange={(e) => handleAiChange({ autoStudyPlan: e.target.checked })}
-                  className="accent-blue-600"
-                />
-                <span className="font-semibold text-slate-700 dark:text-slate-300">个性化复习规划排期</span>
-              </label>
-
-              <label className="flex items-center gap-2 p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer text-xs">
-                <input 
-                  type="checkbox"
-                  checked={aiConfig.autoClassify}
-                  onChange={(e) => handleAiChange({ autoClassify: e.target.checked })}
-                  className="accent-blue-600"
-                />
-                <span className="font-semibold text-slate-700 dark:text-slate-300">智能整理科目分类</span>
-              </label>
-            </div>
-
-            {/* Test Connection Button */}
-            <div className="flex items-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={handleTestAi}
-                disabled={isTestingAi}
-                className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isTestingAi ? 'animate-spin' : ''}`} />
-                <span>{isTestingAi ? '正在测试连接中...' : '测试 API 连通性'}</span>
-              </button>
-
-              {aiTestResult && (
-                <span className={`text-xs font-semibold ${aiTestResult.success ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                  {aiTestResult.message}
-                </span>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-            <span>AI 智能助教当前未开启。开启后可在做题详情页一键剖析错因并获得专属解法推导建议。</span>
-            <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400">点击右上角开启</span>
+            )}
           </div>
         )}
       </div>
 
-      {/* 5. Software, Version & Author Info */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-        <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400">
-            <Info className="w-5 h-5" />
+      {/* ============================================================== */}
+      {/* Collapsible Section 3: 文件存储与数据备份 (Only Essential Part) */}
+      {/* ============================================================== */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('storage')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 shrink-0">
+              <HardDrive className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">文件存储与数据备份</h3>
+              <p className="text-xs text-slate-400">
+                目录: {storagePath.customDirectory || '默认本地路径'} · 备份与同步
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">软件信息、作者与版本</h3>
-            <p className="text-xs text-slate-400">关于知微错题本官方团队与最新版本号</p>
+          <ChevronDown 
+            className={`w-5 h-5 text-slate-400 transition-transform duration-200 shrink-0 ${
+              openSections.storage ? 'rotate-180' : ''
+            }`} 
+          />
+        </button>
+
+        {openSections.storage && (
+          <div className="px-5 pb-6 sm:px-6 sm:pb-6 border-t border-slate-100 dark:border-slate-800 pt-4 space-y-4 animate-fade-in">
+            {/* Folder Location Setting */}
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/80 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                  <FolderOpen className="w-4 h-4 text-slate-500" />
+                  <span>文件夹位置设置</span>
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  {questions.length} 道错题 · {folders.length} 个分类
+                </span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2">
+                {/* Hidden native input for webkitdirectory */}
+                <input
+                  ref={nativeFolderInputRef}
+                  type="file"
+                  // @ts-ignore
+                  webkitdirectory="true"
+                  directory="true"
+                  className="hidden"
+                  onChange={(e) => {
+                    const files = e.target.files;
+                    if (files && files.length > 0) {
+                      const relative = files[0].webkitRelativePath || '';
+                      const folderName = relative.split('/')[0] || relative.split('\\')[0];
+                      if (folderName) {
+                        handleApplyDirectory(folderName);
+                      }
+                    }
+                  }}
+                />
+
+                <div className="flex-1 relative flex items-center">
+                  <FolderOpen className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+                  <input 
+                    type="text"
+                    value={customDirInput}
+                    onChange={(e) => setCustomDirInput(e.target.value)}
+                    placeholder={isNativePlatform ? '例如: Download/知微错题本' : '例如: D:\\知微错题本数据'}
+                    className="w-full text-xs pl-9 pr-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-1 font-medium"
+                    style={{ outlineColor: currentTheme.primary }}
+                  />
+                </div>
+                
+                <button
+                  type="button"
+                  onClick={handlePickDirectory}
+                  className="px-3.5 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-2xs shrink-0 flex items-center justify-center gap-1.5"
+                  title="调起系统文件夹浏览窗口选择目录"
+                >
+                  <FolderOpen className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
+                  <span>选择文件夹</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = settingsService.saveStoragePath({ customDirectory: customDirInput.trim() });
+                    setStoragePath(updated);
+                    setPathSavedNotice(true);
+                    setTimeout(() => setPathSavedNotice(false), 2500);
+                  }}
+                  className="px-4 py-2.5 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0 flex items-center justify-center gap-1.5"
+                  style={{ backgroundColor: currentTheme.primary }}
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>保存路径</span>
+                </button>
+              </div>
+
+              {pathSavedNotice && (
+                <div className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1 animate-fade-in pt-0.5">
+                  <Check className="w-3.5 h-3.5" />
+                  <span>存储路径已成功保存: {storagePath.customDirectory}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Backup, Restore & Sync Controls */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={handleExportBackup}
+                className="flex items-center justify-center gap-2 p-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 text-slate-700 dark:text-slate-200 rounded-2xl text-xs font-bold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer shadow-2xs"
+              >
+                <Download className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span>导出题库备份 (.json)</span>
+              </button>
+
+              <input 
+                ref={importInputRef}
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={handleImportBackup}
+              />
+
+              <button
+                type="button"
+                onClick={() => importInputRef.current?.click()}
+                className="flex items-center justify-center gap-2 p-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 text-slate-700 dark:text-slate-200 rounded-2xl text-xs font-bold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer shadow-2xs"
+              >
+                <FileJson className="w-4 h-4 text-amber-500" />
+                <span>导入恢复题库 (.json)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onOpenGitModal}
+                className="flex items-center justify-center gap-2 p-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 text-slate-700 dark:text-slate-200 rounded-2xl text-xs font-bold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer shadow-2xs"
+              >
+                <GitBranch className="w-4 h-4 text-emerald-500" />
+                <span>Git 云端同步设置</span>
+              </button>
+            </div>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-            <span className="text-slate-500">软件全称:</span>
-            <span className="font-bold text-slate-800 dark:text-slate-100">知微错题本 (ZhiWei Note)</span>
-          </div>
-
-          <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-            <span className="text-slate-500">当前版本号:</span>
-            <span className="font-mono font-bold text-blue-600 dark:text-blue-400">v{CURRENT_VERSION} (最新旗舰版)</span>
-          </div>
-
-          <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-            <span className="text-slate-500">作者与团队:</span>
-            <span className="font-bold text-slate-800 dark:text-slate-100">xuewexin · 知微工作室</span>
-          </div>
-
-          <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-            <span className="text-slate-500">开源协议:</span>
-            <span className="font-bold text-slate-800 dark:text-slate-100">MIT Open Source</span>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-          <a
-            href="https://github.com/xuewexin/zhiwei-notebook"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 font-semibold"
-          >
-            <span>GitHub 官方仓库地址 (xuewexin/zhiwei-notebook)</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-
-          <button
-            type="button"
-            onClick={onCheckUpdate}
-            className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer active:scale-95"
-          >
-            <ArrowUpCircle className="w-4 h-4" />
-            <span>检测最新版本 (比对官方 Release)</span>
-          </button>
-        </div>
+        )}
       </div>
 
-      {/* 6. Contact Author, Feedback & Share */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400">
+      {/* ============================================================== */}
+      {/* Collapsible Section 4: AI 智能助教接口 (Default Collapsed) */}
+      {/* ============================================================== */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('ai')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 shrink-0">
+              <Cpu className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span>AI 智能助教与复习规划接口</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                  aiConfig.enabled ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-500'
+                }`}>
+                  {aiConfig.enabled ? '已启用' : '未开启'}
+                </span>
+              </h3>
+              <p className="text-xs text-slate-400">支持直连 DeepSeek / OpenAI / Kimi API</p>
+            </div>
+          </div>
+          <ChevronDown 
+            className={`w-5 h-5 text-slate-400 transition-transform duration-200 shrink-0 ${
+              openSections.ai ? 'rotate-180' : ''
+            }`} 
+          />
+        </button>
+
+        {openSections.ai && (
+          <div className="px-5 pb-6 sm:px-6 sm:pb-6 border-t border-slate-100 dark:border-slate-800 pt-4 space-y-4 animate-fade-in">
+            <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                开启 AI 智能错题分析与计划助教
+              </span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={aiConfig.enabled}
+                  onChange={(e) => handleAiChange({ enabled: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+              </label>
+            </div>
+
+            {aiConfig.enabled && (
+              <div className="space-y-3.5 animate-fade-in">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      API 接口地址 (Base URL)
+                    </label>
+                    <input 
+                      type="text"
+                      value={aiConfig.baseUrl}
+                      onChange={(e) => handleAiChange({ baseUrl: e.target.value })}
+                      placeholder="例如: https://api.deepseek.com/v1"
+                      className="w-full text-xs px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-slate-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      模型名称 (Model)
+                    </label>
+                    <input 
+                      type="text"
+                      value={aiConfig.model}
+                      onChange={(e) => handleAiChange({ model: e.target.value })}
+                      placeholder="例如: deepseek-chat"
+                      className="w-full text-xs px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-slate-400"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    API Key 授权密钥 (本地纯客户端存储)
+                  </label>
+                  <div className="relative flex items-center">
+                    <input 
+                      type={showApiKey ? "text" : "password"}
+                      value={aiConfig.apiKey}
+                      onChange={(e) => handleAiChange({ apiKey: e.target.value })}
+                      placeholder="sk-..."
+                      className="w-full text-xs px-3 py-2 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-slate-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      className="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                    >
+                      {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleTestAi}
+                    disabled={isTestingAi}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
+                  >
+                    {isTestingAi ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-amber-500" />}
+                    <span>{isTestingAi ? '正在测试连通性...' : '测试 API 连通性'}</span>
+                  </button>
+                </div>
+
+                {aiTestResult && (
+                  <div className={`p-3 rounded-2xl text-xs flex items-center gap-2 animate-fade-in ${
+                    aiTestResult.success 
+                      ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' 
+                      : 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                  }`}>
+                    {aiTestResult.success ? <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> : <X className="w-4 h-4 text-rose-600 shrink-0" />}
+                    <span>{aiTestResult.message}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ============================================================== */}
+      {/* Collapsible Section 5: 关于知微错题本与更新 (Default Collapsed) */}
+      {/* ============================================================== */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('version')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shrink-0">
+              <Info className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span>关于知微错题本</span>
+                <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 font-semibold text-slate-600 dark:text-slate-300">
+                  v{CURRENT_VERSION}
+                </span>
+              </h3>
+              <p className="text-xs text-slate-400">官方版本信息与 Release 比对更新</p>
+            </div>
+          </div>
+          <ChevronDown 
+            className={`w-5 h-5 text-slate-400 transition-transform duration-200 shrink-0 ${
+              openSections.version ? 'rotate-180' : ''
+            }`} 
+          />
+        </button>
+
+        {openSections.version && (
+          <div className="px-5 pb-6 sm:px-6 sm:pb-6 border-t border-slate-100 dark:border-slate-800 pt-4 space-y-4 animate-fade-in">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-slate-600 dark:text-slate-400">应用软件名称:</span>
+                <span className="font-bold text-slate-800 dark:text-slate-100">知微错题本 (ZhiWei Note)</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-slate-600 dark:text-slate-400">当前已安装版本:</span>
+                <span className="font-mono font-bold text-slate-800 dark:text-slate-100">v{CURRENT_VERSION}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-slate-600 dark:text-slate-400">软件核心设计:</span>
+                <span className="text-slate-700 dark:text-slate-300">本地优先 · 护眼纯色 · 艾宾浩斯复盘</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+              <a
+                href="https://github.com/xuewexin/zhiwei-notebook"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-slate-600 dark:text-slate-400 hover:underline flex items-center gap-1 font-semibold"
+              >
+                <span>GitHub 官方仓库地址 (xuewexin/zhiwei-notebook)</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+
+              <button
+                type="button"
+                onClick={onCheckUpdate}
+                className="flex items-center justify-center gap-1.5 px-4 py-2.5 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+                style={{ backgroundColor: currentTheme.primary }}
+              >
+                <ArrowUpCircle className="w-4 h-4" />
+                <span>检测最新版本 (比对官方 Release)</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ============================================================== */}
+      {/* Collapsible Section 6: 联系作者与问题反馈 (Default Collapsed) */}
+      {/* ============================================================== */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('contact')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 shrink-0">
               <Mail className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">联系作者与问题反馈</h3>
-              <p className="text-xs text-slate-400">有任何使用疑问、Bug 报错或改进建议，欢迎随时反馈</p>
+              <p className="text-xs text-slate-400">官方邮箱: 2792893068@qq.com · 向学友分享</p>
             </div>
           </div>
+          <ChevronDown 
+            className={`w-5 h-5 text-slate-400 transition-transform duration-200 shrink-0 ${
+              openSections.contact ? 'rotate-180' : ''
+            }`} 
+          />
+        </button>
 
-          <button
-            type="button"
-            onClick={handleShareApp}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
-            title="向好友或同学分享本软件"
-          >
-            <Share2 className="w-3.5 h-3.5" />
-            <span>向学友分享</span>
-          </button>
-        </div>
-
-        {shareNotice && (
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 rounded-2xl text-xs flex items-center gap-2 animate-fade-in">
-            <Check className="w-4 h-4 text-emerald-600" />
-            <span>{shareNotice}</span>
-          </div>
-        )}
-
-        {copyEmailNotice && (
-          <div className="p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 rounded-2xl text-xs flex items-center gap-2 animate-fade-in">
-            <Check className="w-4 h-4 text-blue-600" />
-            <span>{copyEmailNotice}</span>
-          </div>
-        )}
-
-        <div className="p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-750 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
-                📮 作者唯一官方反馈邮箱
-              </span>
-              <span className="text-xs font-mono font-bold text-[#416788] dark:text-[#719dbf] select-all">
-                2792893068@qq.com
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleCopyEmail}
-                className="flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-2xs"
-              >
-                <Copy className="w-3.5 h-3.5 text-[#416788] dark:text-[#719dbf]" />
-                <span>复制邮箱</span>
-              </button>
-
-              <a
-                href="mailto:2792893068@qq.com?subject=【知微错题本】使用反馈与建议"
-                className="flex items-center gap-1.5 px-4 py-2 bg-[#416788] hover:bg-[#34526d] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
-              >
-                <Mail className="w-3.5 h-3.5" />
-                <span>立即发送邮件</span>
-              </a>
-            </div>
-          </div>
-
-          <p className="text-[11px] text-slate-400 leading-relaxed pt-1 border-t border-slate-100 dark:border-slate-700/60">
-            提示：在使用过程中如遇到手写板压感异常、同步连接错误或移动端界面适配问题，可随时将截图或操作步骤发至上述邮箱，作者将竭诚排查并持续发布优化更新！
-          </p>
-        </div>
-      </div>
-
-      {/* Directory Selector Modal */}
-      {isDirPickerModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-slate-100 dark:bg-slate-800 text-[#416788] dark:text-[#719dbf] rounded-xl">
-                  <FolderOpen className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">选择数据与错题存储目录</h3>
-                  <p className="text-[11px] text-slate-400">本地优先架构：错题库与导出备份将保存在此位置</p>
-                </div>
+        {openSections.contact && (
+          <div className="px-5 pb-6 sm:px-6 sm:pb-6 border-t border-slate-100 dark:border-slate-800 pt-4 space-y-3.5 animate-fade-in">
+            {shareNotice && (
+              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 rounded-2xl text-xs flex items-center gap-2 animate-fade-in">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{shareNotice}</span>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsDirPickerModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+            )}
 
-            {/* Mobile Recommended Presets */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
-                <Smartphone className="w-3.5 h-3.5 text-blue-500" />
-                <span>📱 手机 / 平板端常用预设目录 (点击一键选用)</span>
+            {copyEmailNotice && (
+              <div className="p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 rounded-2xl text-xs flex items-center gap-2 animate-fade-in">
+                <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                <span>{copyEmailNotice}</span>
               </div>
-              <div className="grid grid-cols-1 gap-2">
-                {[
-                  {
-                    name: 'Download / 知微错题本',
-                    path: 'Download/知微错题本',
-                    desc: '系统“下载”目录，手机文件管理 App 最容易找到并分享'
-                  },
-                  {
-                    name: 'Documents / 知微错题本',
-                    path: 'Documents/知微错题本',
-                    desc: '系统“文档”目录，安全整洁，不易被手机相册误删'
-                  },
-                  {
-                    name: 'DCIM / 知微错题本',
-                    path: 'DCIM/知微错题本',
-                    desc: '媒体图片专用目录，方便拍照题目后直接归档'
-                  },
-                  {
-                    name: '内部绝对路径 /storage/emulated/0/Download/知微错题本',
-                    path: '/storage/emulated/0/Download/知微错题本',
-                    desc: 'Android 标准内部存储绝对路径'
-                  }
-                ].map((item, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleApplyDirectory(item.path)}
-                    className="flex flex-col items-start p-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-blue-50/70 dark:hover:bg-blue-950/40 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-600 rounded-2xl text-left transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-100 group-hover:text-[#416788] dark:group-hover:text-[#719dbf]">
-                        {item.name}
-                      </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-[#416788] group-hover:text-white font-bold transition-colors">
-                        选用
-                      </span>
-                    </div>
-                    <span className="text-[11px] text-slate-400 mt-1">
-                      {item.desc}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
+            )}
 
-            {/* PC Recommended Presets */}
-            <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
-                <Laptop className="w-3.5 h-3.5 text-[#6b5b7b]" />
-                <span>💻 电脑端推荐存储目录 (点击一键选用)</span>
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                {[
-                  {
-                    name: 'D:\\知微错题本数据',
-                    path: 'D:\\知微错题本数据',
-                    desc: 'D 盘独立大容量存储，系统升级或重装不丢失'
-                  },
-                  {
-                    name: 'E:\\知微错题本数据',
-                    path: 'E:\\知微错题本数据',
-                    desc: 'E 盘专用学习资料存储分区'
-                  },
-                  {
-                    name: 'C:\\Users\\Public\\知微错题本',
-                    path: 'C:\\Users\\Public\\知微错题本',
-                    desc: 'Windows 公共文档，所有账户均可读取'
-                  }
-                ].map((item, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleApplyDirectory(item.path)}
-                    className="flex flex-col items-start p-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-[#6b5b7b] dark:hover:border-[#a390b0] rounded-2xl text-left transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-100 group-hover:text-[#6b5b7b] dark:group-hover:text-[#a390b0]">
-                        {item.name}
-                      </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-[#6b5b7b] group-hover:text-white font-bold transition-colors">
-                        选用
-                      </span>
-                    </div>
-                    <span className="text-[11px] text-slate-400 mt-1">
-                      {item.desc}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Native Browser Pick & Manual Input */}
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                  ✏️ 自定义输入任意路径
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 mb-0.5">
+                  <Mail className="w-4 h-4 text-rose-500" />
+                  <span>作者唯一官方反馈邮箱</span>
                 </span>
-                <button
-                  type="button"
-                  onClick={handleNativeSystemPick}
-                  className="text-[11px] font-semibold text-[#416788] hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <FolderOpen className="w-3.5 h-3.5" />
-                  <span>调起系统原生文件夹选择器</span>
-                </button>
+                <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 select-all">
+                  2792893068@qq.com
+                </span>
               </div>
 
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={customDirInput}
-                  onChange={(e) => setCustomDirInput(e.target.value)}
-                  placeholder="输入自定义绝对路径或相对路径..."
-                  className="flex-1 text-xs px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-[#416788]"
-                />
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => handleApplyDirectory(customDirInput)}
-                  className="px-4 py-2.5 bg-[#416788] hover:bg-[#34526d] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+                  onClick={handleCopyEmail}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-2xs"
                 >
-                  应用保存
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>复制邮箱</span>
+                </button>
+
+                <a
+                  href="mailto:2792893068@qq.com?subject=【知微错题本】使用反馈与建议"
+                  className="flex items-center gap-1.5 px-4 py-2 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                  style={{ backgroundColor: currentTheme.primary }}
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>发邮件反馈</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={handleShareApp}
+                  className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95 ml-1"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span>分享软件</span>
                 </button>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

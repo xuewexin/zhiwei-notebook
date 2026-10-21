@@ -33,8 +33,9 @@ import { ImageViewerModal } from './components/ImageViewerModal';
 import { OneNoteSyncIndicator } from './components/OneNoteSyncIndicator';
 import { UpdateModal } from './components/UpdateModal';
 import { UserProfileView } from './components/UserProfileView';
+import { ReviewCheckinView } from './components/ReviewCheckinView';
 import { checkForUpdates, UpdateInfo, CURRENT_VERSION } from './services/updateService';
-import { settingsService, ThemeColorKey, BackgroundConfig, UserProfile } from './services/settingsService';
+import { settingsService, ThemeColorKey, BackgroundConfig, UserProfile, THEME_PALETTES } from './services/settingsService';
 
 export const App: React.FC = () => {
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -76,6 +77,7 @@ export const App: React.FC = () => {
   const [isReviewOnly, setIsReviewOnly] = useState(false);
   const [isProfileView, setIsProfileView] = useState(false);
   const [themeKey, setThemeKey] = useState<ThemeColorKey>(() => settingsService.getThemeColor());
+  const currentTheme = THEME_PALETTES[themeKey] || THEME_PALETTES.blue;
   const [bgConfig, setBgConfig] = useState<BackgroundConfig>(() => settingsService.getBackground());
   const [userProfile, setUserProfile] = useState<UserProfile>(() => settingsService.getProfile());
   const [isGitNotConfiguredNoticeOpen, setIsGitNotConfiguredNoticeOpen] = useState(false);
@@ -735,9 +737,10 @@ export const App: React.FC = () => {
                 }}
                 className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl transition-all cursor-pointer border ${
                   mobileTab === 'profile'
-                    ? 'bg-slate-100 dark:bg-slate-800 text-[#416788] dark:text-[#719dbf] font-bold border-slate-300 dark:border-slate-600 shadow-2xs'
+                    ? 'bg-slate-100 dark:bg-slate-800 font-bold border-slate-300 dark:border-slate-600 shadow-2xs'
                     : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700'
                 }`}
+                style={mobileTab === 'profile' ? { color: currentTheme.primary, borderColor: `${currentTheme.primary}50` } : {}}
                 title="个人主页与系统设置"
               >
                 <img
@@ -753,7 +756,8 @@ export const App: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsQuestionModalOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-[#416788] hover:bg-[#34526d] text-white rounded-xl shadow-xs transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white rounded-xl shadow-xs hover:opacity-95 transition-all cursor-pointer"
+                style={{ backgroundColor: currentTheme.primary }}
               >
                 <Plus className="w-4 h-4" />
                 <span>录入错题</span>
@@ -789,33 +793,25 @@ export const App: React.FC = () => {
               onUpdate={handleQuestionUpdated}
               onDelete={handleQuestionDeleted}
               onViewImage={(url) => setViewerImageUrl(url)}
+              currentTheme={currentTheme}
             />
           ) : (
             <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
-              {/* Ebbinghaus Review Banner (when Review Mode is active) */}
+              {/* Ebbinghaus Review & Checkin Streak Calendar (when Review Mode is active) */}
               {mobileTab === 'review' && (
-                <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-3.5 sm:p-4 rounded-2xl shadow-sm flex items-center justify-between">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 shadow-inner">
-                      <Brain className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="text-xs sm:text-sm font-bold flex items-center gap-2 truncate">
-                        今日艾宾浩斯复盘 ({displayQuestions.length} 题)
-                      </h3>
-                      <p className="text-[10px] sm:text-[11px] text-blue-100 mt-0.5 truncate">
-                        按遗忘临界点规律强化练习，做对提升掌握等级，彻底攻克！
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setMobileTab('questions')}
-                    className="px-2.5 py-1 text-xs font-semibold bg-white/20 hover:bg-white/30 rounded-xl transition-colors cursor-pointer shrink-0 ml-2"
-                  >
-                    全部错题
-                  </button>
-                </div>
+                <ReviewCheckinView
+                  currentTheme={currentTheme}
+                  reviewQuestions={dueTodayQuestions}
+                  onStartReview={() => {
+                    if (dueTodayQuestions.length > 0) {
+                      handleSelectQuestion(dueTodayQuestions[0]);
+                    }
+                  }}
+                  onViewAllQuestions={() => {
+                    setMobileTab('questions');
+                    setIsReviewOnly(false);
+                  }}
+                />
               )}
 
               {/* 1. GoodNotes Folder Grid Hierarchy (Shown when in 'folders' tab or on desktop) */}
@@ -840,6 +836,7 @@ export const App: React.FC = () => {
                   currentFolderId={currentFolderId}
                   onSelectQuestion={handleSelectQuestion}
                   onOpenCreateModal={() => setIsQuestionModalOpen(true)}
+                  currentTheme={currentTheme}
                 />
               )}
             </div>
@@ -860,9 +857,10 @@ export const App: React.FC = () => {
             }}
             className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors ${
               mobileTab === 'folders' && !selectedQuestion
-                ? 'text-[#416788] dark:text-[#719dbf] font-bold'
+                ? 'font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
             }`}
+            style={mobileTab === 'folders' && !selectedQuestion ? { color: currentTheme.primary } : {}}
           >
             <FolderIcon className="w-5 h-5 mb-0.5" />
             <span className="text-[10px]">全部科目</span>
@@ -880,9 +878,10 @@ export const App: React.FC = () => {
             }}
             className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors ${
               mobileTab === 'questions' && !selectedQuestion
-                ? 'text-[#416788] dark:text-[#719dbf] font-bold'
+                ? 'font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
             }`}
+            style={mobileTab === 'questions' && !selectedQuestion ? { color: currentTheme.primary } : {}}
           >
             <BookOpen className="w-5 h-5 mb-0.5" />
             <span className="text-[10px]">全部错题</span>
@@ -893,7 +892,8 @@ export const App: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsQuestionModalOpen(true)}
-              className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#344d67] to-[#416788] hover:from-[#2c4358] hover:to-[#34526d] text-white flex items-center justify-center shadow-md shadow-slate-600/20 transform active:scale-95 transition-all cursor-pointer ring-4 ring-white dark:ring-slate-900"
+              className="w-12 h-12 rounded-full text-white flex items-center justify-center shadow-md shadow-slate-600/20 hover:opacity-95 transform active:scale-95 transition-all cursor-pointer ring-4 ring-white dark:ring-slate-900"
+              style={{ backgroundColor: currentTheme.primary }}
               title="录入新错题"
             >
               <Plus className="w-5 h-5" strokeWidth={2.5} />
@@ -910,9 +910,10 @@ export const App: React.FC = () => {
             }}
             className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors relative ${
               mobileTab === 'review' && !selectedQuestion
-                ? 'text-[#416788] dark:text-[#719dbf] font-bold'
+                ? 'font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
             }`}
+            style={mobileTab === 'review' && !selectedQuestion ? { color: currentTheme.primary } : {}}
           >
             <div className="relative">
               <Brain className="w-5 h-5 mb-0.5" />
@@ -934,9 +935,10 @@ export const App: React.FC = () => {
             }}
             className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer transition-colors relative ${
               mobileTab === 'profile'
-                ? 'text-[#416788] dark:text-[#719dbf] font-bold'
+                ? 'font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
             }`}
+            style={mobileTab === 'profile' ? { color: currentTheme.primary } : {}}
           >
             <User className="w-5 h-5 mb-0.5" />
             <span className="text-[10px]">个人主页</span>

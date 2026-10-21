@@ -47,35 +47,38 @@
       }
     </style>
     <style>
-      /* Theme Responsive Startup Splash Screen */
+      /* Theme Responsive Startup Splash Screen (Pure Solid Aesthetic) */
       :root {
         --splash-bg: #f8fafc;
-        --splash-bg-gradient: radial-gradient(circle at 50% 32%, #ffffff 0%, #f7f9fa 50%, #edf1f5 100%);
-        --splash-card-bg: rgba(255, 255, 255, 0.88);
-        --splash-card-border: rgba(65, 103, 136, 0.16);
-        --splash-card-shadow: 0 16px 36px -8px rgba(65, 103, 136, 0.08), 0 2px 8px rgba(0, 0, 0, 0.02);
-        --splash-text-main: #24303e;
+        --splash-card-bg: #ffffff;
+        --splash-card-border: #e2e8f0;
+        --splash-card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.02);
+        --splash-text-main: #0f172a;
         --splash-text-sub: #64748b;
-        --splash-text-quote: #334155;
-        --splash-primary: #416788;
-        --splash-primary-rgb: 65, 103, 136;
-        --splash-tag-bg: rgba(65, 103, 136, 0.09);
-        --splash-tag-border: rgba(65, 103, 136, 0.22);
-        --splash-tag-text: #416788;
-        --splash-loader-track: rgba(65, 103, 136, 0.12);
-        --splash-footer-text: #8e9cae;
+        --splash-text-quote: #1e293b;
+        --splash-primary: #1e56a0;
+        --splash-primary-rgb: 30, 86, 160;
+        --splash-tag-bg: #eff6ff;
+        --splash-tag-border: #bfdbfe;
+        --splash-tag-text: #1e56a0;
+        --splash-loader-track: #e2e8f0;
+        --splash-footer-text: #64748b;
       }
 
       body.dark-splash, html.dark body.dark-splash {
-        --splash-bg: #141a22;
-        --splash-bg-gradient: radial-gradient(circle at 50% 32%, #1a222c 0%, #121820 60%, #0d1217 100%);
-        --splash-card-bg: rgba(26, 34, 44, 0.85);
-        --splash-card-border: rgba(255, 255, 255, 0.08);
-        --splash-card-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        --splash-text-main: #f1f5f9;
+        --splash-bg: #0f172a;
+        --splash-card-bg: #1e293b;
+        --splash-card-border: #334155;
+        --splash-card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        --splash-text-main: #f8fafc;
         --splash-text-sub: #94a3b8;
-        --splash-text-quote: #cbd5e1;
-        --splash-loader-track: rgba(255, 255, 255, 0.08);
+        --splash-text-quote: #e2e8f0;
+        --splash-primary: #3b82f6;
+        --splash-primary-rgb: 59, 130, 246;
+        --splash-tag-bg: rgba(59, 130, 246, 0.15);
+        --splash-tag-border: rgba(59, 130, 246, 0.3);
+        --splash-tag-text: #93c5fd;
+        --splash-loader-track: #334155;
         --splash-footer-text: #64748b;
       }
 
@@ -87,7 +90,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: var(--splash-bg-gradient);
+        background-color: var(--splash-bg);
         color: var(--splash-text-main);
         font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         padding: 24px;
@@ -275,12 +278,12 @@
                        (!('theme' in localStorage) && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
           
           var palettes = {
-            blue: { primary: '#416788', rgb: '65, 103, 136' },
-            violet: { primary: '#6b5b7b', rgb: '107, 91, 123' },
-            emerald: { primary: '#4d725a', rgb: '77, 114, 90' },
-            amber: { primary: '#966844', rgb: '150, 104, 68' },
-            rose: { primary: '#9b626e', rgb: '155, 98, 110' },
-            slate: { primary: '#4a5568', rgb: '74, 85, 104' }
+            blue: { primary: '#1e56a0', rgb: '30, 86, 160' },
+            violet: { primary: '#6d28d9', rgb: '109, 40, 217' },
+            emerald: { primary: '#047857', rgb: '4, 120, 87' },
+            amber: { primary: '#b45309', rgb: '180, 83, 9' },
+            rose: { primary: '#be123c', rgb: '190, 18, 60' },
+            slate: { primary: '#334155', rgb: '51, 65, 85' }
           };
 
           var p = palettes[themeKey] || palettes.blue;

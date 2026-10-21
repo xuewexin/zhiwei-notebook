@@ -15,6 +15,7 @@ import {
   Flame
 } from 'lucide-react';
 import { Question, Folder, MasteryStatus } from '../types';
+import { ThemeConfig, THEME_PALETTES } from '../services/settingsService';
 
 interface QuestionListProps {
   questions: Question[];
@@ -22,6 +23,7 @@ interface QuestionListProps {
   currentFolderId: string | null;
   onSelectQuestion: (question: Question) => void;
   onOpenCreateModal: () => void;
+  currentTheme?: ThemeConfig;
 }
 
 export const QuestionList: React.FC<QuestionListProps> = ({
@@ -29,7 +31,8 @@ export const QuestionList: React.FC<QuestionListProps> = ({
   folders,
   currentFolderId,
   onSelectQuestion,
-  onOpenCreateModal
+  onOpenCreateModal,
+  currentTheme = THEME_PALETTES.blue
 }) => {
   const getFolderName = (fId: string) => {
     return folders.find(f => f.id === fId)?.name || '未分类';
@@ -60,7 +63,10 @@ export const QuestionList: React.FC<QuestionListProps> = ({
   if (questions.length === 0) {
     return (
       <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-10 text-center border border-slate-200/90 dark:border-slate-800 shadow-sm">
-        <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-3 shadow-inner">
+        <div 
+          className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner"
+          style={{ backgroundColor: `${currentTheme.primary}18`, color: currentTheme.primary }}
+        >
           <BookOpen className="w-6 h-6" />
         </div>
         <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">
@@ -72,7 +78,8 @@ export const QuestionList: React.FC<QuestionListProps> = ({
         <button
           type="button"
           onClick={onOpenCreateModal}
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-2 text-white text-xs font-bold rounded-xl shadow-sm hover:opacity-95 transition-all cursor-pointer"
+          style={{ backgroundColor: currentTheme.primary }}
         >
           <Plus className="w-4 h-4" />
           立即录入新错题
@@ -86,10 +93,16 @@ export const QuestionList: React.FC<QuestionListProps> = ({
       {/* 模块顶部标题栏与界限分割 */}
       <div className="flex items-center justify-between pb-3 mb-3.5 border-b border-slate-100 dark:border-slate-800/80">
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-4.5 rounded-full bg-indigo-600 shrink-0"></span>
+          <span 
+            className="w-1.5 h-4.5 rounded-full shrink-0"
+            style={{ backgroundColor: currentTheme.primary }}
+          />
           <h2 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
             错题精选库
-            <span className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-1.5 py-0.5 rounded-md">
+            <span 
+              className="text-[10px] font-semibold px-2 py-0.5 rounded-md"
+              style={{ color: currentTheme.primary, backgroundColor: `${currentTheme.primary}15` }}
+            >
               共 {questions.length} 题
             </span>
           </h2>
@@ -98,7 +111,12 @@ export const QuestionList: React.FC<QuestionListProps> = ({
         <button
           type="button"
           onClick={onOpenCreateModal}
-          className="flex items-center gap-1 px-2.5 sm:px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 border border-indigo-200/70 dark:border-indigo-900/70 rounded-lg transition-colors cursor-pointer"
+          className="flex items-center gap-1 px-2.5 sm:px-3 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer border"
+          style={{ 
+            color: currentTheme.primary, 
+            backgroundColor: `${currentTheme.primary}10`,
+            borderColor: `${currentTheme.primary}25`
+          }}
         >
           <Plus className="w-3.5 h-3.5" />
           <span>录题</span>
@@ -116,7 +134,8 @@ export const QuestionList: React.FC<QuestionListProps> = ({
             <div
               key={q.id}
               onClick={() => onSelectQuestion(q)}
-              className="group cursor-pointer bg-slate-50/80 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 rounded-2xl p-3.5 sm:p-4 border border-slate-200/80 dark:border-slate-700/60 hover:border-indigo-400 dark:hover:border-indigo-500 shadow-2xs hover:shadow-notebook transition-all duration-200 flex flex-col justify-between active:scale-[0.99]"
+              className="group cursor-pointer bg-slate-50/80 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 rounded-2xl p-3.5 sm:p-4 border border-slate-200/80 dark:border-slate-700/60 shadow-2xs hover:shadow-notebook transition-all duration-200 flex flex-col justify-between active:scale-[0.99]"
+              style={{ '--hover-color': currentTheme.primary } as any}
             >
               <div>
                 {/* Top badges: Folder pill, Mastery status, Difficulty */}

@@ -22,23 +22,47 @@
 
 ---
 
-## 📥 最新版本极速下载 (v1.6.3)
+## 📥 最新版本极速下载 (v1.6.4)
 
 本项目提供全平台打包好的纯净安装包，无任何强制联网、无广告，下载即用：
 
 | 平台 | 安装包名称 | 文件大小 | 适用设备与特性 | 直接下载链接 |
 | :--- | :--- | :--- | :--- | :--- |
-| 💻 **Windows 原生版** | `zhiwei-notebook-v1.6.3-windows.exe` | ~1.9 MB | **Windows 独立原生桌面软件**（双击即开、原生文件夹选择、调起外部浏览器极速更新） | [点击下载 EXE](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.3/zhiwei-notebook-v1.6.3-windows.exe) |
-| 💻 **Windows 便携版** | `zhiwei-notebook-v1.6.3-windows-portable.zip` | ~1.3 MB | Windows 绿色免安装压缩包 | [点击下载 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.3/zhiwei-notebook-v1.6.3-windows-portable.zip) |
-| 🤖 **Android 原生版** | `zhiwei-notebook-v1.6.3-android.apk` | ~4.0 MB | 安卓手机 / 安卓平板（莫兰迪护眼配色、调起 SAF 文件夹选择、原生调起系统浏览器更新） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.3/zhiwei-notebook-v1.6.3-android.apk) |
-| 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.6.3-ipad.ipa` | ~3.4 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.3/zhiwei-notebook-v1.6.3-ipad.ipa) |
-| 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.6.3-ios-xcode-project.zip` | ~1.8 MB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.3/zhiwei-notebook-v1.6.3-ios-xcode-project.zip) |
+| 💻 **Windows 原生版** | `zhiwei-notebook-v1.6.4-windows.exe` | ~1.9 MB | **Windows 独立原生桌面软件**（双击即开、原生文件夹选择、调起外部浏览器极速更新） | [点击下载 EXE](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.4/zhiwei-notebook-v1.6.4-windows.exe) |
+| 💻 **Windows 便携版** | `zhiwei-notebook-v1.6.4-windows-portable.zip` | ~1.3 MB | Windows 绿色免安装压缩包 | [点击下载 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.4/zhiwei-notebook-v1.6.4-windows-portable.zip) |
+| 🤖 **Android 原生版** | `zhiwei-notebook-v1.6.4-android.apk` | ~4.0 MB | 安卓手机 / 安卓平板（典雅纯色、打卡日历、调起 SAF 文件夹选择、原生调起系统浏览器更新） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.4/zhiwei-notebook-v1.6.4-android.apk) |
+| 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.6.4-ipad.ipa` | ~3.4 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.4/zhiwei-notebook-v1.6.4-ipad.ipa) |
+| 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.6.4-ios-xcode-project.zip` | ~1.8 MB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.4/zhiwei-notebook-v1.6.4-ios-xcode-project.zip) |
 | 🌐 **iPad / PC 极速版** | `启动iPad局域网极速连接.bat` | 脚本文件 | **免安装、免证书、永不过期**。iPad Safari 添加到主屏幕秒变全屏桌面 App | [查看使用步骤](#-方案二ipad-专属-pwa-桌面原生体验免签名) |
 | 💻 **本地运行脚本** | `启动错题本.bat` | 脚本文件 | 双击脚本即开，搭配本地 Node.js 极速做题 | [查看运行方法](#-windows-桌面端使用指南) |
 
 ---
 
-## ✨ v1.6.3 重大升级亮点
+## ✨ v1.6.4 重大升级亮点
+
+1. 📅 **今日复盘打卡日历表与连续学习天数（艾宾浩斯复盘引擎）**：
+   - 全新打卡日历系统：记录并直观展示当前连续打卡天数（Streak）、最长连续天数以及累计复盘总天数；
+   - 交互式月度打卡日历：清晰标明过往打卡足迹与今日状态，点击一键完成今日学习复盘打卡；
+   - 今日艾宾浩斯待攻克错题与复盘进度深度整合，学思并重、温故知新；
+2. 🎨 **经典纯色典雅设计，彻底剔除渐变色与杂色**：
+   - 响应“配色朴素一点不要太亮、渐变色不好看去掉”的诉求，重塑 6 款沉静典雅的书卷纯色（知微蓝、紫罗兰、翡翠绿、琥珀橙、蔷薇红、水墨灰）；
+   - 彻底删除全站所有线性/径向渐变，全部采用纯色（Solid Flat）现代设计；
+   - 解决“只改变个人主页上面一小块区域”的弊病：主题配色全量联动顶部导航、底部底栏、悬浮按钮、全部错题列表、复盘卡片与错题详情，实现 100% 全局自适应；
+3. 🌐 **更新方案彻底优化（调起系统浏览器直接跳转官方发布页）**：
+   - 解决部分手机厂商系统直接下载 APK 后拦截并不提示安装的死结；
+   - 点击更新按钮直接唤起系统外部浏览器打开 GitHub Releases 官方版本发行页面，由用户在最稳定安全的官方页面直接选择对应安装包下载安装；
+4. 📂 **个人主页设置卡片默认收起折叠**：
+   - 个人主页下的 6 大模块（主题配色、背景壁纸、文件存储、AI助教、关于与更新、联系反馈）默认全部收起折叠，点击标题即可丝滑展开，界面清爽干净；
+5. 📁 **文件存储设置极简重构**：
+   - 剔除冗余预设，仅保留核心“文件夹位置设置（输入框+原生浏览选择+保存）”以及“数据备份恢复与 Git 同步”；
+6. 🏷️ **全站清除 Emoji 标签，全面统一为规范矢量图标**：
+   - 剔除 📱、💻、📮、✏️ 等杂乱 emoji，全量换成精致规范的 Lucide 矢量 SVG 标志；
+7. 🌅 **软件开屏等待页全新重构**：
+   - 彻底重构进入软件的等待过渡页面，去除老旧黑白与渐变，纯平极简设计，实时毫秒级同步当前主题配色。
+
+---
+
+## ✨ v1.6.3 升级回顾
 
 1. 🌐 **更新全面改为调用外部系统浏览器（稳定高效 · 零拦截）**：
    - 彻底摒弃容易受 WebView 沙盒限制的应用内模拟下载流程；
