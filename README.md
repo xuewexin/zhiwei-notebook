@@ -10,7 +10,7 @@
   融合 **GoodNotes 拟物层级分类**、**Apple Pencil 压感手写草稿演练**、**多次做题历程分区**、**LaTeX 公式 / 代码块多模态笔记** 及 **Git 无服务器多端云同步**。
 
   <p>
-    <a href="https://github.com/xuewexin/zhiwei-notebook/releases/latest"><img src="https://img.shields.io/badge/Release-v1.5.0-blue.svg?style=flat-square" alt="Version"></a>
+    <a href="https://github.com/xuewexin/zhiwei-notebook/releases/latest"><img src="https://img.shields.io/badge/Release-v1.6.0-blue.svg?style=flat-square" alt="Version"></a>
     <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iPadOS%20%7C%20Windows%20%7C%20PWA-indigo.svg?style=flat-square" alt="Platform">
     <img src="https://img.shields.io/badge/Frontend-React%2019%20%2B%20Vite%20%2B%20TailwindCSS-teal.svg?style=flat-square" alt="Stack">
     <img src="https://img.shields.io/badge/Runtime-Capacitor%208-orange.svg?style=flat-square" alt="Capacitor">
@@ -22,23 +22,40 @@
 
 ---
 
-## 📥 最新版本极速下载 (v1.5.0)
+## 📥 最新版本极速下载 (v1.6.0)
 
 本项目提供全平台打包好的纯净安装包，无任何强制联网、无广告，下载即用：
 
 | 平台 | 安装包名称 | 文件大小 | 适用设备与特性 | 直接下载链接 |
 | :--- | :--- | :--- | :--- | :--- |
-| 💻 **Windows 原生版** | `zhiwei-notebook-v1.5-windows.exe` | ~2.0 MB | **Windows 独立原生桌面软件**（双击即开、零白屏启动、自动版本比对与平滑更新） | [点击下载 EXE](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-windows.exe) |
-| 💻 **Windows 便携版** | `zhiwei-notebook-v1.5-windows-portable.zip` | ~2.0 MB | Windows 绿色免安装压缩包 | [点击下载 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-windows-portable.zip) |
-| 🤖 **Android 原生版** | `zhiwei-notebook-v1.5-android.apk` | ~4.0 MB | 安卓手机 / 安卓平板（全新矢量图标、励志启动封面、相册录题、防误触） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-android.apk) |
-| 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.5-ipad.ipa` | ~4.2 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-ipad.ipa) |
-| 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.5-ios-xcode-project.zip` | ~1.8 MB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-ios-xcode-project.zip) |
+| 💻 **Windows 原生版** | `zhiwei-notebook-v1.6-windows.exe` | ~1.9 MB | **Windows 独立原生桌面软件**（双击即开、零白屏启动、自动版本比对与平滑更新） | [点击下载 EXE](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.0/zhiwei-notebook-v1.6-windows.exe) |
+| 💻 **Windows 便携版** | `zhiwei-notebook-v1.6-windows-portable.zip` | ~1.9 MB | Windows 绿色免安装压缩包 | [点击下载 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.0/zhiwei-notebook-v1.6-windows-portable.zip) |
+| 🤖 **Android 原生版** | `zhiwei-notebook-v1.6-android.apk` | ~4.0 MB | 安卓手机 / 安卓平板（全新2D极简简笔画图标、励志启动封面、相册录题、防误触） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.0/zhiwei-notebook-v1.6-android.apk) |
+| 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.6-ipad.ipa` | ~4.1 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.0/zhiwei-notebook-v1.6-ipad.ipa) |
+| 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.6-ios-xcode-project.zip` | ~1.8 MB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.0/zhiwei-notebook-v1.6-ios-xcode-project.zip) |
 | 🌐 **iPad / PC 极速版** | `启动iPad局域网极速连接.bat` | 脚本文件 | **免安装、免证书、永不过期**。iPad Safari 添加到主屏幕秒变全屏桌面 App | [查看使用步骤](#-方案二ipad-专属-pwa-桌面原生体验免签名) |
 | 💻 **本地运行脚本** | `启动错题本.bat` | 脚本文件 | 双击脚本即开，搭配本地 Node.js 极速做题 | [查看运行方法](#-windows-桌面端使用指南) |
 
 ---
 
-## ✨ v1.5.0 重大更新亮点
+## ✨ v1.6.0 重大更新亮点
+
+1. ✏️ **全新极简 2D 简笔画风格图标体系**：
+   - 彻底淘汰厚重的 3D 渲染，全新设计纯粹自然的 2D 矢量线条简笔画图标（翻页笔记、极简铅笔、对勾与灵感星芒），桌面与手机展示更清新清爽。
+2. 🎨 **软件全界面配色全局联动切换**：
+   - 突破性实现主题颜色全局贯通，切换经典知微蓝、极客深邃紫、翡翠生机绿、暖阳落日橙、优雅蔷薇粉或沉稳曜石灰时，整个软件的按钮、高亮、边框、光标和标签全部即时变色。
+3. 👤 **顶栏右上角个人名片与极简设计**：
+   - 顶栏右上角全面升级为用户头像与昵称胶囊，点击即可一键呼出个人主页与设置；手机端 Markdown 录题移除了多余的桌面快捷键提示，录题弹窗去除了冗余加号图标。
+4. 📝 **错题内容全新升级 Markdown 文档格式**：
+   - 错题录题与标准答案全面引入富文本 Markdown 编辑器，支持实时 LaTeX 数学公式渲染、代码高亮与分屏对照。
+5. 🛡️ **手机端写题心得折叠防崩溃彻底加固**：
+   - 全面修复了写题心得在手机端折叠时触发的渲染异常，收起与展开顺滑流畅。
+6. 📁 **文件位置自定义与系统快捷选择目录**：
+   - 手机端与电脑端均支持自定义数据与备份存放目录，并提供「快捷选择目录」标志与系统级文件夹调用。
+7. ☁️ **Git 云端同步未配置友好提示**：
+   - 当尚未配置 Gitee/GitHub 仓库时，点击同步会自动弹出清晰友好的指引弹窗，避免出现错误提示。
+8. 📮 **联系作者与一键学友分享**：
+   - 个人主页新增作者官方联系邮箱 `2792893068@qq.com` 与一键分享知微错题本功能。
 
 1. 📱 **移动端顶栏去臃肿与排版重构**：
    - **顶栏极简化设计**：彻底移除手机版左上角冗余膨胀的应用大图标与多行副标题，仅保留精致汉堡菜单按钮、当前学科名称及做题计数胶囊，视觉高度纯粹开阔；
