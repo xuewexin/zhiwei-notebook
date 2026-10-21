@@ -36,6 +36,7 @@ import { MarkdownEditor } from './MarkdownEditor';
 import { SeparatedWorkspace } from './SeparatedWorkspace';
 import { VersionHistoryModal } from './VersionHistoryModal';
 import { api } from '../api/client';
+import { reviewService, ReviewTier } from '../services/reviewService';
 import { marked } from 'marked';
 import katex from 'katex';
 
@@ -458,6 +459,29 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
     ? Math.max(0, Math.ceil((new Date(question.nextReviewDate).getTime() - Date.now()) / (24 * 60 * 60 * 1000)))
     : 0;
 
+  const [reviewFeedback, setReviewFeedback] = useState<string | null>(null);
+  const [isApplyingReview, setIsApplyingReview] = useState(false);
+
+  const perfectPlan = reviewService.calculatePlan(currentStage, 'perfect');
+  const goodPlan = reviewService.calculatePlan(currentStage, 'good');
+  const unfamiliarPlan = reviewService.calculatePlan(currentStage, 'unfamiliar');
+
+  const handleCompleteReviewTier = async (tier: ReviewTier) => {
+    setIsApplyingReview(true);
+    try {
+      const { updatedQuestion, plan } = await reviewService.completeReview(question, tier);
+      onUpdate(updatedQuestion);
+      setReviewFeedback(plan.summary);
+      setTimeout(() => {
+        setReviewFeedback(null);
+      }, 4500);
+    } catch (err) {
+      console.error('Failed to complete review tier:', err);
+    } finally {
+      setIsApplyingReview(false);
+    }
+  };
+
   // Helper to render KaTeX formulas in Markdown question text
   const renderFormattedText = (raw: string) => {
     if (!raw) return '';
@@ -633,6 +657,83 @@ export const QuestionDetail: React.FC<QuestionDetailProps> = ({
               </div>
             );
           })}
+        </div>
+
+        {/* 3-Tier Review Completion Controls */}
+        <div className="mt-3.5 pt-3 border-t border-slate-200/80 dark:border-slate-700/60">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                  完成本次复习
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-400 mt-0.5">
+                选择掌握程度，系统将依据记忆遗忘曲线自动安排下次复盘时间
+              </p>
+            </div>
+
+            {/* 3 Tier Action Buttons */}
+            <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+              <button
+                type="button"
+                disabled={isApplyingReview}
+                onClick={() => handleCompleteReviewTier('perfect')}
+                className="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs hover:shadow active:scale-95 transition-all flex flex-col items-center justify-center cursor-pointer disabled:opacity-50"
+                title={`完全掌握：${perfectPlan.summary}`}
+              >
+                <div className="flex items-center gap-1">
+                  <span>完全掌握</span>
+                </div>
+                <span className="text-[9px] opacity-90 font-mono">
+                  {perfectPlan.nextDays}天后复盘
+                </span>
+              </button>
+
+              <button
+                type="button"
+                disabled={isApplyingReview}
+                onClick={() => handleCompleteReviewTier('good')}
+                className="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-2xs hover:shadow active:scale-95 transition-all flex flex-col items-center justify-center cursor-pointer disabled:opacity-50"
+                title={`基本掌握：${goodPlan.summary}`}
+              >
+                <div className="flex items-center gap-1">
+                  <span>基本掌握</span>
+                </div>
+                <span className="text-[9px] opacity-90 font-mono">
+                  {goodPlan.nextDays}天后巩固
+                </span>
+              </button>
+
+              <button
+                type="button"
+                disabled={isApplyingReview}
+                onClick={() => handleCompleteReviewTier('unfamiliar')}
+                className="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-2xs hover:shadow active:scale-95 transition-all flex flex-col items-center justify-center cursor-pointer disabled:opacity-50"
+                title={`不熟悉：${unfamiliarPlan.summary}`}
+              >
+                <div className="flex items-center gap-1">
+                  <span>不熟悉</span>
+                </div>
+                <span className="text-[9px] opacity-90 font-mono">
+                  明天重点复查
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {reviewFeedback && (
+            <div className="mt-2.5 px-3 py-2 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-200 flex items-center justify-between animate-fade-in">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>{reviewFeedback}</span>
+              </span>
+              <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                已自动记录并打卡 ✓
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

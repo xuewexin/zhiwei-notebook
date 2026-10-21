@@ -149,7 +149,7 @@ public class MainForm : Form
             string bundleDir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "ZhiWeiNote",
-                "Bundle_v166"
+                "Bundle_v167"
             );
 
             string distPath = "";

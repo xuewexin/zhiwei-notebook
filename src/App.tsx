@@ -879,6 +879,8 @@ export const App: React.FC = () => {
                     setMobileTab('questions');
                     setIsReviewOnly(false);
                   }}
+                  onQuestionUpdated={handleQuestionUpdated}
+                  onSelectQuestion={handleSelectQuestion}
                 />
               )}
 
@@ -904,6 +906,7 @@ export const App: React.FC = () => {
                   currentFolderId={currentFolderId}
                   onSelectQuestion={handleSelectQuestion}
                   onOpenCreateModal={() => setIsQuestionModalOpen(true)}
+                  onQuestionUpdated={handleQuestionUpdated}
                   currentTheme={currentTheme}
                 />
               )}

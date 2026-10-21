@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Question, Folder, MasteryStatus } from '../types';
 import { ThemeConfig, THEME_PALETTES } from '../services/settingsService';
+import { reviewService } from '../services/reviewService';
 
 interface QuestionListProps {
   questions: Question[];
@@ -23,6 +24,7 @@ interface QuestionListProps {
   currentFolderId: string | null;
   onSelectQuestion: (question: Question) => void;
   onOpenCreateModal: () => void;
+  onQuestionUpdated?: (updated: Question) => void;
   currentTheme?: ThemeConfig;
 }
 
@@ -32,6 +34,7 @@ export const QuestionList: React.FC<QuestionListProps> = ({
   currentFolderId,
   onSelectQuestion,
   onOpenCreateModal,
+  onQuestionUpdated,
   currentTheme = THEME_PALETTES.blue
 }) => {
   const getFolderName = (fId: string) => {
@@ -205,6 +208,57 @@ export const QuestionList: React.FC<QuestionListProps> = ({
                   </p>
                 )}
               </div>
+
+                {/* Quick 3-Tier Review Action Bar on Card when due for review */}
+                {(!q.nextReviewDate || new Date(q.nextReviewDate).getTime() <= Date.now() + 24 * 60 * 60 * 1000) && (
+                  <div 
+                    onClick={(e) => e.stopPropagation()} 
+                    className="mb-2.5 p-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200/60 dark:border-slate-700/60"
+                  >
+                    <div className="flex items-center justify-between mb-1.5 text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
+                      <span>今日复习完成打卡:</span>
+                      <span className="text-[9px] text-slate-400 font-normal">点击依曲线自动排期</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      <button
+                        type="button"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const { updatedQuestion } = await reviewService.completeReview(q, 'perfect');
+                          onQuestionUpdated?.(updatedQuestion);
+                        }}
+                        className="py-1 px-1 rounded-lg text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white text-center cursor-pointer active:scale-95 transition-all shadow-2xs"
+                        title="完全掌握：进入下一周期，延长复盘时间"
+                      >
+                        完全掌握
+                      </button>
+                      <button
+                        type="button"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const { updatedQuestion } = await reviewService.completeReview(q, 'good');
+                          onQuestionUpdated?.(updatedQuestion);
+                        }}
+                        className="py-1 px-1 rounded-lg text-[10px] font-bold bg-blue-600 hover:bg-blue-700 text-white text-center cursor-pointer active:scale-95 transition-all shadow-2xs"
+                        title="基本掌握：维持当前阶段继续巩固"
+                      >
+                        基本掌握
+                      </button>
+                      <button
+                        type="button"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const { updatedQuestion } = await reviewService.completeReview(q, 'unfamiliar');
+                          onQuestionUpdated?.(updatedQuestion);
+                        }}
+                        className="py-1 px-1 rounded-lg text-[10px] font-bold bg-rose-600 hover:bg-rose-700 text-white text-center cursor-pointer active:scale-95 transition-all shadow-2xs"
+                        title="不熟悉：重置回第一阶段，明天重点复查"
+                      >
+                        不熟悉
+                      </button>
+                    </div>
+                  </div>
+                )}
 
               {/* Bottom footer: Attempts status & Tags */}
               <div className="pt-2.5 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-[11px] sm:text-xs text-slate-500">

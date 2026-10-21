@@ -9,28 +9,92 @@ import {
   Brain, 
   Sparkles,
   BookOpen,
-  ArrowRight
+  ArrowRight,
+  Eye,
+  EyeOff,
+  RotateCcw,
+  Check,
+  ExternalLink,
+  ImageIcon
 } from 'lucide-react';
 import { checkinService, CheckinData } from '../services/checkinService';
+import { reviewService, ReviewTier, REVIEW_TIERS } from '../services/reviewService';
 import { ThemeConfig } from '../services/settingsService';
 import { Question } from '../types';
+import { marked } from 'marked';
+import katex from 'katex';
 
 interface ReviewCheckinViewProps {
   currentTheme: ThemeConfig;
   reviewQuestions: Question[];
   onStartReview: () => void;
   onViewAllQuestions: () => void;
+  onQuestionUpdated?: (updated: Question) => void;
+  onSelectQuestion?: (question: Question) => void;
 }
 
 export const ReviewCheckinView: React.FC<ReviewCheckinViewProps> = ({
   currentTheme,
   reviewQuestions,
   onStartReview,
-  onViewAllQuestions
+  onViewAllQuestions,
+  onQuestionUpdated,
+  onSelectQuestion
 }) => {
   const [checkinData, setCheckinData] = useState<CheckinData>(() => checkinService.getCheckinData());
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [justCheckedInAnim, setJustCheckedInAnim] = useState(false);
+  const [deckIndex, setDeckIndex] = useState(0);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [reviewFeedback, setReviewFeedback] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const safeIndex = reviewQuestions.length > 0 
+    ? Math.min(deckIndex, reviewQuestions.length - 1) 
+    : 0;
+  const currentQ = reviewQuestions[safeIndex] || null;
+  const currentStage = currentQ?.reviewStage !== undefined ? currentQ.reviewStage : 0;
+  const perfectPlan = currentQ ? reviewService.calculatePlan(currentStage, 'perfect') : null;
+  const goodPlan = currentQ ? reviewService.calculatePlan(currentStage, 'good') : null;
+  const unfamiliarPlan = currentQ ? reviewService.calculatePlan(currentStage, 'unfamiliar') : null;
+
+  const handleTierReview = async (tier: ReviewTier) => {
+    if (!currentQ || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const { updatedQuestion, plan } = await reviewService.completeReview(currentQ, tier);
+      onQuestionUpdated?.(updatedQuestion);
+      setCheckinData(checkinService.getCheckinData());
+      setReviewFeedback(plan.summary);
+      setShowAnswer(false);
+      setTimeout(() => {
+        setReviewFeedback(null);
+      }, 4000);
+    } catch (err) {
+      console.error('Failed to submit review:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const renderFormattedText = (raw: string) => {
+    if (!raw) return '';
+    let processed = raw.replace(/\$\$([\s\S]*?)\$\$/g, (m, f) => {
+      try {
+        return `<div class="my-2 py-1 flex justify-center">${katex.renderToString(f.trim(), { displayMode: true, throwOnError: false })}</div>`;
+      } catch (e) {
+        return m;
+      }
+    });
+    processed = processed.replace(/\$([^\$\n]+?)\$/g, (m, f) => {
+      try {
+        return katex.renderToString(f.trim(), { displayMode: false, throwOnError: false });
+      } catch (e) {
+        return m;
+      }
+    });
+    return marked.parse(processed, { breaks: true }) as string;
+  };
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -108,6 +172,217 @@ export const ReviewCheckinView: React.FC<ReviewCheckinViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* 1.5. Interactive Today Review Deck & 3-Tier Completion Controls */}
+      {reviewQuestions.length > 0 && currentQ ? (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-4">
+          {/* Deck Header: Step & Navigation */}
+          <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2">
+              <span 
+                className="w-2.5 h-2.5 rounded-full"
+                style={{ backgroundColor: currentTheme.primary }}
+              />
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                <span>今日待复盘刷题</span>
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                  第 {safeIndex + 1} / {reviewQuestions.length} 题
+                </span>
+              </h3>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  disabled={safeIndex <= 0}
+                  onClick={() => {
+                    setDeckIndex(prev => Math.max(0, prev - 1));
+                    setShowAnswer(false);
+                  }}
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  title="上一题"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  disabled={safeIndex >= reviewQuestions.length - 1}
+                  onClick={() => {
+                    setDeckIndex(prev => Math.min(reviewQuestions.length - 1, prev + 1));
+                    setShowAnswer(false);
+                  }}
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  title="下一题"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              {onSelectQuestion && (
+                <button
+                  type="button"
+                  onClick={() => onSelectQuestion(currentQ)}
+                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-1 transition-colors cursor-pointer"
+                  title="进入错题详情页（手写演练、查看完整批注等）"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">深入详情</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Question Title & Content */}
+          <div className="space-y-2.5">
+            <h4 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
+              {currentQ.title || '未命名题目'}
+            </h4>
+
+            {currentQ.contentType === 'image' && currentQ.content ? (
+              <div className="rounded-2xl overflow-hidden max-h-60 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+                <img src={currentQ.content} alt="题干原图" className="max-h-60 w-auto object-contain" />
+              </div>
+            ) : currentQ.content ? (
+              <div 
+                className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200/70 dark:border-slate-700/60 max-h-48 overflow-y-auto"
+                dangerouslySetInnerHTML={{ __html: renderFormattedText(currentQ.content) }}
+              />
+            ) : null}
+          </div>
+
+          {/* Answer Toggle */}
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => setShowAnswer(prev => !prev)}
+              className="text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 py-1 cursor-pointer"
+            >
+              {showAnswer ? <EyeOff className="w-3.5 h-3.5 text-blue-500" /> : <Eye className="w-3.5 h-3.5 text-blue-500" />}
+              <span>{showAnswer ? '隐藏标准解析与参考答案' : '查看标准解析与参考答案'}</span>
+            </button>
+
+            {showAnswer && (
+              <div className="mt-2 p-3.5 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/50 rounded-2xl text-xs sm:text-sm text-slate-800 dark:text-slate-200 space-y-2 animate-fade-in">
+                <span className="font-bold text-amber-800 dark:text-amber-300 block text-[11px] uppercase tracking-wider">
+                  标准答案与思路解析:
+                </span>
+                {currentQ.answerMd || currentQ.answerContent ? (
+                  <div 
+                    className="leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: renderFormattedText(currentQ.answerMd || currentQ.answerContent || '') }}
+                  />
+                ) : currentQ.answerImages && currentQ.answerImages.length > 0 ? (
+                  <div className="flex gap-2 overflow-x-auto">
+                    {currentQ.answerImages.map((img, i) => (
+                      <img key={i} src={img} alt="答案图" className="h-40 rounded-xl object-contain border" />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-400 italic text-xs">此题暂未录入文字或图片标准解析。</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* 3-Tier Review Completion Action Buttons */}
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+              <div>
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>复习完成 · 请选择掌握程度</span>
+                </span>
+                <span className="text-[11px] text-slate-400 mt-0.5 block">
+                  选择后系统将根据艾宾浩斯遗忘曲线自动排期，并自动打卡计入连续学习天数
+                </span>
+              </div>
+
+              {/* 3 Tier Buttons */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleTierReview('perfect')}
+                  className="px-3 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs hover:shadow active:scale-95 transition-all flex flex-col items-center justify-center cursor-pointer disabled:opacity-50"
+                  title={`完全掌握：${perfectPlan?.summary}`}
+                >
+                  <div className="flex items-center gap-1">
+                    <span>完全掌握</span>
+                  </div>
+                  <span className="text-[10px] opacity-90 font-mono mt-0.5">
+                    {perfectPlan?.nextDays}天后复盘
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleTierReview('good')}
+                  className="px-3 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-2xs hover:shadow active:scale-95 transition-all flex flex-col items-center justify-center cursor-pointer disabled:opacity-50"
+                  title={`基本掌握：${goodPlan?.summary}`}
+                >
+                  <div className="flex items-center gap-1">
+                    <span>基本掌握</span>
+                  </div>
+                  <span className="text-[10px] opacity-90 font-mono mt-0.5">
+                    {goodPlan?.nextDays}天后巩固
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleTierReview('unfamiliar')}
+                  className="px-3 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-2xs hover:shadow active:scale-95 transition-all flex flex-col items-center justify-center cursor-pointer disabled:opacity-50"
+                  title={`不熟悉：${unfamiliarPlan?.summary}`}
+                >
+                  <div className="flex items-center gap-1">
+                    <span>不熟悉</span>
+                  </div>
+                  <span className="text-[10px] opacity-90 font-mono mt-0.5">
+                    明天重点复查
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Feedback notification */}
+            {reviewFeedback && (
+              <div className="mt-2 px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-200 flex items-center justify-between animate-fade-in">
+                <span className="flex items-center gap-1.5 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span>{reviewFeedback}</span>
+                </span>
+                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                  连续打卡已点亮 ✓
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 text-center shadow-xs">
+          <div className="w-14 h-14 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-3 shadow-inner">
+            <CheckCircle2 className="w-7 h-7" />
+          </div>
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
+            🎉 今日待复盘错题已全部清空！
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
+            所有错题均已按艾宾浩斯遗忘曲线完成排期，今日复盘打卡已点亮。博观而约取，厚积而薄发！
+          </p>
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={onViewAllQuestions}
+              className="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+            >
+              浏览全部错题
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 2. Streak Counter & Check-in Control Dashboard */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
