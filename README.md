@@ -29,10 +29,10 @@
 | 平台 | 安装包名称 | 文件大小 | 适用设备与特性 | 直接下载链接 |
 | :--- | :--- | :--- | :--- | :--- |
 | 💻 **Windows 原生版** | `zhiwei-notebook-v1.5-windows.exe` | ~2.0 MB | **Windows 独立原生桌面软件**（双击即开、零白屏启动、自动版本比对与平滑更新） | [点击下载 EXE](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-windows.exe) |
-| 💻 **Windows 便携版** | `zhiwei-notebook-v1.5-windows-portable.zip` | ~1.2 MB | Windows 绿色免安装压缩包 | [点击下载 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-windows-portable.zip) |
-| 🤖 **Android 原生版** | `zhiwei-notebook-v1.5-android.apk` | ~3.98 MB | 安卓手机 / 安卓平板（全新矢量图标、励志启动封面、相册录题、防误触） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-android.apk) |
-| 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.5-ipad.ipa` | ~3.45 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-ipad.ipa) |
-| 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.5-ios-xcode-project.zip` | ~926 KB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-ios-xcode-project.zip) |
+| 💻 **Windows 便携版** | `zhiwei-notebook-v1.5-windows-portable.zip` | ~2.0 MB | Windows 绿色免安装压缩包 | [点击下载 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-windows-portable.zip) |
+| 🤖 **Android 原生版** | `zhiwei-notebook-v1.5-android.apk` | ~4.0 MB | 安卓手机 / 安卓平板（全新矢量图标、励志启动封面、相册录题、防误触） | [点击下载 APK](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-android.apk) |
+| 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.5-ipad.ipa` | ~4.2 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-ipad.ipa) |
+| 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.5-ios-xcode-project.zip` | ~1.8 MB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.5.0/zhiwei-notebook-v1.5-ios-xcode-project.zip) |
 | 🌐 **iPad / PC 极速版** | `启动iPad局域网极速连接.bat` | 脚本文件 | **免安装、免证书、永不过期**。iPad Safari 添加到主屏幕秒变全屏桌面 App | [查看使用步骤](#-方案二ipad-专属-pwa-桌面原生体验免签名) |
 | 💻 **本地运行脚本** | `启动错题本.bat` | 脚本文件 | 双击脚本即开，搭配本地 Node.js 极速做题 | [查看运行方法](#-windows-桌面端使用指南) |
 
@@ -40,15 +40,21 @@
 
 ## ✨ v1.5.0 重大更新亮点
 
-1. 📱 **移动端排版重构与状态栏防遮挡**：
-   - **底栏精炼升级**：移除了冗余的“全部科目”标签，底栏重构为清晰高效的四项核心入口：**「错题本」**、**「今日复盘」**、**「录题 +」** 与 全新 **「个人主页」**；
-   - **抽屉移至左上角**：将科目抽屉菜单置于移动端左上角（Hamburger Menu），随时点击随时呼出；
-   - **解决手机信息栏遮挡**：抽屉弹窗内边距自动适配移动设备 Safe-Area 顶部高度，杜绝与手机状态栏、电量、时间及前置挖孔屏冲突。
-2. 👤 **全新个人主页与系统设置中心**：
+1. 📱 **移动端顶栏去臃肿与排版重构**：
+   - **顶栏极简化设计**：彻底移除手机版左上角冗余膨胀的应用大图标与多行副标题，仅保留精致汉堡菜单按钮、当前学科名称及做题计数胶囊，视觉高度纯粹开阔；
+   - **全新 5 维底栏与学科错题分离**：
+     - 📂 **全部科目**：专用于浏览 GoodNotes 拟物学科笔记本卡片流，点击即可下钻查阅该学科错题并提供返回键；
+     - 📖 **全部错题**：专用于浏览全量错题卡片，支持未掌握/攻关中/已掌握即时状态筛选；
+     - ➕ **录题**；
+     - 🧠 **今日复盘**；
+     - 👤 **个人主页**。
+   - **解决手机信息栏遮挡**：抽屉弹窗内边距自动适配移动设备 Safe-Area 顶部安全区域，杜绝与手机状态栏、电量、时间及前置挖孔屏冲突。
+2. 👤 **全新个人主页与自定义文件存储目录**：
+   - **自定义存储目录与一键预设**：新增支持用户自由填写手机内部存储目录（如 `Download/知微错题本`、`/storage/emulated/0/...`）或电脑本地盘符目录（如 `D:\知微错题库`、`E:\我的错题本`），并提供快捷预设一键填入；
    - **用户资料自定义**：支持切换/上传个性化头像照片，自由修改用户昵称与励志座右铭；
    - **6 款专属主题配置颜色**：随时切换经典知微蓝、极客深邃紫、翡翠生机绿、暖阳落日橙、优雅蔷薇粉与沉稳曜石灰；
    - **自定义背景壁纸**：支持上传本地背景图片并自由调节 5%~50% 护眼不透明度，兼具个性美感与公式阅读舒适度；
-   - **存储位置与数据备份**：清晰展示当前设备存储路径（Android 沙盒 / Windows 本地目录），支持一键导出 JSON 全量题库备份与导入恢复。
+   - **数据备份与恢复**：支持一键导出包含自定义目录提示的 JSON 全量题库备份与导入恢复。
 3. 📑 **错题录入支持上传 PDF 试卷与可选标准答案**：
    - **原题支持 PDF 讲义/试卷**：除拍照与 Markdown 外，新增支持上传整页 PDF，可在详情页多页翻阅并手写批注；
    - **新增参考答案录入（可选）**：录题时可自由选择是否填写标准答案，支持文字解析、答案拍照与答案 PDF 附件。
