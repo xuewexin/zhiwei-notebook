@@ -38,7 +38,6 @@ import { ReviewSessionView } from './components/ReviewSessionView';
 import { reviewService, ReviewSettings } from './services/reviewService';
 import { checkForUpdates, UpdateInfo, CURRENT_VERSION } from './services/updateService';
 import { settingsService, ThemeColorKey, BackgroundConfig, UserProfile, THEME_PALETTES } from './services/settingsService';
-import { INITIAL_STARTER_QUESTIONS } from './api/localStorageEngine';
 
 export const App: React.FC = () => {
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -58,13 +57,12 @@ export const App: React.FC = () => {
     try {
       const qId = new URLSearchParams(window.location.search).get('question');
       if (qId) {
-        const raw = localStorage.getItem('zhiwei_questions_pure_v1');
+        const raw = localStorage.getItem('zhiwei_questions_clean_v2');
         if (raw) {
           const qs = JSON.parse(raw);
           const found = qs.find((item: any) => item.id === qId);
           if (found) return found;
         }
-        return INITIAL_STARTER_QUESTIONS.find(item => item.id === qId) || null;
       }
     } catch {}
     return null;

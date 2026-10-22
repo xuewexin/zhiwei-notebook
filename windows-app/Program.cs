@@ -114,7 +114,7 @@ public class MainForm : Form
             string userDataFolder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "ZhiWeiNote",
-                "WebView2Data"
+                "WebView2Data_Clean"
             );
             Directory.CreateDirectory(userDataFolder);
 

@@ -249,6 +249,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             <div className="space-y-0.5">
+              {rootFolders.length === 0 && (
+                <div className="px-3 py-3 text-center text-[11px] text-slate-400 dark:text-slate-500">
+                  暂无分类，可在主界面新建
+                </div>
+              )}
               {rootFolders.map((rf) => {
                 const isSelected = currentFolderId === rf.id;
                 const subCount = (folders || []).filter(f => f.parentId === rf.id).length;
