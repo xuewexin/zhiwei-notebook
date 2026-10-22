@@ -19,6 +19,7 @@ import {
   AlertCircle 
 } from 'lucide-react';
 import { Question, Folder, Attempt } from '../types';
+import { api } from '../api/client';
 import { reviewService, ReviewTier, REVIEW_TIERS, TodayReviewRecord } from '../services/reviewService';
 import { checkinService } from '../services/checkinService';
 import { ThemeConfig } from '../services/settingsService';
@@ -175,7 +176,7 @@ export const ReviewSessionView: React.FC<ReviewSessionViewProps> = ({
         drawingPages: ['']
       };
       const updatedAttempts = [...(currentQ.attempts || []), newAttempt];
-      const updatedQ = { ...currentQ, attempts: updatedAttempts };
+      const updatedQ = await api.updateQuestion(currentQ.id, { attempts: updatedAttempts });
       onQuestionUpdated(updatedQ);
       showToast(`已成功保存做题记录（耗时 ${formatTimerSeconds(elapsedSeconds)}）`, 'success');
     } catch (e) {

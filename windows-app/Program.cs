@@ -149,13 +149,17 @@ public class MainForm : Form
             string bundleDir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "ZhiWeiNote",
-                "Bundle_v168"
+                "Bundle_v169"
             );
 
             string distPath = "";
 
             try
             {
+                if (Directory.Exists(bundleDir))
+                {
+                    try { Directory.Delete(bundleDir, true); } catch {}
+                }
                 Directory.CreateDirectory(bundleDir);
                 using var stream = typeof(Program).Assembly.GetManifestResourceStream("ZhiWeiNote.dist.zip");
                 if (stream != null)

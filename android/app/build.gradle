@@ -22,6 +22,8 @@ android {
             storePassword 'zhiwei123456'
             keyAlias 'zhiwei'
             keyPassword 'zhiwei123456'
+            v1SigningEnabled true
+            v2SigningEnabled true
         }
     }
     buildTypes {

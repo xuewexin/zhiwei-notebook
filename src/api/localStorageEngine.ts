@@ -77,32 +77,17 @@ export const INITIAL_STARTER_QUESTIONS: Question[] = [
     title: "求未定式极限 $\\lim_{x \\to 0} \\frac{x - \\sin x}{x^3}$ 并给出泰勒级数与洛必达证明",
     source: "2026 全国硕士研究生统一招生考试 · 数学一",
     difficulty: 4,
-    mastery: "reviewing",
+    mastery: "unmastered",
     tags: ["极限与连续", "泰勒展开", "麦克劳林级数", "洛必达法则"],
     contentType: "text",
     content: "### 题目描述\n\n求极限：\n$$\\lim_{x \\to 0} \\frac{x - \\sin x}{x^3}$$\n\n试分别采用 **麦克劳林展开（泰勒公式）** 与 **洛必达法则** 求解，并说明在什么情况下泰勒展开显著优于洛必达法则。",
     standardAnswer: "### 标准解析\n\n#### 方法一：泰勒公式（麦克劳林展开，推荐）\n根据已知常用展开式：\n$$\\sin x = x - \\frac{x^3}{3!} + \\frac{x^5}{5!} + o(x^5) = x - \\frac{x^3}{6} + o(x^3)$$\n\n代入原式：\n$$\\lim_{x \\to 0} \\frac{x - \\left(x - \\frac{x^3}{6} + o(x^3)\\right)}{x^3} = \\lim_{x \\to 0} \\frac{\\frac{x^3}{6} + o(x^3)}{x^3} = \\frac{1}{6}$$\n\n#### 方法二：洛必达法则\n原式为 $\\frac{0}{0}$ 型未定式，连续求导三次：\n$$\\lim_{x \\to 0} \\frac{x - \\sin x}{x^3} = \\lim_{x \\to 0} \\frac{1 - \\cos x}{3x^2} = \\lim_{x \\to 0} \\frac{\\sin x}{6x} = \\frac{1}{6}$$",
     reflectionContent: "### 解题心得与错因反思\n1. **核心突破口**：遇到形如 $x - \\sin x$ 或 $x - \\tan x$ 的相消项，洛必达法则需连续多次求导容易算错，而直接展开到分母阶数（3阶）一步到位！\n2. **考点警示**：注意展开时精度必须一致，分母为 $x^3$，分子必须展开至 $x^3$ 项！",
     errorCauses: ["公式遗忘", "审题失误"],
-    attempts: [
-      {
-        id: "att-1",
-        date: new Date(Date.now() - 3 * 86400000).toISOString(),
-        result: "wrong",
-        timeSpentMinutes: 8,
-        note: "第一次做只展开到了1阶，误以为是 0！"
-      },
-      {
-        id: "att-2",
-        date: new Date().toISOString(),
-        result: "correct",
-        timeSpentMinutes: 4,
-        note: "复习后熟练运用麦克劳林展开，4分钟完整写出步骤得分。"
-      }
-    ],
+    attempts: [],
     nextReviewDate: new Date().toISOString(),
-    reviewStage: 2,
-    createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+    reviewStage: 0,
+    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -120,8 +105,8 @@ export const INITIAL_STARTER_QUESTIONS: Question[] = [
     errorCauses: ["知识盲区", "计算失误"],
     attempts: [],
     nextReviewDate: new Date().toISOString(),
-    reviewStage: 1,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
+    reviewStage: 0,
+    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -130,25 +115,17 @@ export const INITIAL_STARTER_QUESTIONS: Question[] = [
     title: "最长递增子序列（LIS）二分查找优化 $O(N \\log N)$ 状态转移",
     source: "LeetCode 300 / 考研计算机 408 算法真题",
     difficulty: 4,
-    mastery: "mastered",
+    mastery: "unmastered",
     tags: ["动态规划", "贪心算法", "二分查找", "408统考"],
     contentType: "text",
     content: "### 题目描述\n\n给你一个整数数组 `nums`，找到其中最长严格递增子序列的长度。\n\n请分析普通动态规划 $O(N^2)$ 与耐人寻味的贪心+二分优化 $O(N \\log N)$ 的状态转移设计。",
     standardAnswer: "### 核心算法实现\n\n```python\nclass Solution:\n    def lengthOfLIS(self, nums: list[int]) -> int:\n        tails = []\n        for x in nums:\n            i, j = 0, len(tails)\n            while i < j:\n                m = (i + j) // 2\n                if tails[m] < x:\n                    i = m + 1\n                else:\n                    j = m\n            if i == len(tails):\n                tails.append(x)\n            else:\n                tails[i] = x\n        return len(tails)\n```",
     reflectionContent: "维护 tails[k] 表示长度为 k+1 的所有递增子序列中最小的末尾元素。贪心策略：末尾元素越小，后续越容易接上更大的数！",
     errorCauses: ["思维定势"],
-    attempts: [
-      {
-        id: "att-3",
-        date: new Date().toISOString(),
-        result: "correct",
-        timeSpentMinutes: 5,
-        note: "二分查找边界开闭区间处理得当，一次 AC。"
-      }
-    ],
-    nextReviewDate: new Date(Date.now() + 7 * 86400000).toISOString(),
-    reviewStage: 4,
-    createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+    attempts: [],
+    nextReviewDate: new Date().toISOString(),
+    reviewStage: 0,
+    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }
 ];

@@ -85,22 +85,6 @@ export const checkinService = {
       let dates: string[] = raw ? JSON.parse(raw) : [];
       if (!Array.isArray(dates)) dates = [];
 
-      // Seed with some recent learning dates if brand new so user sees lively data immediately
-      if (dates.length === 0) {
-        dates = [];
-        for (let i = 0; i < 6; i++) {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          dates.push(formatDateKey(d));
-        }
-        for (const offset of [8, 10, 13, 16]) {
-          const d = new Date();
-          d.setDate(d.getDate() - offset);
-          dates.push(formatDateKey(d));
-        }
-        localStorage.setItem(STORAGE_KEY_CHECKINS, JSON.stringify(dates));
-      }
-
       const dateSet = new Set(dates);
       const todayStr = formatDateKey(new Date());
       const isTodayCheckedIn = dateSet.has(todayStr);
@@ -115,11 +99,11 @@ export const checkinService = {
       };
     } catch {
       return {
-        dates: [formatDateKey()],
-        currentStreak: 1,
-        maxStreak: 1,
-        totalDays: 1,
-        isTodayCheckedIn: true
+        dates: [],
+        currentStreak: 0,
+        maxStreak: 0,
+        totalDays: 0,
+        isTodayCheckedIn: false
       };
     }
   },
