@@ -41,7 +41,7 @@ public class MainForm : Form
 
     private void InitializeComponents()
     {
-        Text = "知微错题本 - 见微知著 · 省思改错";
+        Text = "知微错题 - 见微知著 · 省思改错";
         Size = new Size(1360, 860);
         MinimumSize = new Size(860, 600);
         StartPosition = FormStartPosition.CenterScreen;
@@ -210,7 +210,7 @@ public class MainForm : Form
         {
             MessageBox.Show(
                 $"启动 WebView2 失败: {ex.Message}\n请确保已安装 Microsoft Edge WebView2 Runtime。",
-                "知微错题本",
+                "知微错题",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error
             );
@@ -236,7 +236,7 @@ public class NativeHostBridge
             _parent.Invoke(new Action(() =>
             {
                 using var dialog = new FolderBrowserDialog();
-                dialog.Description = "请选择知微错题本的数据与备份存放目录";
+                dialog.Description = "请选择知微错题的数据与备份存放目录";
                 dialog.UseDescriptionForTitle = true;
                 dialog.ShowNewFolderButton = true;
                 if (!string.IsNullOrEmpty(initialPath) && Directory.Exists(initialPath))

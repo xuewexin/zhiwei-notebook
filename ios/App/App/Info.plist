@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>知微错题本</string>
+        <string>知微错题</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -67,7 +67,7 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>用于拍摄纸质错题原题并保存到知微错题本</string>
+	<string>用于拍摄纸质错题原题并保存到知微错题</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>用于选择相册中的题目截图或草稿图片</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

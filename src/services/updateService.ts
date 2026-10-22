@@ -124,7 +124,7 @@ export async function checkForUpdates(options: { checkIgnored?: boolean } = {}):
       hasUpdate,
       currentVersion: CURRENT_VERSION,
       latestVersion: cleanLatest,
-      releaseName: data.name || `知微错题本 v${cleanLatest}`,
+      releaseName: data.name || `知微错题 v${cleanLatest}`,
       releaseNotes: data.body || '包含多项体验优化与功能更新。',
       publishedAt: data.published_at || '',
       htmlUrl: data.html_url || `https://github.com/${GITHUB_REPO}/releases`,

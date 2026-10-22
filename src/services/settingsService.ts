@@ -230,7 +230,7 @@ export const DEFAULT_BG: BackgroundConfig = {
 export const DEFAULT_STORAGE_PATH: StoragePathConfig = {
   customDirectory: typeof navigator !== 'undefined' && /win/i.test(navigator.userAgent || '')
     ? 'D:\\知微错题库'
-    : 'Download/知微错题本',
+    : 'Download/知微错题',
   autoBackup: true
 };
 

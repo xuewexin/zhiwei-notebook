@@ -1,6 +1,6 @@
 {
   "appId": "com.zhiwei.notebook",
-  "appName": "知微错题本",
+  "appName": "知微错题",
   "webDir": "dist",
   "server": {
     "androidScheme": "https",

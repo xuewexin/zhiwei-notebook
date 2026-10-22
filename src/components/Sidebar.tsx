@@ -107,12 +107,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex items-center gap-2.5">
               <img 
                 src="/app-icon.png" 
-                alt="知微错题本" 
+                alt="知微错题" 
                 className="w-9 h-9 rounded-2xl shadow-md shrink-0 object-cover" 
               />
               <div>
                 <h1 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                  知微错题本
+                  知微错题
                 </h1>
                 <p className="text-[10px] text-slate-400 font-medium">
                   见微知著 · 墨迹批注 · 艾宾浩斯复盘

@@ -1,8 +1,8 @@
 <div align="center">
 
-  <img src="docs/images/app-icon.jpg" alt="知微错题本 App Icon" width="120" height="120" style="border-radius: 26px; box-shadow: 0 10px 30px rgba(30,86,160,0.22); margin-bottom: 16px;" />
+  <img src="docs/images/app-icon.jpg" alt="知微错题 App Icon" width="120" height="120" style="border-radius: 26px; box-shadow: 0 10px 30px rgba(30,86,160,0.22); margin-bottom: 16px;" />
 
-  # 知微错题本 (ZhiWei Note)
+  # 知微错题 (ZhiWei Note)
   
   **见微知著 · 省思改错 · 本地优先 · 登峰造极**
 
@@ -42,7 +42,7 @@
 | 🍎 **iPadOS / iOS** | `zhiwei-notebook-v1.6.9-ipad.ipa` | ~3.4 MB | iPad 全系列 / iPhone（原生 ARM64 编译，支持爱思助手/巨魔商店免费侧载） | [点击下载 IPA](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.9/zhiwei-notebook-v1.6.9-ipad.ipa) |
 | 🍎 **iPad 原生工程** | `zhiwei-notebook-v1.6.9-ios-xcode-project.zip` | ~1.8 MB | 包含完整 Xcode 工程源码，可在 Mac 电脑直接打开真机编译调试 | [点击下载工程 ZIP](https://github.com/xuewexin/zhiwei-notebook/releases/download/v1.6.9/zhiwei-notebook-v1.6.9-ios-xcode-project.zip) |
 | 🌐 **iPad / PC 局域网版** | `启动iPad局域网极速连接.bat` | 脚本文件 | **免安装、免证书、永不过期**。iPad Safari 添加到主屏幕秒变全屏桌面 App | [查看使用步骤](#-方案二ipad-专属-pwa-桌面原生体验免签名) |
-| 💻 **本地运行脚本** | `启动错题本.bat` | 脚本文件 | 双击脚本即开，搭配本地 Node.js 极速做题 | [查看运行方法](#-windows-桌面端使用指南) |
+| 💻 **本地运行脚本** | `启动知微错题.bat` | 脚本文件 | 双击脚本即开，搭配本地 Node.js 极速做题 | [查看运行方法](#-windows-桌面端使用指南) |
 
 ---
 
@@ -99,21 +99,21 @@
 ### 💻 宽屏桌面端与 iPad 平板大屏视图
 *拟物化 GoodNotes 学科封面、多级目录折叠导航、搜索与 Git 状态面板*
 
-<img src="docs/images/desktop-showcase.png" alt="知微错题本桌面与平板视图" width="96%" style="border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 12px 36px rgba(0,0,0,0.06); margin-bottom: 24px;" />
+<img src="docs/images/desktop-showcase.png" alt="知微错题桌面与平板视图" width="96%" style="border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 12px 36px rgba(0,0,0,0.06); margin-bottom: 24px;" />
 
 ---
 
 ### 📖 错题精细研读与多模态复盘视图
 *标准解析折叠防剧透、LaTeX 数学公式秒级渲染、历次演练做题记录与解题心得*
 
-<img src="docs/images/desktop-detail-view.png" alt="知微错题本错题精细研读视图" width="96%" style="border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 12px 36px rgba(0,0,0,0.06); margin-bottom: 24px;" />
+<img src="docs/images/desktop-detail-view.png" alt="知微错题错题精细研读视图" width="96%" style="border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 12px 36px rgba(0,0,0,0.06); margin-bottom: 24px;" />
 
 ---
 
 ### 📅 艾宾浩斯复盘计划与连续打卡日历
 *连续学习天数（Streak）徽章、历史最长连击、累计研习统计与月度足迹日历*
 
-<img src="docs/images/review-showcase.png" alt="知微错题本复盘与打卡日历" width="96%" style="border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 12px 36px rgba(0,0,0,0.06); margin-bottom: 24px;" />
+<img src="docs/images/review-showcase.png" alt="知微错题复盘与打卡日历" width="96%" style="border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 12px 36px rgba(0,0,0,0.06); margin-bottom: 24px;" />
 
 ---
 
@@ -127,7 +127,7 @@
 ### 🔄 三端互通与 Git 仓库同步拓扑
 *Windows 电脑、Android 手机与 iPad 平板依托 Gitee / GitHub 私有仓库双向漫游*
 
-<img src="docs/images/sync-tutorial-diagram.png" alt="知微错题本三端互通架构图" width="96%" style="border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 12px 36px rgba(0,0,0,0.06); margin-bottom: 12px;" />
+<img src="docs/images/sync-tutorial-diagram.png" alt="知微错题三端互通架构图" width="96%" style="border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 12px 36px rgba(0,0,0,0.06); margin-bottom: 12px;" />
 
 </div>
 
@@ -167,7 +167,7 @@
 2. 直接双击打开即可运行！无需安装任何额外环境，独立桌面窗口、无浏览器地址栏干扰，内嵌高精度手写与本地数据引擎。
 
 #### 方式二：一键批处理脚本启动
-直接双击项目根目录下的 **`启动错题本.bat`**，系统将自动拉起本地数据存储服务与浏览器前端界面！
+直接双击项目根目录下的 **`启动知微错题.bat`**，系统将自动拉起本地数据存储服务与浏览器前端界面！
 
 #### 方式三：开发者源码启动
 ```bash
@@ -190,7 +190,7 @@ npm run build
 ## 🛠️ 技术架构
 
 ```
-知微错题本 (ZhiWei Note)
+知微错题 (ZhiWei Note)
 ├── Web / UI 层: React 19 + TypeScript + Vite + TailwindCSS 4
 ├── 数学与代码引擎: KaTeX + PrismJS + Marked
 ├── 笔迹演练引擎: PointerEvent + Pressure Sensitivity + Palm Rejection

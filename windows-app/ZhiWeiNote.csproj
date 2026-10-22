@@ -6,12 +6,12 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>app.ico</ApplicationIcon>
-    <AssemblyName>知微错题本</AssemblyName>
+    <AssemblyName>知微错题</AssemblyName>
     <RootNamespace>ZhiWeiNote</RootNamespace>
     <Version>1.6.9</Version>
     <Authors>xuewexin</Authors>
     <Company>知微工作室</Company>
-    <Product>知微错题本 (ZhiWei Note)</Product>
+    <Product>知微错题 (ZhiWei Note)</Product>
     <Description>跨平台本地优先智能错题管理与深度复盘系统</Description>
     <PublishSingleFile>true</PublishSingleFile>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>

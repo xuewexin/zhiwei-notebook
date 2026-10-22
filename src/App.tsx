@@ -345,7 +345,7 @@ export const App: React.FC = () => {
           CapApp?.exitApp?.();
         } else {
           lastBackPress = now;
-          setSyncNotice('再按一次返回键退出知微错题本');
+          setSyncNotice('再按一次返回键退出知微错题');
           setTimeout(() => setSyncNotice(null), 2000);
         }
       });

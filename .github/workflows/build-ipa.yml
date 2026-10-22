@@ -50,12 +50,12 @@ jobs:
           echo "Found app at: $APP_PATH"
           cp -r "$APP_PATH" build/Payload/
           cd build
-          zip -r "知微错题本_iPad_v1.4.ipa" Payload
-          ls -lh "知微错题本_iPad_v1.4.ipa"
+          zip -r "知微错题_iPad_v1.4.ipa" Payload
+          ls -lh "知微错题_iPad_v1.4.ipa"
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: 知微错题本_iPad_v1.4_IPA
-          path: build/知微错题本_iPad_v1.4.ipa
+          name: 知微错题_iPad_v1.4_IPA
+          path: build/知微错题_iPad_v1.4.ipa
           retention-days: 30

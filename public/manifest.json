@@ -1,6 +1,6 @@
 {
-  "name": "知微错题本",
-  "short_name": "知微错题本",
+  "name": "知微错题",
+  "short_name": "知微错题",
   "description": "专业级跨平台错题本 - 见微知著，省思改错",
   "start_url": "/",
   "display": "standalone",

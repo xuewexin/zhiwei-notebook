@@ -337,7 +337,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   // Share Application
   const handleShareApp = async () => {
     const shareData = {
-      title: '知微错题本 (ZhiWei Note) - 跨平台本地优先错题复盘神器',
+      title: '知微错题 (ZhiWei Note) - 跨平台本地优先错题复盘神器',
       text: '推荐给你这款超棒的错题本应用！支持iPad/Apple Pencil手写演练、艾宾浩斯复盘算法、LaTeX与代码排版，本地优先且支持 Git 多端同步，完全免费纯净：',
       url: 'https://github.com/xuewexin/zhiwei-notebook'
     };
@@ -345,7 +345,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
     if (navigator.share) {
       try {
         await navigator.share(shareData);
-        setShareNotice('分享成功！感谢支持知微错题本');
+        setShareNotice('分享成功！感谢支持知微错题');
         setTimeout(() => setShareNotice(null), 3000);
         return;
       } catch {}
@@ -433,7 +433,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `知微错题本_题库备份_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `知微错题_题库备份_${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -833,7 +833,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                     type="text"
                     value={customDirInput}
                     onChange={(e) => setCustomDirInput(e.target.value)}
-                    placeholder={isNativePlatform ? '例如: Download/知微错题本' : '例如: D:\\知微错题本数据'}
+                    placeholder={isNativePlatform ? '例如: Download/知微错题' : '例如: D:\\知微错题数据'}
                     className="w-full text-xs pl-9 pr-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 font-mono focus:outline-none focus:ring-1 font-medium"
                     style={{ outlineColor: currentTheme.primary }}
                   />
@@ -1059,7 +1059,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                 <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed pl-7 space-y-1">
                   <p>• 点击 Gitee 页面右上角个人头像 ➔ 进入<b>「设置」</b>；</p>
                   <p>• 在左侧菜单中找到<b>「安全设置」➔ 点击「私人令牌」</b>；</p>
-                  <p>• 点击右上角<b>「+ 生成新令牌」</b>，描述可填写“知微错题本同步”；</p>
+                  <p>• 点击右上角<b>「+ 生成新令牌」</b>，描述可填写“知微错题同步”；</p>
                   <p>• 权限仅需勾选 <b><code className="px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-mono text-amber-700 dark:text-amber-300 font-bold">projects</code></b>（仓库读写操作）；</p>
                   <p className="font-semibold text-amber-700 dark:text-amber-300">
                     • 点击提交并输入账号密码，生成后立即完整复制 Token 字符串并妥善保存备用。
@@ -1093,7 +1093,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                   <p>• 填写您的用户名与第 2 步复制的 Token，点击<b>「保存配置」并点击「立即同步」</b>；</p>
                   <p>• 首次同步会自动建立云端主分支并上传题库；</p>
                   <p className="font-semibold text-emerald-700 dark:text-emerald-400">
-                    • 接着在您的手机、iPad 或其他电脑上打开知微错题本，填入完全相同的仓库地址与 Token，点击同步即可瞬间完成题库与手写推导漫游！
+                    • 接着在您的手机、iPad 或其他电脑上打开知微错题，填入完全相同的仓库地址与 Token，点击同步即可瞬间完成题库与手写推导漫游！
                   </p>
                 </div>
               </div>
@@ -1297,7 +1297,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
       </div>
 
       {/* ============================================================== */}
-      {/* Collapsible Section 5: 关于知微错题本与更新 (Default Collapsed) */}
+      {/* Collapsible Section 5: 关于知微错题与更新 (Default Collapsed) */}
       {/* ============================================================== */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         <button
@@ -1311,7 +1311,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <span>关于知微错题本</span>
+                <span>关于知微错题</span>
                 <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 font-semibold text-slate-600 dark:text-slate-300">
                   v{CURRENT_VERSION}
                 </span>
@@ -1331,7 +1331,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
             <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2 text-xs">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-slate-600 dark:text-slate-400">应用软件名称:</span>
-                <span className="font-bold text-slate-800 dark:text-slate-100">知微错题本 (ZhiWei Note)</span>
+                <span className="font-bold text-slate-800 dark:text-slate-100">知微错题 (ZhiWei Note)</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-slate-600 dark:text-slate-400">当前已安装版本:</span>
@@ -1431,7 +1431,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                 </button>
 
                 <a
-                  href="mailto:2792893068@qq.com?subject=【知微错题本】使用反馈与建议"
+                  href="mailto:2792893068@qq.com?subject=【知微错题】使用反馈与建议"
                   className="flex items-center gap-1.5 px-4 py-2 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
                   style={{ backgroundColor: currentTheme.primary }}
                 >

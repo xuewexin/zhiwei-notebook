@@ -14,7 +14,7 @@ ax.set_ylim(0, 780)
 ax.axis('off')
 
 # 1. Header
-ax.text(600, 740, "知微错题本 · 三端互通与 Git 云端同步架构", 
+ax.text(600, 740, "知微错题 · 三端互通与 Git 云端同步架构", 
         fontsize=22, fontweight='bold', color='#0f172a', ha='center', va='center')
 ax.text(600, 708, "无需中间收费服务器 · 依托 Gitee (码云) / GitHub 免费私有仓库 · 数据 100% 掌握在自己手中", 
         fontsize=11.5, color='#64748b', ha='center', va='center')
