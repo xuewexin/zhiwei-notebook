@@ -61,6 +61,7 @@ interface UserProfileViewProps {
   onProfileUpdated?: (profile: UserProfile) => void;
   onBackgroundUpdated?: (bg: BackgroundConfig) => void;
   onThemeUpdated?: (theme: ThemeColorKey) => void;
+  onOpenTutorial?: () => void;
 }
 
 // Compress wallpaper image via Canvas to fit strictly within LocalStorage limits (~150KB)
@@ -143,7 +144,8 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
   onBackToQuestions,
   onProfileUpdated,
   onBackgroundUpdated,
-  onThemeUpdated
+  onThemeUpdated,
+  onOpenTutorial
 }) => {
   const [profile, setProfile] = useState<UserProfile>(settingsService.getProfile());
   const [themeKey, setThemeKey] = useState<ThemeColorKey>(settingsService.getThemeColor());
@@ -1364,6 +1366,37 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({
                 <span>检测最新版本 (比对官方 Release)</span>
               </button>
             </div>
+
+            {onOpenTutorial && (
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={onOpenTutorial}
+                  className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 transition-all cursor-pointer group shadow-2xs"
+                >
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-2xs"
+                      style={{ backgroundColor: `${currentTheme.primary}18`, color: currentTheme.primary }}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div className="text-left">
+                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 transition-colors flex items-center gap-1.5">
+                        <span>新手使用指南 (滑动轮播教程)</span>
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+                          快速上手
+                        </span>
+                      </h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        随时重温学科分类、拍照录题、艾宾浩斯复盘与三端同步核心用法
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors shrink-0" />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

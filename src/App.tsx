@@ -35,6 +35,7 @@ import { UpdateModal } from './components/UpdateModal';
 import { UserProfileView } from './components/UserProfileView';
 import { ReviewCheckinView } from './components/ReviewCheckinView';
 import { ReviewSessionView } from './components/ReviewSessionView';
+import { OnboardingTutorialModal, ONBOARDING_STORAGE_KEY } from './components/OnboardingTutorialModal';
 import { reviewService, ReviewSettings } from './services/reviewService';
 import { checkForUpdates, UpdateInfo, CURRENT_VERSION } from './services/updateService';
 import { settingsService, ThemeColorKey, BackgroundConfig, UserProfile, THEME_PALETTES } from './services/settingsService';
@@ -112,6 +113,13 @@ export const App: React.FC = () => {
   const [syncNotice, setSyncNotice] = useState<string | null>(null);
 
   // Modals
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(() => {
+    try {
+      return !localStorage.getItem(ONBOARDING_STORAGE_KEY);
+    } catch {
+      return false;
+    }
+  });
   const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
   const [isGitModalOpen, setIsGitModalOpen] = useState(false);
   const [viewerImageUrl, setViewerImageUrl] = useState<string | null>(null);
@@ -291,6 +299,14 @@ export const App: React.FC = () => {
     try {
       if (CapApp?.addListener) {
         backHandler = CapApp.addListener('backButton', () => {
+        // Priority 0: Close Onboarding Tutorial Modal
+        if (isOnboardingOpen) {
+          setIsOnboardingOpen(false);
+          try {
+            localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+          } catch {}
+          return;
+        }
         // Priority 1: Close lightbox image viewer
         if (viewerImageUrl) {
           setViewerImageUrl(null);
@@ -357,7 +373,7 @@ export const App: React.FC = () => {
         backHandler.remove();
       }
     };
-  }, [viewerImageUrl, isQuestionModalOpen, isGitModalOpen, isMobileSidebarOpen, isMobileSearchOpen, selectedQuestion, isReviewOnly, currentFolderId]);
+  }, [isOnboardingOpen, viewerImageUrl, isQuestionModalOpen, isGitModalOpen, isMobileSidebarOpen, isMobileSearchOpen, selectedQuestion, isReviewOnly, currentFolderId]);
 
   const loadFolders = async () => {
     try {
@@ -860,6 +876,7 @@ export const App: React.FC = () => {
               onProfileUpdated={(p) => setUserProfile(p)}
               onBackgroundUpdated={(bg) => setBgConfig(bg)}
               onThemeUpdated={(t) => setThemeKey(t)}
+              onOpenTutorial={() => setIsOnboardingOpen(true)}
             />
           ) : isReviewSessionActive ? (
             <ReviewSessionView
@@ -1118,6 +1135,13 @@ export const App: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* 6. Onboarding Swiping Tutorial Modal (First launch only) */}
+      <OnboardingTutorialModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        currentTheme={currentTheme}
+      />
     </div>
   );
 };
